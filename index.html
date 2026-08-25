@@ -1,21 +1,4 @@
 <!-- Chosen Palette: Deep Puspendik Blue (#1e3a8a, #2563eb), Golden Amber (#f59e0b), Soft Slate (#f1f5f9) -->
-<!-- Application Structure Plan:
-  1. Modern, Single Page Responsive CBT Web Application connected dynamically to Google Apps Script (Spreadsheet backend).
-  2. Persistent Top Configuration Header with live Spreadsheet Status, GAS WebApp URL modal connector, TA & Semester Badge, and active token ticker.
-  3. Seamless interactive views:
-     - Login View (Real-time student/admin authentication via Google Sheets).
-     - Student Verification View (Identity check + Dynamic CBT Security Token).
-     - Exam Workspace View (Interactive Question Engine, Timer, Question Navigation Palette, Bookmark Ragu-ragu, Dynamic Score Submission to Sheets).
-     - Admin Dashboard (Overview KPI, Live Dynamic Token, Siswa CRUD, Kartu Ujian Print, Kelas CRUD, Mapel CRUD, Bank Soal Builder, Jadwal Ujian, Rekapitulasi Hasil Ujian with PDF Print, Pengaturan Lembaga).
-  4. Robust API Fetch Handler supporting both live Spreadsheet WebApp deployment URL and fallback offline preview mode.
--->
-<!-- Visualization & Content Choices:
-  - Header & Cards: Styled HTML/Tailwind CSS with visual badges and FontAwesome icons.
-  - CBT Navigation Palette: CSS Dynamic Grid representing question status (Answered, Doubtful, Unanswered).
-  - Print Templates: Printable Kartu Ujian and Rekapitulasi Hasil Ujian formatted with CSS print media queries.
--->
-<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -86,22 +69,16 @@
             position: relative;
             overflow: hidden;
         }
-        .puspendik-bg::before {
-            content: ""; position: absolute; top: -50px; left: -50px; width: 250px; height: 250px;
-            background: rgba(255, 255, 255, 0.08); transform: rotate(45deg); pointer-events: none;
-        }
-        .puspendik-bg::after {
-            content: ""; position: absolute; bottom: -80px; right: -80px; width: 350px; height: 350px;
-            background: rgba(255, 255, 255, 0.05); transform: rotate(30deg); pointer-events: none;
-        }
     </style>
 </head>
 <body>
+    <div style="display:none;" id="blogger-thumbnail">
+        <img src="https://placehold.co/600x400/1e40af/ffffff?text=Exambrowser+WebApp+CBT" alt="Thumbnail" />
+    </div>
+
     <div id="app" class="min-h-screen flex flex-col">
-        <!-- Toast Notification Container -->
         <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-        <!-- Dynamic Header -->
         <header id="main-header" class="bg-brand-800 text-white shadow-md sticky top-0 z-40 transition-all duration-300 hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
@@ -109,7 +86,7 @@
                         <i class="fa-solid fa-bars text-xl"></i>
                     </button>
                     <div class="bg-white/10 p-2 rounded-xl border border-white/20 backdrop-blur-sm">
-                        <img id="header-logo-img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png" class="w-7 h-7 object-contain" alt="Logo">
+                        <img id="header-logo-img" src="" class="w-7 h-7 object-contain" alt="Logo">
                     </div>
                     <div>
                         <h1 class="font-bold text-base leading-none tracking-tight uppercase" id="app-title">PUSPENDIK</h1>
@@ -117,10 +94,10 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button onclick="openModalGasUrl()" id="status-backend-btn" class="flex items-center gap-2 bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-3 py-1 rounded-full text-xs font-semibold hover:bg-emerald-500/30 transition-all">
+                    <div id="status-backend-btn" class="flex items-center gap-2 bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-3 py-1 rounded-full text-xs font-semibold">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                         <span id="backend-status-text">Spreadsheet Terhubung</span>
-                    </button>
+                    </div>
 
                     <div class="hidden sm:flex items-center gap-2 bg-brand-900/80 px-3 py-1 rounded-lg text-xs font-semibold text-yellow-300 border border-brand-700">
                         <i class="fa-solid fa-calendar-check"></i>
@@ -144,7 +121,7 @@
             <section id="view-login" class="min-h-screen sm:min-h-[85vh] flex flex-col justify-start sm:justify-center items-center relative">
                 <div class="w-full puspendik-bg h-64 sm:h-72 flex flex-col items-center justify-start pt-8 sm:pt-10 text-white text-center shadow-lg">
                     <div class="flex items-center justify-center gap-4 px-4">
-                        <img id="login-logo-display" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png" class="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-md bg-white/10 p-1.5 rounded-2xl border border-white/20" alt="Logo">
+                        <img id="login-logo-display" src="" class="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-md bg-white/10 p-1.5 rounded-2xl border border-white/20" alt="Logo">
                         <div class="text-left">
                             <h2 id="login-school-name" class="text-2xl sm:text-3xl font-extrabold tracking-wider leading-none text-white drop-shadow">PUSPENDIK</h2>
                             <p id="login-app-subtitle" class="text-sm sm:text-base text-blue-100 font-medium tracking-widest mt-0.5">CBT Application</p>
@@ -153,14 +130,9 @@
                 </div>
                 <div class="w-full max-w-md px-4 -mt-24 sm:-mt-28 mb-8 z-10">
                     <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 p-8 space-y-6">
-                        <div class="flex justify-between items-center border-b pb-3">
-                            <div>
-                                <h3 class="text-2xl font-bold text-slate-700">Selamat Datang</h3>
-                                <p class="text-xs text-slate-400 font-medium">Masuk untuk memulai ujian CBT</p>
-                            </div>
-                            <button onclick="openModalGasUrl()" title="Pengaturan URL WebApp GAS" class="text-brand-600 hover:text-brand-800 bg-brand-50 p-2.5 rounded-xl border border-brand-100 transition-all">
-                                <i class="fa-solid fa-link text-lg"></i>
-                            </button>
+                        <div class="space-y-1">
+                            <h3 class="text-2xl font-bold text-slate-700">Selamat Datang</h3>
+                            <p class="text-xs text-slate-400 font-medium">Masuk untuk memulai ujian CBT</p>
                         </div>
                         <form id="form-login" onsubmit="event.preventDefault(); processLogin();" class="space-y-5">
                             <div class="relative group">
@@ -186,10 +158,6 @@
                                 </button>
                             </div>
                         </form>
-                        <div class="p-3 bg-amber-50 rounded-2xl text-[11px] text-amber-800 space-y-1 border border-amber-200">
-                            <p class="font-bold border-b border-amber-200 pb-1 mb-1"><i class="fa-solid fa-circle-info"></i> Info Koneksi Spreadsheet:</p>
-                            <p>Pastikan URL WebApp Google Apps Script telah terpasang melalui tombol ikon tautan di pojok kanan atas form login.</p>
-                        </div>
                     </div>
                 </div>
             </section>
@@ -386,6 +354,12 @@
                                 </div>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <button onclick="openModalAddSiswa()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Tambah Siswa</button>
+                                    <button onclick="downloadSiswaTemplate()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"><i class="fa-solid fa-file-excel"></i> Template Import</button>
+                                    <label class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer">
+                                        <i class="fa-solid fa-file-import"></i> Import Siswa
+                                        <input type="file" id="import-siswa-file" accept=".csv, .txt" onchange="handleImportSiswaFile(event)" class="hidden">
+                                    </label>
+                                    <button onclick="openModalPromoteSiswa()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"><i class="fa-solid fa-angles-up"></i> Tarik & Naik Kelas</button>
                                 </div>
                             </div>
                             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -444,7 +418,14 @@
                                     <select id="filter-soal-kelas" onchange="loadBankSoalTable()" class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm"></select>
                                     <select id="filter-soal-mapel" onchange="loadBankSoalTable()" class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm"></select>
                                 </div>
-                                <button onclick="openModalAddSoal()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Tambah Soal</button>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <button onclick="openModalAddSoal()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Tambah Soal</button>
+                                    <button onclick="downloadSoalTemplate()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"><i class="fa-solid fa-file-excel"></i> Template Soal</button>
+                                    <label class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer">
+                                        <i class="fa-solid fa-file-import"></i> Import Soal
+                                        <input type="file" id="import-soal-file" accept=".csv, .txt" onchange="handleImportSoalFile(event)" class="hidden">
+                                    </label>
+                                </div>
                             </div>
                             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                                 <table class="w-full text-left text-sm">
@@ -527,6 +508,16 @@
                                         <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nama Kepala Sekolah</label>
                                         <input type="text" id="set-kepsek-name" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
                                     </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">URL Logo Lembaga</label>
+                                            <input type="text" id="set-logo-url" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">URL Kop Surat Ujian</label>
+                                            <input type="text" id="set-kop-url" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+                                        </div>
+                                    </div>
                                     <div class="pt-2 flex justify-between items-center">
                                         <button type="button" onclick="triggerDatabaseSetup()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs"><i class="fa-solid fa-database mr-1"></i> Inisialisasi Tab Spreadsheet</button>
                                         <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Simpan Pengaturan</button>
@@ -538,33 +529,6 @@
                 </div>
             </section>
         </main>
-    </div>
-
-    <!-- MODAL URL WEBAPP GAS -->
-    <div id="modal-gas-url" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
-            <h3 class="font-bold text-slate-800 text-lg border-b pb-2 flex items-center gap-2">
-                <i class="fa-solid fa-link text-brand-600"></i> Pengaturan Koneksi WebApp Google Apps Script
-            </h3>
-            <p class="text-xs text-slate-600">Masukkan URL Web Application Google Apps Script yang telah Anda Deploy sebagai <i>Web App (Anyone)</i> agar semua data tersimpan di Google Spreadsheet Anda.</p>
-            <div>
-                <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Web App Deployment URL</label>
-                <input type="url" id="gas-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono">
-            </div>
-            <div class="p-3 bg-blue-50 text-blue-900 text-[11px] rounded-xl space-y-1">
-                <p class="font-bold"><i class="fa-solid fa-circle-question"></i> Cara Mendapatkan Link Web App:</p>
-                <ol class="list-decimal pl-4 space-y-0.5">
-                    <li>Buka Script Editor spreadsheet Anda di <i>Extensions > Apps Script</i>.</li>
-                    <li>Klik <b>Deploy > New deployment</b>.</li>
-                    <li>Pilih type <b>Web app</b>, set <i>Execute as: Me</i>, dan <i>Who has access: Anyone</i>.</li>
-                    <li>Klik <b>Deploy</b> dan salin URL Web App yang dihasilkan.</li>
-                </ol>
-            </div>
-            <div class="pt-3 flex justify-end gap-2 border-t">
-                <button type="button" onclick="closeModal('modal-gas-url')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Batal</button>
-                <button type="button" onclick="saveGasUrlConfig()" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold">Simpan & Hubungkan</button>
-            </div>
-        </div>
     </div>
 
     <!-- MODAL SISWA -->
@@ -581,10 +545,35 @@
                     <div><label class="block text-xs font-bold uppercase mb-1">Tanggal Lahir</label><input type="date" id="m-siswa-dob" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"></div>
                 </div>
                 <div><label class="block text-xs font-bold uppercase mb-1">Username</label><input type="text" id="m-siswa-username" readonly class="w-full px-3 py-2 bg-slate-200 border rounded-xl text-sm font-mono font-bold"></div>
-                <div><label class="block text-xs font-bold uppercase mb-1">Password</label><input type="text" id="m-siswa-password" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm font-mono font-bold"></div>
+                <div><label class="block text-xs font-bold uppercase mb-1">Password (Otomatis)</label><input type="text" id="m-siswa-password" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm font-mono font-bold"></div>
                 <div class="pt-3 flex justify-end gap-2 border-t">
                     <button type="button" onclick="closeModal('modal-siswa')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Batal</button>
                     <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL TARIK & NAIK KELAS -->
+    <div id="modal-promote" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+            <h3 class="font-bold text-slate-800 text-lg border-b pb-2">Tarik & Naik Kelas Siswa</h3>
+            <form onsubmit="event.preventDefault(); processPromoteSiswa();" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1">Tahun Ajaran Sumber (Asal)</label>
+                    <select id="promote-source-ta" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm font-bold">
+                        <option value="2025/2026">2025/2026</option>
+                        <option value="2026/2027" selected>2026/2027</option>
+                        <option value="2027/2028">2027/2028</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1">Tahun Ajaran Target (Tujuan)</label>
+                    <input type="text" id="promote-target-ta" readonly class="w-full px-3 py-2 bg-slate-200 border rounded-xl text-sm font-bold" value="2026/2027">
+                </div>
+                <div class="pt-3 flex justify-end gap-2 border-t">
+                    <button type="button" onclick="closeModal('modal-promote')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-xl text-xs font-bold">Proses Kenaikan</button>
                 </div>
             </form>
         </div>
@@ -675,7 +664,8 @@
 
     <!-- JAVASCRIPT APP LOGIC -->
     <script>
-        let GAS_URL = localStorage.getItem('EXAM_GAS_URL') || '';
+        // KONFIGURASI APLIKASI
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzwd7xWGrfb_-Nr9Rly4bm8MnXmIaDWqCmghA7SJD-sN310RgSoFU1fNBYtxmp4F2Zv/exec";
 
         let appState = {
             settings: {
@@ -704,12 +694,7 @@
         let tokenSecondsLeft = 300;
 
         window.onload = function() {
-            if (GAS_URL) {
-                document.getElementById('gas-url-input').value = GAS_URL;
-                fetchInitialDataFromGas();
-            } else {
-                updateBackendStatusBadge(false, 'GAS URL Belum Diset');
-            }
+            fetchInitialDataFromGas();
             syncBrandingUI();
             startTokenTimerEngine();
             showView('view-login');
@@ -730,41 +715,23 @@
             }, 3500);
         }
 
-        function openModalGasUrl() {
-            document.getElementById('gas-url-input').value = GAS_URL;
-            document.getElementById('modal-gas-url').classList.remove('hidden');
-        }
-
-        function saveGasUrlConfig() {
-            const urlVal = document.getElementById('gas-url-input').value.trim();
-            if (!urlVal) {
-                showToast('Harap masukkan URL Web App Apps Script!', 'error');
-                return;
-            }
-            GAS_URL = urlVal;
-            localStorage.setItem('EXAM_GAS_URL', GAS_URL);
-            closeModal('modal-gas-url');
-            showToast('URL Google Apps Script berhasil disimpan!', 'success');
-            fetchInitialDataFromGas();
-        }
-
         function updateBackendStatusBadge(isConnected, text = '') {
             const badge = document.getElementById('status-backend-btn');
             const txt = document.getElementById('backend-status-text');
+            if (!badge || !txt) return;
             if (isConnected) {
                 badge.className = 'flex items-center gap-2 bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-3 py-1 rounded-full text-xs font-semibold';
                 txt.innerText = text || 'Spreadsheet Terhubung';
             } else {
-                badge.className = 'flex items-center gap-2 bg-amber-500/20 text-amber-200 border border-amber-400/30 px-3 py-1 rounded-full text-xs font-semibold cursor-pointer';
-                txt.innerText = text || 'Hubungkan Spreadsheet';
+                badge.className = 'flex items-center gap-2 bg-amber-500/20 text-amber-200 border border-amber-400/30 px-3 py-1 rounded-full text-xs font-semibold';
+                txt.innerText = text || 'Menghubungkan...';
             }
         }
 
         async function apiCall(action, payload = {}) {
-            if (!GAS_URL) {
-                showToast('Silakan atur WebApp GAS URL terlebih dahulu!', 'error');
-                openModalGasUrl();
-                return { status: 'error', message: 'No GAS URL configured' };
+            if (!GAS_URL || GAS_URL.includes("...")) {
+                showToast('Harap atur variabel GAS_URL di kode frontend dengan benar!', 'error');
+                return { status: 'error', message: 'GAS URL not configured' };
             }
 
             try {
@@ -789,7 +756,7 @@
         }
 
         async function fetchInitialDataFromGas() {
-            if (!GAS_URL) return;
+            if (!GAS_URL || GAS_URL.includes("...")) return;
             updateBackendStatusBadge(false, 'Memuat Data...');
             try {
                 const url = `${GAS_URL}?action=getInitialData&ta=${encodeURIComponent(appState.settings.tahunPelajaran)}&sem=${encodeURIComponent(appState.settings.semester)}`;
@@ -808,7 +775,6 @@
                     updateBackendStatusBadge(true, 'Spreadsheet Terhubung');
                     syncBrandingUI();
                     if (currentUser && currentUser.role === 'admin') initAdminDashboard();
-                    showToast('Data Spreadsheet Berhasil Dimuat!', 'success');
                 } else {
                     updateBackendStatusBadge(false, 'Respon Error');
                 }
@@ -891,7 +857,7 @@
                 return;
             }
 
-            if (GAS_URL) {
+            if (!GAS_URL.includes("...")) {
                 showToast('Memverifikasi akun dengan Spreadsheet...', 'info');
                 const res = await apiCall('login', { username: userVal, password: passVal, ta: appState.settings.tahunPelajaran });
                 if (res.status === 'success') {
@@ -1054,6 +1020,15 @@
             handleLogout();
         }
 
+        function generateRandomPassword() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            let pass = "";
+            for (let i = 0; i < 6; i++) {
+                pass += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return pass;
+        }
+
         function initAdminDashboard() {
             syncBrandingUI();
             loadStatsOverview();
@@ -1069,6 +1044,8 @@
             document.getElementById('set-tahun-pelajaran').value = appState.settings.tahunPelajaran;
             document.getElementById('set-semester').value = appState.settings.semester;
             document.getElementById('set-kepsek-name').value = appState.settings.kepsekName || '';
+            document.getElementById('set-logo-url').value = appState.settings.logoUrl || '';
+            document.getElementById('set-kop-url').value = appState.settings.kopUrl || '';
         }
 
         function switchAdminTab(tabName) {
@@ -1099,7 +1076,7 @@
             appState.mapel.forEach(m => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
-                tr.innerHTML = `<td class="p-3.5 font-mono text-xs font-bold">${m.kode}</td><td class="p-3.5 font-bold">${m.nama}</td><td class="p-3.5 text-center"><button onclick="deleteMapel('${m.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
+                tr.innerHTML = `<td class="p-3.5 font-mono text-xs font-bold">${m.kode}</td><td class="p-3.5 font-bold">${m.nama}</td><td class="p-3.5 text-center flex items-center justify-center gap-2"><button onclick="openModalEditMapel('${m.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteMapel('${m.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
                 tbody.appendChild(tr);
             });
             populateSelectOptions();
@@ -1112,7 +1089,7 @@
             (data || appState.siswa).forEach(s => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
-                tr.innerHTML = `<td class="p-3.5 font-mono text-xs">${s.nisn}</td><td class="p-3.5 font-bold">${s.nama}</td><td class="p-3.5">${getKelasName(s.idKelas)}</td><td class="p-3.5 text-xs">${s.pob || '-'}, ${s.dob || '-'}</td><td class="p-3.5 font-mono text-xs">${s.username}</td><td class="p-3.5 font-mono text-xs text-amber-700">${s.password}</td><td class="p-3.5 text-center"><button onclick="deleteSiswa('${s.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
+                tr.innerHTML = `<td class="p-3.5 font-mono text-xs">${s.nisn}</td><td class="p-3.5 font-bold">${s.nama}</td><td class="p-3.5">${getKelasName(s.idKelas)}</td><td class="p-3.5 text-xs">${s.pob || '-'}, ${s.dob || '-'}</td><td class="p-3.5 font-mono text-xs">${s.username}</td><td class="p-3.5 font-mono text-xs text-amber-700">${s.password}</td><td class="p-3.5 text-center flex items-center justify-center gap-2"><button onclick="openModalEditSiswa('${s.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteSiswa('${s.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
                 tbody.appendChild(tr);
             });
             populateSelectOptions();
@@ -1160,10 +1137,40 @@
             });
         }
 
-        function openModalAddSiswa() { populateSelectOptions(); document.getElementById('modal-siswa').classList.remove('hidden'); }
+        function openModalAddSiswa() {
+            populateSelectOptions();
+            document.getElementById('modal-siswa-title').innerText = "Tambah Siswa";
+            document.getElementById('m-siswa-id').value = "";
+            document.getElementById('m-siswa-nisn').value = "";
+            document.getElementById('m-siswa-nama').value = "";
+            document.getElementById('m-siswa-pob').value = "";
+            document.getElementById('m-siswa-dob').value = "";
+            document.getElementById('m-siswa-username').value = "";
+            document.getElementById('m-siswa-password').value = generateRandomPassword();
+            document.getElementById('modal-siswa').classList.remove('hidden');
+        }
+
+        function openModalEditSiswa(id) {
+            populateSelectOptions();
+            const s = appState.siswa.find(i => i.id === id);
+            if (!s) return;
+            document.getElementById('modal-siswa-title').innerText = "Edit Siswa";
+            document.getElementById('m-siswa-id').value = s.id;
+            document.getElementById('m-siswa-nisn').value = s.nisn;
+            document.getElementById('m-siswa-nama').value = s.nama;
+            document.getElementById('m-siswa-kelas').value = s.idKelas;
+            document.getElementById('m-siswa-pob').value = s.pob || '';
+            document.getElementById('m-siswa-dob').value = s.dob || '';
+            document.getElementById('m-siswa-username').value = s.username;
+            document.getElementById('m-siswa-password').value = s.password;
+            document.getElementById('modal-siswa').classList.remove('hidden');
+        }
+
         async function saveSiswaModal() {
+            const id = document.getElementById('m-siswa-id').value;
             const nama = document.getElementById('m-siswa-nama').value.toUpperCase();
-            const newSiswa = {
+            const siswaObj = {
+                id: id,
                 nisn: document.getElementById('m-siswa-nisn').value,
                 nama, username: nama,
                 password: document.getElementById('m-siswa-password').value,
@@ -1172,10 +1179,10 @@
                 dob: document.getElementById('m-siswa-dob').value
             };
             closeModal('modal-siswa');
-            showToast('Menyimpan siswa ke Spreadsheet...', 'info');
-            const res = await apiCall('addSiswa', { siswa: newSiswa });
+            showToast('Menyimpan data siswa...', 'info');
+            const res = await apiCall(id ? 'editSiswa' : 'addSiswa', { siswa: siswaObj });
             if (res.status === 'success') {
-                showToast('Siswa Berhasil Ditambahkan!', 'success');
+                showToast(res.message, 'success');
                 fetchInitialDataFromGas();
             }
         }
@@ -1188,19 +1195,102 @@
             }
         }
 
-        function openModalAddKelas() { document.getElementById('modal-kelas').classList.remove('hidden'); }
+        function downloadSiswaTemplate() {
+            const csvContent = "data:text/csv;charset=utf-8,NISN,Nama_Lengkap,ID_Kelas,Tempat_Lahir,Tanggal_Lahir\n00123456,AHMAD FADLI,K1,Jakarta,2006-05-12\n00123457,SITI AMINAH,K1,Bandung,2006-08-15";
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Template_Import_Siswa.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function handleImportSiswaFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const text = e.target.result;
+                const lines = text.split("\n");
+                let siswaList = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    const cols = line.split(",");
+                    if (cols.length >= 5) {
+                        siswaList.push({
+                            nisn: cols[0].trim(),
+                            nama: cols[1].trim().toUpperCase(),
+                            password: generateRandomPassword(),
+                            idKelas: cols[2].trim(),
+                            pob: cols[3].trim(),
+                            dob: cols[4].trim()
+                        });
+                    }
+                }
+                if (siswaList.length > 0) {
+                    showToast('Mengimpor ' + siswaList.length + ' siswa...', 'info');
+                    const res = await apiCall('importSiswaBatch', { siswaList });
+                    if (res.status === 'success') {
+                        showToast(res.message, 'success');
+                        fetchInitialDataFromGas();
+                    }
+                } else {
+                    showToast('Format CSV tidak valid!', 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function openModalPromoteSiswa() {
+            document.getElementById('promote-target-ta').value = appState.settings.tahunPelajaran;
+            document.getElementById('modal-promote').classList.remove('hidden');
+        }
+
+        async function processPromoteSiswa() {
+            const sourceTa = document.getElementById('promote-source-ta').value;
+            const targetTa = document.getElementById('promote-target-ta').value;
+            closeModal('modal-promote');
+            showToast('Menarik dan menaikkan kelas siswa...', 'info');
+            const res = await apiCall('promoteSiswa', { sourceTa, targetTa });
+            if (res.status === 'success') {
+                showToast(res.message, 'success');
+                fetchInitialDataFromGas();
+            } else {
+                showToast(res.message, 'error');
+            }
+        }
+
+        function openModalAddKelas() {
+            document.getElementById('modal-kelas-title').innerText = "Tambah Kelas";
+            document.getElementById('m-kelas-id').value = "";
+            document.getElementById('m-kelas-nama').value = "";
+            document.getElementById('modal-kelas').classList.remove('hidden');
+        }
+
+        function openModalEditKelas(id) {
+            const k = appState.kelas.find(i => i.id === id);
+            if (!k) return;
+            document.getElementById('modal-kelas-title').innerText = "Edit Kelas";
+            document.getElementById('m-kelas-id').value = k.id;
+            document.getElementById('m-kelas-nama').value = k.nama;
+            document.getElementById('modal-kelas').classList.remove('hidden');
+        }
+
         async function saveKelasModal() {
+            const id = document.getElementById('m-kelas-id').value;
             const nama = document.getElementById('m-kelas-nama').value.toUpperCase();
             closeModal('modal-kelas');
-            showToast('Menyimpan kelas...', 'info');
-            await apiCall('addKelas', { kelas: { nama } });
+            await apiCall(id ? 'editKelas' : 'addKelas', { kelas: { id, nama } });
             fetchInitialDataFromGas();
         }
 
         function loadKelasCards() {
             const c = document.getElementById('kelas-cards-container'); if (!c) return; c.innerHTML = '';
             appState.kelas.forEach(k => {
-                c.innerHTML += `<div class="bg-white p-4 rounded-xl border flex justify-between items-center"><div><h4 class="font-bold">${k.nama}</h4></div><button onclick="deleteKelas('${k.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></div>`;
+                c.innerHTML += `<div class="bg-white p-4 rounded-xl border flex justify-between items-center"><div><h4 class="font-bold">${k.nama}</h4></div><div class="flex items-center gap-2"><button onclick="openModalEditKelas('${k.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteKelas('${k.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></div></div>`;
             });
         }
 
@@ -1211,12 +1301,30 @@
             }
         }
 
-        function openModalAddMapel() { document.getElementById('modal-mapel').classList.remove('hidden'); }
+        function openModalAddMapel() {
+            document.getElementById('modal-mapel-title').innerText = "Tambah Mapel";
+            document.getElementById('m-mapel-id').value = "";
+            document.getElementById('m-mapel-kode').value = "";
+            document.getElementById('m-mapel-nama').value = "";
+            document.getElementById('modal-mapel').classList.remove('hidden');
+        }
+
+        function openModalEditMapel(id) {
+            const m = appState.mapel.find(i => i.id === id);
+            if (!m) return;
+            document.getElementById('modal-mapel-title').innerText = "Edit Mapel";
+            document.getElementById('m-mapel-id').value = m.id;
+            document.getElementById('m-mapel-kode').value = m.kode;
+            document.getElementById('m-mapel-nama').value = m.nama;
+            document.getElementById('modal-mapel').classList.remove('hidden');
+        }
+
         async function saveMapelModal() {
+            const id = document.getElementById('m-mapel-id').value;
             const kode = document.getElementById('m-mapel-kode').value.toUpperCase();
             const nama = document.getElementById('m-mapel-nama').value.toUpperCase();
             closeModal('modal-mapel');
-            await apiCall('addMapel', { mapel: { kode, nama } });
+            await apiCall(id ? 'editMapel' : 'addMapel', { mapel: { id, kode, nama } });
             fetchInitialDataFromGas();
         }
 
@@ -1227,9 +1335,42 @@
             }
         }
 
-        function openModalAddSoal() { populateSelectOptions(); document.getElementById('modal-soal').classList.remove('hidden'); }
+        function openModalAddSoal() {
+            populateSelectOptions();
+            document.getElementById('modal-soal-title').innerText = "Tambah Soal";
+            document.getElementById('m-soal-id').value = "";
+            document.getElementById('m-soal-pertanyaan').value = "";
+            document.getElementById('m-soal-opsiA').value = "";
+            document.getElementById('m-soal-opsiB').value = "";
+            document.getElementById('m-soal-opsiC').value = "";
+            document.getElementById('m-soal-opsiD').value = "";
+            document.getElementById('m-soal-opsiE').value = "";
+            document.getElementById('modal-soal').classList.remove('hidden');
+        }
+
+        function openModalEditSoal(id) {
+            populateSelectOptions();
+            const s = appState.soal.find(i => i.id === id);
+            if (!s) return;
+            document.getElementById('modal-soal-title').innerText = "Edit Soal";
+            document.getElementById('m-soal-id').value = s.id;
+            document.getElementById('m-soal-kelas').value = s.idKelas;
+            document.getElementById('m-soal-idmapel').value = s.idMapel;
+            document.getElementById('m-soal-pertanyaan').value = s.pertanyaan;
+            document.getElementById('m-soal-opsiA').value = s.opsiA;
+            document.getElementById('m-soal-opsiB').value = s.opsiB;
+            document.getElementById('m-soal-opsiC').value = s.opsiC;
+            document.getElementById('m-soal-opsiD').value = s.opsiD;
+            document.getElementById('m-soal-opsiE').value = s.opsiE || '';
+            document.getElementById('m-soal-kunci').value = s.kunci;
+            document.getElementById('m-soal-bobot').value = s.bobot;
+            document.getElementById('modal-soal').classList.remove('hidden');
+        }
+
         async function saveSoalModal() {
-            const newSoal = {
+            const id = document.getElementById('m-soal-id').value;
+            const soalObj = {
+                id: id,
                 idKelas: document.getElementById('m-soal-kelas').value,
                 idMapel: document.getElementById('m-soal-idmapel').value,
                 pertanyaan: document.getElementById('m-soal-pertanyaan').value,
@@ -1242,8 +1383,8 @@
                 bobot: parseInt(document.getElementById('m-soal-bobot').value) || 10
             };
             closeModal('modal-soal');
-            showToast('Menyimpan soal ke Bank Soal...', 'info');
-            await apiCall('addSoal', { soal: newSoal });
+            showToast('Menyimpan soal...', 'info');
+            await apiCall(id ? 'editSoal' : 'addSoal', { soal: soalObj });
             fetchInitialDataFromGas();
         }
 
@@ -1254,7 +1395,7 @@
             appState.soal.filter(s => (!kelas || s.idKelas === kelas) && (!mapel || s.idMapel === mapel)).forEach((s, idx) => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
-                tr.innerHTML = `<td class="p-3.5 text-center font-bold">${idx + 1}</td><td class="p-3.5"><span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded">${getKelasName(s.idKelas)}</span> <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">${getMapelName(s.idMapel)}</span></td><td class="p-3.5">${s.pertanyaan}</td><td class="p-3.5 font-bold text-center">${s.kunci}</td><td class="p-3.5 text-center"><button onclick="deleteSoal('${s.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
+                tr.innerHTML = `<td class="p-3.5 text-center font-bold">${idx + 1}</td><td class="p-3.5"><span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded">${getKelasName(s.idKelas)}</span> <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">${getMapelName(s.idMapel)}</span></td><td class="p-3.5">${s.pertanyaan}</td><td class="p-3.5 font-bold text-center">${s.kunci}</td><td class="p-3.5 text-center flex items-center justify-center gap-2"><button onclick="openModalEditSoal('${s.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteSoal('${s.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -1266,9 +1407,85 @@
             }
         }
 
-        function openModalAddJadwal() { populateSelectOptions(); document.getElementById('modal-jadwal').classList.remove('hidden'); }
+        function downloadSoalTemplate() {
+            const csvContent = "data:text/csv;charset=utf-8,ID_Kelas,ID_Mapel,Pertanyaan,Opsi_A,Opsi_B,Opsi_C,Opsi_D,Opsi_E,Kunci,Bobot\nK1,M1,Berapakah 2 + 2?,2,3,4,5,6,C,10";
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Template_Import_Soal.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function handleImportSoalFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const text = e.target.result;
+                const lines = text.split("\n");
+                let soalList = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    const cols = line.split(",");
+                    if (cols.length >= 10) {
+                        soalList.push({
+                            idKelas: cols[0].trim(),
+                            idMapel: cols[1].trim(),
+                            pertanyaan: cols[2].trim(),
+                            opsiA: cols[3].trim(),
+                            opsiB: cols[4].trim(),
+                            opsiC: cols[5].trim(),
+                            opsiD: cols[6].trim(),
+                            opsiE: cols[7].trim(),
+                            kunci: cols[8].trim().toUpperCase(),
+                            bobot: parseInt(cols[9].trim()) || 10
+                        });
+                    }
+                }
+                if (soalList.length > 0) {
+                    showToast('Mengimpor ' + soalList.length + ' soal...', 'info');
+                    const res = await apiCall('importSoalBatch', { soalList });
+                    if (res.status === 'success') {
+                        showToast(res.message, 'success');
+                        fetchInitialDataFromGas();
+                    }
+                } else {
+                    showToast('Format CSV Bank Soal tidak valid!', 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function openModalAddJadwal() {
+            populateSelectOptions();
+            document.getElementById('modal-jadwal-title').innerText = "Tambah Jadwal";
+            document.getElementById('m-jadwal-id').value = "";
+            document.getElementById('modal-jadwal').classList.remove('hidden');
+        }
+
+        function openModalEditJadwal(id) {
+            populateSelectOptions();
+            const j = appState.jadwal.find(i => i.id === id);
+            if (!j) return;
+            document.getElementById('modal-jadwal-title').innerText = "Edit Jadwal";
+            document.getElementById('m-jadwal-id').value = j.id;
+            document.getElementById('m-jadwal-kelas').value = j.idKelas;
+            document.getElementById('m-jadwal-idmapel').value = j.idMapel;
+            document.getElementById('m-jadwal-tanggal').value = j.tanggal;
+            document.getElementById('m-jadwal-mulai').value = j.jamMulai;
+            document.getElementById('m-jadwal-selesai').value = j.jamSelesai;
+            document.getElementById('m-jadwal-durasi').value = j.durasi;
+            document.getElementById('modal-jadwal').classList.remove('hidden');
+        }
+
         async function saveJadwalModal() {
-            const newJadwal = {
+            const id = document.getElementById('m-jadwal-id').value;
+            const jadwalObj = {
+                id: id,
                 idKelas: document.getElementById('m-jadwal-kelas').value,
                 idMapel: document.getElementById('m-jadwal-idmapel').value,
                 tanggal: document.getElementById('m-jadwal-tanggal').value,
@@ -1277,7 +1494,7 @@
                 durasi: document.getElementById('m-jadwal-durasi').value
             };
             closeModal('modal-jadwal');
-            await apiCall('addJadwal', { jadwal: newJadwal });
+            await apiCall(id ? 'editJadwal' : 'addJadwal', { jadwal: jadwalObj });
             fetchInitialDataFromGas();
         }
 
@@ -1286,7 +1503,7 @@
             appState.jadwal.forEach(j => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
-                tr.innerHTML = `<td class="p-3.5 font-bold">${j.tanggal}</td><td class="p-3.5">${getKelasName(j.idKelas)}</td><td class="p-3.5">${getMapelName(j.idMapel)}</td><td class="p-3.5 text-xs font-mono">${j.jamMulai} - ${j.jamSelesai}</td><td class="p-3.5 text-xs">${j.durasi} menit</td><td class="p-3.5 text-center"><button onclick="deleteJadwal('${j.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
+                tr.innerHTML = `<td class="p-3.5 font-bold">${j.tanggal}</td><td class="p-3.5">${getKelasName(j.idKelas)}</td><td class="p-3.5">${getMapelName(j.idMapel)}</td><td class="p-3.5 text-xs font-mono">${j.jamMulai} - ${j.jamSelesai}</td><td class="p-3.5 text-xs">${j.durasi} menit</td><td class="p-3.5 text-center flex items-center justify-center gap-2"><button onclick="openModalEditJadwal('${j.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteJadwal('${j.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -1316,7 +1533,9 @@
                 appSubTitle: document.getElementById('set-app-subtitle').value,
                 tahunPelajaran: document.getElementById('set-tahun-pelajaran').value,
                 semester: document.getElementById('set-semester').value,
-                kepsekName: document.getElementById('set-kepsek-name').value
+                kepsekName: document.getElementById('set-kepsek-name').value,
+                logoUrl: document.getElementById('set-logo-url').value,
+                kopUrl: document.getElementById('set-kop-url').value
             };
             showToast('Menyimpan pengaturan...', 'info');
             await apiCall('saveSettings', { settings: st });
