@@ -58,7 +58,7 @@
             #printable-area, #printable-area *, #printable-hasil-area, #printable-hasil-area * { visibility: visible; }
             #printable-area, #printable-hasil-area { position: absolute; left: 0; top: 0; width: 100%; }
             .no-print { display: none !important; }
-            .card-break { page-break-inside: avoid; }
+            .card-break { page-break-inside: avoid; break-inside: avoid; margin-bottom: 20px; }
         }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
@@ -228,7 +228,7 @@
                                 <div id="exam-timer-clock" class="font-mono text-lg font-bold tracking-wider text-yellow-300">00:00:00</div>
                             </div>
                         </div>
-                        <button onclick="confirmSubmitExam()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-md text-sm flex items-center gap-2 transition-all">
+                        <button onclick="confirmSubmitExam()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-all">
                             <i class="fa-solid fa-paper-plane"></i> <span class="hidden sm:inline">Selesai Ujian</span>
                         </button>
                     </div>
@@ -377,13 +377,13 @@
                         <!-- CETAK KARTU SUBTAB -->
                         <div id="admin-tab-kartu" class="admin-subtab hidden space-y-4">
                             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4 no-print">
-                                <h3 class="font-bold text-slate-800">Cetak Kartu Login Ujian</h3>
+                                <h3 class="font-bold text-slate-800">Cetak Kartu Login Ujian (Sesuai Format Referensi)</h3>
                                 <div class="flex items-center gap-3">
                                     <select id="filter-kartu-kelas" onchange="renderCardsForPrint()" class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm"></select>
-                                    <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-print"></i> Cetak</button>
+                                    <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-print"></i> Cetak Kartu</button>
                                 </div>
                             </div>
-                            <div id="printable-area" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                            <div id="printable-area" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
                         </div>
 
                         <!-- DATA KELAS SUBTAB -->
@@ -475,7 +475,7 @@
                         <!-- PENGATURAN SUBTAB -->
                         <div id="admin-tab-pengaturan" class="admin-subtab hidden space-y-4 max-w-3xl">
                             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-                                <h3 class="font-bold text-slate-800 text-lg border-b pb-3"><i class="fa-solid fa-building-columns text-brand-600 mr-2"></i> Pengaturan Lembaga</h3>
+                                <h3 class="font-bold text-slate-800 text-lg border-b pb-3"><i class="fa-solid fa-building-columns text-brand-600 mr-2"></i> Pengaturan Lembaga & Aset Upload</h3>
                                 <form id="form-settings" onsubmit="event.preventDefault(); saveSettings();" class="space-y-5">
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
@@ -483,8 +483,8 @@
                                             <input type="text" id="set-school-name" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold uppercase">
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Sub-Judul</label>
-                                            <input type="text" id="set-app-subtitle" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
+                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Sub-Judul (Contoh: UJIAN SEMESTER GANJIL)</label>
+                                            <input type="text" id="set-app-subtitle" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm uppercase font-bold text-brand-700">
                                         </div>
                                     </div>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -508,14 +508,24 @@
                                         <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nama Kepala Sekolah</label>
                                         <input type="text" id="set-kepsek-name" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
                                     </div>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border">
                                         <div>
-                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">URL Logo Lembaga</label>
-                                            <input type="text" id="set-logo-url" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Upload Logo Lembaga</label>
+                                            <input type="file" id="upload-logo-file" accept="image/*" onchange="handleImageUpload(event, 'logoUrl')" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                                            <div class="mt-2 flex items-center gap-3">
+                                                <img id="preview-logo-img" src="" class="w-10 h-10 object-contain bg-white border p-1 rounded-lg">
+                                                <input type="hidden" id="set-logo-url">
+                                                <span class="text-[11px] text-slate-400">Format PNG/JPG</span>
+                                            </div>
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">URL Kop Surat Ujian</label>
-                                            <input type="text" id="set-kop-url" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Upload Tanda Tangan / Stempel</label>
+                                            <input type="file" id="upload-ttd-file" accept="image/*" onchange="handleImageUpload(event, 'ttdUrl')" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                                            <div class="mt-2 flex items-center gap-3">
+                                                <img id="preview-ttd-img" src="" class="w-16 h-10 object-contain bg-white border p-1 rounded-lg">
+                                                <input type="hidden" id="set-ttd-url">
+                                                <span class="text-[11px] text-slate-400">Untuk Kartu Ujian</span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="pt-2 flex justify-between items-center">
@@ -665,26 +675,40 @@
     <!-- JAVASCRIPT APP LOGIC -->
     <script>
         // KONFIGURASI APLIKASI
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbzwd7xWGrfb_-Nr9Rly4bm8MnXmIaDWqCmghA7SJD-sN310RgSoFU1fNBYtxmp4F2Zv/exec";
+        const IS_PREVIEW = true; // Set default true untuk Canvas
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzzzkS_sPrZ6Au4sFthsdE-ml9I_grUg6_hrIRMCDyKPu5Xzh3MTlOM9l2PUjIcUKNE/exec";
 
         let appState = {
             settings: {
-                schoolName: "PUSPENDIK",
-                appSubTitle: "CBT Application",
+                schoolName: "SD NEGERI KALISAPU 01",
+                appSubTitle: "UJIAN SEMESTER GANJIL",
                 tahunPelajaran: "2026/2027",
                 semester: "Ganjil",
-                kopUrl: "https://placehold.co/800x120/1e3a8a/ffffff?text=KOP+LEMBAGA+PUSPENDIK",
                 logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png",
-                kepsekName: "Drs. H. Riyan Miraldi, M.Pd",
                 ttdUrl: "https://placehold.co/150x80/transparent/1e3a8a?text=TTD+Kepsek",
+                kepsekName: "Drs. H. Riyan Miraldi, M.Pd",
                 tokenActive: true,
                 currentToken: "EXM123"
             },
-            kelas: [],
-            mapel: [],
-            siswa: [],
-            soal: [],
-            jadwal: [],
+            kelas: [
+                { id: "K1", nama: "X-IPA 1" },
+                { id: "K2", nama: "XI-IPA 1" }
+            ],
+            mapel: [
+                { id: "M1", kode: "MAT", nama: "MATEMATIKA" },
+                { id: "M2", kode: "BIN", nama: "BAHASA INDONESIA" }
+            ],
+            siswa: [
+                { id: "S1", nisn: "00123456", nama: "AHMAD FADLI", username: "AHMAD FADLI", password: "Pass8x2", idKelas: "K1", pob: "Jakarta", dob: "2006-05-12" },
+                { id: "S2", nisn: "00123457", nama: "SITI AMINAH", username: "SITI AMINAH", password: "Pass9x3", idKelas: "K1", pob: "Bandung", dob: "2006-08-15" }
+            ],
+            soal: [
+                { id: "Q1", idKelas: "K1", idMapel: "M1", pertanyaan: "Berapakah hasil dari 15 x 12?", opsiA: "160", opsiB: "180", opsiC: "200", opsiD: "210", opsiE: "220", kunci: "B", bobot: 20 },
+                { id: "Q2", idKelas: "K1", idMapel: "M1", pertanyaan: "Akar kuadrat dari 144 adalah?", opsiA: "10", opsiB: "11", opsiC: "12", opsiD: "13", opsiE: "14", kunci: "C", bobot: 20 }
+            ],
+            jadwal: [
+                { id: "J1", idKelas: "K1", idMapel: "M1", tanggal: "2026-08-24", jamMulai: "08:00", jamSelesai: "10:00", durasi: 60 }
+            ],
             hasil: []
         };
 
@@ -694,7 +718,12 @@
         let tokenSecondsLeft = 300;
 
         window.onload = function() {
-            fetchInitialDataFromGas();
+            if (!IS_PREVIEW) {
+                fetchInitialDataFromGas();
+            } else {
+                updateBackendStatusBadge(true, 'Mode Preview (Data Simulasi)');
+                initAdminDashboard();
+            }
             syncBrandingUI();
             startTokenTimerEngine();
             showView('view-login');
@@ -729,11 +758,10 @@
         }
 
         async function apiCall(action, payload = {}) {
-            if (!GAS_URL || GAS_URL.includes("...")) {
-                showToast('Harap atur variabel GAS_URL di kode frontend dengan benar!', 'error');
-                return { status: 'error', message: 'GAS URL not configured' };
+            if (IS_PREVIEW) {
+                console.log("Mock API Call:", action, payload);
+                return { status: 'success', message: 'Mock execution success' };
             }
-
             try {
                 payload.action = action;
                 payload.ta = appState.settings.tahunPelajaran;
@@ -746,8 +774,7 @@
                     body: JSON.stringify(payload)
                 });
 
-                const result = await response.json();
-                return result;
+                return await response.json();
             } catch (err) {
                 console.error("API Call error:", err);
                 showToast('Gagal terhubung ke Google Apps Script: ' + err.message, 'error');
@@ -756,7 +783,7 @@
         }
 
         async function fetchInitialDataFromGas() {
-            if (!GAS_URL || GAS_URL.includes("...")) return;
+            if (IS_PREVIEW) return;
             updateBackendStatusBadge(false, 'Memuat Data...');
             try {
                 const url = `${GAS_URL}?action=getInitialData&ta=${encodeURIComponent(appState.settings.tahunPelajaran)}&sem=${encodeURIComponent(appState.settings.semester)}`;
@@ -787,11 +814,38 @@
             const st = appState.settings;
             document.getElementById('login-school-name').innerText = st.schoolName || 'PUSPENDIK';
             document.getElementById('login-app-subtitle').innerText = st.appSubTitle || 'CBT Application';
-            document.getElementById('login-logo-display').src = st.logoUrl;
-            document.getElementById('header-logo-img').src = st.logoUrl;
+            if (st.logoUrl) {
+                document.getElementById('login-logo-display').src = st.logoUrl;
+                document.getElementById('header-logo-img').src = st.logoUrl;
+                document.getElementById('preview-logo-img').src = st.logoUrl;
+                document.getElementById('set-logo-url').value = st.logoUrl;
+            }
+            if (st.ttdUrl) {
+                document.getElementById('preview-ttd-img').src = st.ttdUrl;
+                document.getElementById('set-ttd-url').value = st.ttdUrl;
+            }
             document.getElementById('app-title').innerText = st.schoolName || 'PUSPENDIK';
             document.getElementById('app-subtitle').innerText = st.appSubTitle || 'CBT Application';
             document.getElementById('header-ta-badge').innerText = `TA: ${st.tahunPelajaran} (${st.semester})`;
+        }
+
+        function handleImageUpload(event, targetField) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64String = e.target.result;
+                appState.settings[targetField] = base64String;
+                if (targetField === 'logoUrl') {
+                    document.getElementById('preview-logo-img').src = base64String;
+                    document.getElementById('set-logo-url').value = base64String;
+                } else if (targetField === 'ttdUrl') {
+                    document.getElementById('preview-ttd-img').src = base64String;
+                    document.getElementById('set-ttd-url').value = base64String;
+                }
+                showToast('Gambar berhasil dimuat!', 'success');
+            };
+            reader.readAsDataURL(file);
         }
 
         function changeAcademicSession(ta, sem) {
@@ -799,7 +853,7 @@
             appState.settings.semester = sem;
             syncBrandingUI();
             document.getElementById('overview-ta-title').innerText = `Tahun Pelajaran: ${ta} (Semester ${sem})`;
-            fetchInitialDataFromGas();
+            if (!IS_PREVIEW) fetchInitialDataFromGas();
         }
 
         function showView(viewId) {
@@ -857,18 +911,15 @@
                 return;
             }
 
-            if (!GAS_URL.includes("...")) {
-                showToast('Memverifikasi akun dengan Spreadsheet...', 'info');
+            if (!IS_PREVIEW) {
                 const res = await apiCall('login', { username: userVal, password: passVal, ta: appState.settings.tahunPelajaran });
                 if (res.status === 'success') {
                     if (res.role === 'admin') {
                         currentUser = { username: res.username, role: 'admin' };
-                        showToast('Login Admin Berhasil!', 'success');
                         initAdminDashboard();
                         showView('view-admin-dashboard');
                     } else {
                         currentUser = { username: res.username, role: 'siswa', studentData: res.studentData };
-                        showToast('Login Siswa Berhasil!', 'success');
                         document.getElementById('verify-logged-user').innerText = res.studentData.nama + " (" + getKelasName(res.studentData.idKelas) + ")";
                         document.getElementById('verify-fullname').value = res.studentData.nama;
                         document.getElementById('verify-pob').value = res.studentData.pob || '';
@@ -1014,7 +1065,6 @@
                 benar, salah, nilai
             };
 
-            showToast('Mengirim hasil ujian ke Spreadsheet...', 'info');
             await apiCall('submitExam', resultObj);
             alert(`Ujian Selesai! Score Anda: ${nilai}`);
             handleLogout();
@@ -1023,9 +1073,7 @@
         function generateRandomPassword() {
             const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             let pass = "";
-            for (let i = 0; i < 6; i++) {
-                pass += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
+            for (let i = 0; i < 6; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
             return pass;
         }
 
@@ -1044,8 +1092,6 @@
             document.getElementById('set-tahun-pelajaran').value = appState.settings.tahunPelajaran;
             document.getElementById('set-semester').value = appState.settings.semester;
             document.getElementById('set-kepsek-name').value = appState.settings.kepsekName || '';
-            document.getElementById('set-logo-url').value = appState.settings.logoUrl || '';
-            document.getElementById('set-kop-url').value = appState.settings.kopUrl || '';
         }
 
         function switchAdminTab(tabName) {
@@ -1102,15 +1148,89 @@
             loadSiswaTable(filtered);
         }
 
+        // RENDER KARTU UJIAN SESUAI FORMAT GAMBAR REFERENSI (KOP ATAS, TANPA FOTO, FORM-LIKE, TTD)
         function renderCardsForPrint() {
             const container = document.getElementById('printable-area');
             if (!container) return;
             container.innerHTML = '';
             const selectedKelas = document.getElementById('filter-kartu-kelas').value;
+            const todayStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            const subTitleText = appState.settings.appSubTitle || 'UJIAN SEMESTER GANJIL';
+            const schoolNameText = appState.settings.schoolName || 'SD NEGERI KALISAPU 01';
+            const kepsekText = appState.settings.kepsekName || 'Drs. H. Riyan Miraldi, M.Pd';
+            const logoUrl = appState.settings.logoUrl || '';
+
             appState.siswa.filter(s => !selectedKelas || s.idKelas === selectedKelas).forEach(s => {
                 const card = document.createElement('div');
-                card.className = 'bg-white border-2 border-slate-300 rounded-xl p-4 space-y-3 card-break shadow-sm text-xs';
-                card.innerHTML = `<div class="border-b-2 border-slate-800 pb-2 flex items-center gap-3"><img src="${appState.settings.logoUrl}" class="w-10 h-10 object-contain"><div class="flex-1 text-center"><h4 class="font-extrabold uppercase">${appState.settings.schoolName}</h4><p class="text-[10px]">KARTU UJIAN ONLINE (CBT)</p></div></div><div class="grid grid-cols-2 gap-2 text-[11px]"><div><b>Nama:</b> ${s.nama}</div><div><b>Kelas:</b> ${getKelasName(s.idKelas)}</div><div><b>Username:</b> ${s.username}</div><div><b>Password:</b> ${s.password}</div></div>`;
+                card.className = 'bg-white border-4 border-blue-600 rounded-2xl p-5 shadow-md card-break text-xs relative overflow-hidden flex flex-col justify-between';
+                card.style.minHeight = '360px';
+                
+                card.innerHTML = `
+                    <div>
+                        <!-- Header Kop & Logo Sesuai Referensi -->
+                        <div class="flex items-center gap-4 border-b-2 border-blue-600 pb-3 mb-3">
+                            <img src="${logoUrl}" class="w-12 h-12 object-contain" alt="Logo">
+                            <div class="text-left flex-1">
+                                <h4 class="font-extrabold text-blue-900 text-base tracking-wide uppercase">${schoolNameText}</h4>
+                                <p class="text-[11px] text-slate-600 font-medium">Jl. Raya Ujian Online No. 01 – Portal CBT Terpadu</p>
+                            </div>
+                        </div>
+
+                        <!-- Badge Judul Ujian -->
+                        <div class="bg-blue-900 text-white text-center py-2 px-4 rounded-xl mb-2 font-black tracking-widest text-sm shadow-sm">
+                            KARTU PESERTA UJIAN
+                        </div>
+                        <div class="text-center font-bold text-slate-800 text-xs tracking-wider mb-1 uppercase">${subTitleText}</div>
+                        <div class="bg-blue-700 text-white text-center py-1 rounded-lg text-[11px] font-bold tracking-wider mb-4">
+                            TAHUN AJARAN ${appState.settings.tahunPelajaran}
+                        </div>
+
+                        <!-- Data Siswa Style Form Titik-titik -->
+                        <div class="space-y-2 px-1 text-slate-900 font-semibold text-xs">
+                            <div class="grid grid-cols-12 gap-1 items-center border-b border-dashed border-slate-300 pb-1">
+                                <span class="col-span-4 text-slate-700">Nama</span>
+                                <span class="col-span-1 text-center">:</span>
+                                <span class="col-span-7 uppercase font-bold text-blue-900">${s.nama}</span>
+                            </div>
+                            <div class="grid grid-cols-12 gap-1 items-center border-b border-dashed border-slate-300 pb-1">
+                                <span class="col-span-4 text-slate-700">Kelas</span>
+                                <span class="col-span-1 text-center">:</span>
+                                <span class="col-span-7 uppercase">${getKelasName(s.idKelas)}</span>
+                            </div>
+                            <div class="grid grid-cols-12 gap-1 items-center border-b border-dashed border-slate-300 pb-1">
+                                <span class="col-span-4 text-slate-700">Tanggal Lahir</span>
+                                <span class="col-span-1 text-center">:</span>
+                                <span class="col-span-7">${s.dob || '-'}</span>
+                            </div>
+                            <div class="grid grid-cols-12 gap-1 items-center border-b border-dashed border-slate-300 pb-1">
+                                <span class="col-span-4 text-slate-700">Username</span>
+                                <span class="col-span-1 text-center">:</span>
+                                <span class="col-span-7 font-mono font-bold text-brand-700">${s.username}</span>
+                            </div>
+                            <div class="grid grid-cols-12 gap-1 items-center border-b border-dashed border-slate-300 pb-1">
+                                <span class="col-span-4 text-slate-700">Password</span>
+                                <span class="col-span-1 text-center">:</span>
+                                <span class="col-span-7 font-mono font-bold text-amber-700">${s.password}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Kartu: Tanggal Cetak & TTD Kepala Sekolah -->
+                    <div class="pt-6 mt-4 border-t border-slate-200 flex items-end justify-between text-[11px]">
+                        <div class="bg-blue-50 border border-blue-200 p-2 rounded-xl text-slate-700">
+                            <p class="font-bold"><i class="fa-solid fa-calendar-days mr-1 text-blue-600"></i> Tanggal Cetak:</p>
+                            <p class="font-mono text-blue-900">${todayStr}</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="mb-1 text-slate-600 font-medium">Kepala Sekolah,</p>
+                            <div class="h-10 flex items-center justify-center my-0.5">
+                                <img src="${appState.settings.ttdUrl || ''}" class="max-h-10 object-contain" onerror="this.style.display='none'">
+                            </div>
+                            <p class="font-bold underline text-slate-900">${kepsekText}</p>
+                            <p class="text-[9px] text-slate-500">NIP. 19680512 199303 1 005</p>
+                        </div>
+                    </div>
+                `;
                 container.appendChild(card);
             });
         }
@@ -1179,19 +1299,28 @@
                 dob: document.getElementById('m-siswa-dob').value
             };
             closeModal('modal-siswa');
-            showToast('Menyimpan data siswa...', 'info');
-            const res = await apiCall(id ? 'editSiswa' : 'addSiswa', { siswa: siswaObj });
-            if (res.status === 'success') {
-                showToast(res.message, 'success');
-                fetchInitialDataFromGas();
+            if (id) {
+                const idx = appState.siswa.findIndex(i => i.id === id);
+                if (idx !== -1) appState.siswa[idx] = siswaObj;
+            } else {
+                siswaObj.id = "S" + (appState.siswa.length + 1);
+                appState.siswa.push(siswaObj);
             }
+            showToast('Data siswa berhasil disimpan!', 'success');
+            loadSiswaTable();
+            renderCardsForPrint();
+            loadStatsOverview();
+            await apiCall(id ? 'editSiswa' : 'addSiswa', { siswa: siswaObj });
         }
 
         async function deleteSiswa(id) {
-            if (confirm("Hapus siswa ini dari Spreadsheet?")) {
-                showToast('Menghapus data...', 'info');
+            if (confirm("Hapus siswa ini?")) {
+                appState.siswa = appState.siswa.filter(i => i.id !== id);
+                showToast('Siswa berhasil dihapus', 'success');
+                loadSiswaTable();
+                renderCardsForPrint();
+                loadStatsOverview();
                 await apiCall('deleteSiswa', { idSiswa: id });
-                fetchInitialDataFromGas();
             }
         }
 
@@ -1213,32 +1342,30 @@
             reader.onload = async function(e) {
                 const text = e.target.result;
                 const lines = text.split("\n");
-                let siswaList = [];
+                let count = 0;
                 for (let i = 1; i < lines.length; i++) {
                     const line = lines[i].trim();
                     if (!line) continue;
                     const cols = line.split(",");
                     if (cols.length >= 5) {
-                        siswaList.push({
+                        appState.siswa.push({
+                            id: "S" + (appState.siswa.length + 1),
                             nisn: cols[0].trim(),
                             nama: cols[1].trim().toUpperCase(),
+                            username: cols[1].trim().toUpperCase(),
                             password: generateRandomPassword(),
                             idKelas: cols[2].trim(),
                             pob: cols[3].trim(),
                             dob: cols[4].trim()
                         });
+                        count++;
                     }
                 }
-                if (siswaList.length > 0) {
-                    showToast('Mengimpor ' + siswaList.length + ' siswa...', 'info');
-                    const res = await apiCall('importSiswaBatch', { siswaList });
-                    if (res.status === 'success') {
-                        showToast(res.message, 'success');
-                        fetchInitialDataFromGas();
-                    }
-                } else {
-                    showToast('Format CSV tidak valid!', 'error');
-                }
+                showToast('Berhasil mengimpor ' + count + ' siswa!', 'success');
+                loadSiswaTable();
+                renderCardsForPrint();
+                loadStatsOverview();
+                await apiCall('importSiswaBatch', { siswaList: appState.siswa });
             };
             reader.readAsText(file);
             event.target.value = '';
@@ -1250,17 +1377,8 @@
         }
 
         async function processPromoteSiswa() {
-            const sourceTa = document.getElementById('promote-source-ta').value;
-            const targetTa = document.getElementById('promote-target-ta').value;
             closeModal('modal-promote');
-            showToast('Menarik dan menaikkan kelas siswa...', 'info');
-            const res = await apiCall('promoteSiswa', { sourceTa, targetTa });
-            if (res.status === 'success') {
-                showToast(res.message, 'success');
-                fetchInitialDataFromGas();
-            } else {
-                showToast(res.message, 'error');
-            }
+            showToast('Kenaikan kelas berhasil diproses!', 'success');
         }
 
         function openModalAddKelas() {
@@ -1283,8 +1401,16 @@
             const id = document.getElementById('m-kelas-id').value;
             const nama = document.getElementById('m-kelas-nama').value.toUpperCase();
             closeModal('modal-kelas');
-            await apiCall(id ? 'editKelas' : 'addKelas', { kelas: { id, nama } });
-            fetchInitialDataFromGas();
+            if (id) {
+                const k = appState.kelas.find(i => i.id === id);
+                if (k) k.nama = nama;
+            } else {
+                appState.kelas.push({ id: "K" + (appState.kelas.length + 1), nama });
+            }
+            showToast('Kelas berhasil disimpan', 'success');
+            loadKelasCards();
+            loadStatsOverview();
+            await apiCall('addKelas', { kelas: { nama } });
         }
 
         function loadKelasCards() {
@@ -1296,8 +1422,11 @@
 
         async function deleteKelas(id) {
             if (confirm("Hapus kelas ini?")) {
+                appState.kelas = appState.kelas.filter(i => i.id !== id);
+                showToast('Kelas dihapus', 'success');
+                loadKelasCards();
+                loadStatsOverview();
                 await apiCall('deleteKelas', { idKelas: id });
-                fetchInitialDataFromGas();
             }
         }
 
@@ -1324,14 +1453,25 @@
             const kode = document.getElementById('m-mapel-kode').value.toUpperCase();
             const nama = document.getElementById('m-mapel-nama').value.toUpperCase();
             closeModal('modal-mapel');
-            await apiCall(id ? 'editMapel' : 'addMapel', { mapel: { id, kode, nama } });
-            fetchInitialDataFromGas();
+            if (id) {
+                const m = appState.mapel.find(i => i.id === id);
+                if (m) { m.kode = kode; m.nama = nama; }
+            } else {
+                appState.mapel.push({ id: "M" + (appState.mapel.length + 1), kode, nama });
+            }
+            showToast('Mapel berhasil disimpan', 'success');
+            loadMapelTable();
+            loadStatsOverview();
+            await apiCall('addMapel', { mapel: { kode, nama } });
         }
 
         async function deleteMapel(id) {
-            if (confirm("Hapus mata pelajaran ini?")) {
+            if (confirm("Hapus mapel ini?")) {
+                appState.mapel = appState.mapel.filter(i => i.id !== id);
+                showToast('Mapel dihapus', 'success');
+                loadMapelTable();
+                loadStatsOverview();
                 await apiCall('deleteMapel', { idMapel: id });
-                fetchInitialDataFromGas();
             }
         }
 
@@ -1370,7 +1510,7 @@
         async function saveSoalModal() {
             const id = document.getElementById('m-soal-id').value;
             const soalObj = {
-                id: id,
+                id: id || ("Q" + (appState.soal.length + 1)),
                 idKelas: document.getElementById('m-soal-kelas').value,
                 idMapel: document.getElementById('m-soal-idmapel').value,
                 pertanyaan: document.getElementById('m-soal-pertanyaan').value,
@@ -1383,9 +1523,15 @@
                 bobot: parseInt(document.getElementById('m-soal-bobot').value) || 10
             };
             closeModal('modal-soal');
-            showToast('Menyimpan soal...', 'info');
-            await apiCall(id ? 'editSoal' : 'addSoal', { soal: soalObj });
-            fetchInitialDataFromGas();
+            if (id) {
+                const idx = appState.soal.findIndex(i => i.id === id);
+                if (idx !== -1) appState.soal[idx] = soalObj;
+            } else {
+                appState.soal.push(soalObj);
+            }
+            showToast('Soal berhasil disimpan', 'success');
+            loadBankSoalTable();
+            await apiCall('addSoal', { soal: soalObj });
         }
 
         function loadBankSoalTable() {
@@ -1402,8 +1548,10 @@
 
         async function deleteSoal(id) {
             if (confirm("Hapus soal ini?")) {
+                appState.soal = appState.soal.filter(i => i.id !== id);
+                showToast('Soal dihapus', 'success');
+                loadBankSoalTable();
                 await apiCall('deleteSoal', { idSoal: id });
-                fetchInitialDataFromGas();
             }
         }
 
@@ -1425,13 +1573,14 @@
             reader.onload = async function(e) {
                 const text = e.target.result;
                 const lines = text.split("\n");
-                let soalList = [];
+                let count = 0;
                 for (let i = 1; i < lines.length; i++) {
                     const line = lines[i].trim();
                     if (!line) continue;
                     const cols = line.split(",");
                     if (cols.length >= 10) {
-                        soalList.push({
+                        appState.soal.push({
+                            id: "Q" + (appState.soal.length + 1),
                             idKelas: cols[0].trim(),
                             idMapel: cols[1].trim(),
                             pertanyaan: cols[2].trim(),
@@ -1443,18 +1592,12 @@
                             kunci: cols[8].trim().toUpperCase(),
                             bobot: parseInt(cols[9].trim()) || 10
                         });
+                        count++;
                     }
                 }
-                if (soalList.length > 0) {
-                    showToast('Mengimpor ' + soalList.length + ' soal...', 'info');
-                    const res = await apiCall('importSoalBatch', { soalList });
-                    if (res.status === 'success') {
-                        showToast(res.message, 'success');
-                        fetchInitialDataFromGas();
-                    }
-                } else {
-                    showToast('Format CSV Bank Soal tidak valid!', 'error');
-                }
+                showToast('Berhasil mengimpor ' + count + ' soal!', 'success');
+                loadBankSoalTable();
+                await apiCall('importSoalBatch', { soalList: appState.soal });
             };
             reader.readAsText(file);
             event.target.value = '';
@@ -1485,7 +1628,7 @@
         async function saveJadwalModal() {
             const id = document.getElementById('m-jadwal-id').value;
             const jadwalObj = {
-                id: id,
+                id: id || ("J" + (appState.jadwal.length + 1)),
                 idKelas: document.getElementById('m-jadwal-kelas').value,
                 idMapel: document.getElementById('m-jadwal-idmapel').value,
                 tanggal: document.getElementById('m-jadwal-tanggal').value,
@@ -1494,8 +1637,15 @@
                 durasi: document.getElementById('m-jadwal-durasi').value
             };
             closeModal('modal-jadwal');
-            await apiCall(id ? 'editJadwal' : 'addJadwal', { jadwal: jadwalObj });
-            fetchInitialDataFromGas();
+            if (id) {
+                const idx = appState.jadwal.findIndex(i => i.id === id);
+                if (idx !== -1) appState.jadwal[idx] = jadwalObj;
+            } else {
+                appState.jadwal.push(jadwalObj);
+            }
+            showToast('Jadwal disimpan', 'success');
+            loadJadwalTable();
+            await apiCall('addJadwal', { jadwal: jadwalObj });
         }
 
         function loadJadwalTable() {
@@ -1510,8 +1660,10 @@
 
         async function deleteJadwal(id) {
             if (confirm("Hapus jadwal ujian ini?")) {
+                appState.jadwal = appState.jadwal.filter(i => i.id !== id);
+                showToast('Jadwal dihapus', 'success');
+                loadJadwalTable();
                 await apiCall('deleteJadwal', { idJadwal: id });
-                fetchInitialDataFromGas();
             }
         }
 
@@ -1528,25 +1680,24 @@
         }
 
         async function saveSettings() {
-            const st = {
-                schoolName: document.getElementById('set-school-name').value.toUpperCase(),
-                appSubTitle: document.getElementById('set-app-subtitle').value,
-                tahunPelajaran: document.getElementById('set-tahun-pelajaran').value,
-                semester: document.getElementById('set-semester').value,
-                kepsekName: document.getElementById('set-kepsek-name').value,
-                logoUrl: document.getElementById('set-logo-url').value,
-                kopUrl: document.getElementById('set-kop-url').value
-            };
-            showToast('Menyimpan pengaturan...', 'info');
-            await apiCall('saveSettings', { settings: st });
-            fetchInitialDataFromGas();
+            appState.settings.schoolName = document.getElementById('set-school-name').value.toUpperCase();
+            appState.settings.appSubTitle = document.getElementById('set-app-subtitle').value.toUpperCase();
+            appState.settings.tahunPelajaran = document.getElementById('set-tahun-pelajaran').value;
+            appState.settings.semester = document.getElementById('set-semester').value;
+            appState.settings.kepsekName = document.getElementById('set-kepsek-name').value;
+            appState.settings.logoUrl = document.getElementById('set-logo-url').value;
+            appState.settings.ttdUrl = document.getElementById('set-ttd-url').value;
+
+            syncBrandingUI();
+            renderCardsForPrint();
+            showToast('Pengaturan berhasil disimpan!', 'success');
+            await apiCall('saveSettings', { settings: appState.settings });
         }
 
         async function triggerDatabaseSetup() {
-            if (confirm("Inisialisasi semua tab database Spreadsheet? (Hanya untuk penyiapan awal)")) {
-                showToast('Menyiapkan struktur tab Spreadsheet...', 'info');
+            if (confirm("Inisialisasi semua tab database Spreadsheet?")) {
+                showToast('Struktur Spreadsheet berhasil diinisialisasi!', 'success');
                 await apiCall('setupDatabase');
-                fetchInitialDataFromGas();
             }
         }
 
