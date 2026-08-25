@@ -58,7 +58,7 @@
             #printable-area, #printable-area *, #printable-hasil-area, #printable-hasil-area * { visibility: visible; }
             #printable-area, #printable-hasil-area { position: absolute; left: 0; top: 0; width: 100%; }
             .no-print { display: none !important; }
-            .card-break { page-break-inside: avoid; break-inside: avoid; margin-bottom: 20px; }
+            .card-break { page-break-inside: avoid; break-inside: avoid; margin-bottom: 12px; }
         }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
@@ -377,13 +377,14 @@
                         <!-- CETAK KARTU SUBTAB -->
                         <div id="admin-tab-kartu" class="admin-subtab hidden space-y-4">
                             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4 no-print">
-                                <h3 class="font-bold text-slate-800">Cetak Kartu Login Ujian (Sesuai Format Referensi)</h3>
+                                <h3 class="font-bold text-slate-800">Cetak Kartu Login Ujian (Ukuran Compact)</h3>
                                 <div class="flex items-center gap-3">
                                     <select id="filter-kartu-kelas" onchange="renderCardsForPrint()" class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm"></select>
                                     <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-print"></i> Cetak Kartu</button>
                                 </div>
                             </div>
-                            <div id="printable-area" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                            <!-- Grid 3 kolom untuk kartu ukuran compact agar muat banyak dalam 1 halaman A4 -->
+                            <div id="printable-area" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                         </div>
 
                         <!-- DATA KELAS SUBTAB -->
@@ -508,28 +509,34 @@
                                         <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nama Kepala Sekolah</label>
                                         <input type="text" id="set-kepsek-name" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
                                     </div>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border">
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border">
                                         <div>
-                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Upload Logo Lembaga</label>
-                                            <input type="file" id="upload-logo-file" accept="image/*" onchange="handleImageUpload(event, 'logoUrl')" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
-                                            <div class="mt-2 flex items-center gap-3">
-                                                <img id="preview-logo-img" src="" class="w-10 h-10 object-contain bg-white border p-1 rounded-lg">
-                                                <input type="hidden" id="set-logo-url">
-                                                <span class="text-[11px] text-slate-400">Format PNG/JPG</span>
+                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Upload Kop Surat</label>
+                                            <input type="file" id="upload-kop-file" accept="image/*" onchange="handleImageUpload(event, 'kopUrl')" class="block w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                                            <div class="mt-2 flex items-center gap-2">
+                                                <img id="preview-kop-img" src="" class="w-16 h-8 object-contain bg-white border p-0.5 rounded">
+                                                <input type="hidden" id="set-kop-url">
                                             </div>
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Upload Tanda Tangan / Stempel</label>
-                                            <input type="file" id="upload-ttd-file" accept="image/*" onchange="handleImageUpload(event, 'ttdUrl')" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
-                                            <div class="mt-2 flex items-center gap-3">
-                                                <img id="preview-ttd-img" src="" class="w-16 h-10 object-contain bg-white border p-1 rounded-lg">
+                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Upload Logo</label>
+                                            <input type="file" id="upload-logo-file" accept="image/*" onchange="handleImageUpload(event, 'logoUrl')" class="block w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                                            <div class="mt-2 flex items-center gap-2">
+                                                <img id="preview-logo-img" src="" class="w-8 h-8 object-contain bg-white border p-0.5 rounded">
+                                                <input type="hidden" id="set-logo-url">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Upload Tanda Tangan</label>
+                                            <input type="file" id="upload-ttd-file" accept="image/*" onchange="handleImageUpload(event, 'ttdUrl')" class="block w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                                            <div class="mt-2 flex items-center gap-2">
+                                                <img id="preview-ttd-img" src="" class="w-12 h-8 object-contain bg-white border p-0.5 rounded">
                                                 <input type="hidden" id="set-ttd-url">
-                                                <span class="text-[11px] text-slate-400">Untuk Kartu Ujian</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="pt-2 flex justify-between items-center">
-                                        <button type="button" onclick="triggerDatabaseSetup()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs"><i class="fa-solid fa-database mr-1"></i> Inisialisasi Tab Spreadsheet</button>
+                                        <button type="button" onclick="triggerDatabaseSetup()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs"><i class="fa-solid fa-database mr-1"></i> Inisialisasi Spreadsheet</button>
                                         <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Simpan Pengaturan</button>
                                     </div>
                                 </form>
@@ -555,7 +562,7 @@
                     <div><label class="block text-xs font-bold uppercase mb-1">Tanggal Lahir</label><input type="date" id="m-siswa-dob" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"></div>
                 </div>
                 <div><label class="block text-xs font-bold uppercase mb-1">Username</label><input type="text" id="m-siswa-username" readonly class="w-full px-3 py-2 bg-slate-200 border rounded-xl text-sm font-mono font-bold"></div>
-                <div><label class="block text-xs font-bold uppercase mb-1">Password (Otomatis)</label><input type="text" id="m-siswa-password" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm font-mono font-bold"></div>
+                <div><label class="block text-xs font-bold uppercase mb-1">Password</label><input type="text" id="m-siswa-password" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm font-mono font-bold"></div>
                 <div class="pt-3 flex justify-end gap-2 border-t">
                     <button type="button" onclick="closeModal('modal-siswa')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Batal</button>
                     <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold">Simpan</button>
@@ -675,8 +682,8 @@
     <!-- JAVASCRIPT APP LOGIC -->
     <script>
         // KONFIGURASI APLIKASI
-        const IS_PREVIEW = false; // Set default true untuk Canvas
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbzzzkS_sPrZ6Au4sFthsdE-ml9I_grUg6_hrIRMCDyKPu5Xzh3MTlOM9l2PUjIcUKNE/exec";
+        const IS_PREVIEW = false;
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwmNsGvDIzbiDo3nQ4WXF31sbDZOnvISQz2TPX-8z__cmI1NiItt2eDnCBKqR660lC1/exec";
 
         let appState = {
             settings: {
@@ -684,8 +691,9 @@
                 appSubTitle: "UJIAN SEMESTER GANJIL",
                 tahunPelajaran: "2026/2027",
                 semester: "Ganjil",
+                kopUrl: "https://placehold.co/600x80/1e40af/ffffff?text=KOP+LEMBAGA+SD+NEGERI+KALISAPU+01",
                 logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png",
-                ttdUrl: "https://placehold.co/150x80/transparent/1e3a8a?text=TTD+Kepsek",
+                ttdUrl: "https://placehold.co/120x60/transparent/1e3a8a?text=TTD+Kepsek",
                 kepsekName: "Drs. H. Riyan Miraldi, M.Pd",
                 tokenActive: true,
                 currentToken: "EXM123"
@@ -707,7 +715,7 @@
                 { id: "Q2", idKelas: "K1", idMapel: "M1", pertanyaan: "Akar kuadrat dari 144 adalah?", opsiA: "10", opsiB: "11", opsiC: "12", opsiD: "13", opsiE: "14", kunci: "C", bobot: 20 }
             ],
             jadwal: [
-                { id: "J1", idKelas: "K1", idMapel: "M1", tanggal: "2026-08-24", jamMulai: "08:00", jamSelesai: "10:00", durasi: 60 }
+                { id: "J1", idKelas: "K1", idMapel: "M1", tanggal: "2026-08-25", jamMulai: "08:00", jamSelesai: "10:00", durasi: 60 }
             ],
             hasil: []
         };
@@ -820,6 +828,10 @@
                 document.getElementById('preview-logo-img').src = st.logoUrl;
                 document.getElementById('set-logo-url').value = st.logoUrl;
             }
+            if (st.kopUrl) {
+                document.getElementById('preview-kop-img').src = st.kopUrl;
+                document.getElementById('set-kop-url').value = st.kopUrl;
+            }
             if (st.ttdUrl) {
                 document.getElementById('preview-ttd-img').src = st.ttdUrl;
                 document.getElementById('set-ttd-url').value = st.ttdUrl;
@@ -839,6 +851,9 @@
                 if (targetField === 'logoUrl') {
                     document.getElementById('preview-logo-img').src = base64String;
                     document.getElementById('set-logo-url').value = base64String;
+                } else if (targetField === 'kopUrl') {
+                    document.getElementById('preview-kop-img').src = base64String;
+                    document.getElementById('set-kop-url').value = base64String;
                 } else if (targetField === 'ttdUrl') {
                     document.getElementById('preview-ttd-img').src = base64String;
                     document.getElementById('set-ttd-url').value = base64String;
@@ -1133,9 +1148,11 @@
             if (!tbody) return;
             tbody.innerHTML = '';
             (data || appState.siswa).forEach(s => {
+                let formattedDob = s.dob || '-';
+                if (formattedDob.includes('T')) formattedDob = formattedDob.split('T')[0];
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
-                tr.innerHTML = `<td class="p-3.5 font-mono text-xs">${s.nisn}</td><td class="p-3.5 font-bold">${s.nama}</td><td class="p-3.5">${getKelasName(s.idKelas)}</td><td class="p-3.5 text-xs">${s.pob || '-'}, ${s.dob || '-'}</td><td class="p-3.5 font-mono text-xs">${s.username}</td><td class="p-3.5 font-mono text-xs text-amber-700">${s.password}</td><td class="p-3.5 text-center flex items-center justify-center gap-2"><button onclick="openModalEditSiswa('${s.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteSiswa('${s.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
+                tr.innerHTML = `<td class="p-3.5 font-mono text-xs">${s.nisn}</td><td class="p-3.5 font-bold">${s.nama}</td><td class="p-3.5">${getKelasName(s.idKelas)}</td><td class="p-3.5 text-xs">${s.pob || '-' }, ${formattedDob}</td><td class="p-3.5 font-mono text-xs">${s.username}</td><td class="p-3.5 font-mono text-xs text-amber-700">${s.password}</td><td class="p-3.5 text-center flex items-center justify-center gap-2"><button onclick="openModalEditSiswa('${s.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteSiswa('${s.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
                 tbody.appendChild(tr);
             });
             populateSelectOptions();
@@ -1148,7 +1165,7 @@
             loadSiswaTable(filtered);
         }
 
-        // RENDER KARTU UJIAN SESUAI FORMAT GAMBAR REFERENSI (KOP ATAS, TANPA FOTO, FORM-LIKE, TTD)
+        // RENDER KARTU UJIAN COMPACT SESUAI REFERENSI GAMBAR
         function renderCardsForPrint() {
             const container = document.getElementById('printable-area');
             if (!container) return;
@@ -1156,58 +1173,56 @@
             const selectedKelas = document.getElementById('filter-kartu-kelas').value;
             const todayStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
             const subTitleText = appState.settings.appSubTitle || 'UJIAN SEMESTER GANJIL';
-            const schoolNameText = appState.settings.schoolName || 'SD NEGERI KALISAPU 01';
             const kepsekText = appState.settings.kepsekName || 'Drs. H. Riyan Miraldi, M.Pd';
-            const logoUrl = appState.settings.logoUrl || '';
+            const kopUrl = appState.settings.kopUrl || '';
 
             appState.siswa.filter(s => !selectedKelas || s.idKelas === selectedKelas).forEach(s => {
+                let formattedDob = s.dob || '-';
+                if (formattedDob.includes('T')) formattedDob = formattedDob.split('T')[0];
+
                 const card = document.createElement('div');
-                card.className = 'bg-white border-4 border-blue-600 rounded-2xl p-5 shadow-md card-break text-xs relative overflow-hidden flex flex-col justify-between';
-                card.style.minHeight = '360px';
+                card.className = 'bg-white border-2 border-blue-600 rounded-xl p-3 shadow-sm card-break text-[11px] relative overflow-hidden flex flex-col justify-between';
+                card.style.height = '290px'; // Ukuran compact pas
                 
                 card.innerHTML = `
                     <div>
-                        <!-- Header Kop & Logo Sesuai Referensi -->
-                        <div class="flex items-center gap-4 border-b-2 border-blue-600 pb-3 mb-3">
-                            <img src="${logoUrl}" class="w-12 h-12 object-contain" alt="Logo">
-                            <div class="text-left flex-1">
-                                <h4 class="font-extrabold text-blue-900 text-base tracking-wide uppercase">${schoolNameText}</h4>
-                                <p class="text-[11px] text-slate-600 font-medium">Jl. Raya Ujian Online No. 01 – Portal CBT Terpadu</p>
-                            </div>
+                        <!-- Kop Surat di Paling Atas -->
+                        <div class="border-b-2 border-blue-600 pb-1.5 mb-2 text-center">
+                            <img src="${kopUrl}" class="max-h-9 mx-auto object-contain" onerror="this.src='https://placehold.co/300x50/1e40af/ffffff?text=KOP+LEMBAGA'">
                         </div>
 
-                        <!-- Badge Judul Ujian -->
-                        <div class="bg-blue-900 text-white text-center py-2 px-4 rounded-xl mb-2 font-black tracking-widest text-sm shadow-sm">
+                        <!-- Header Kartu -->
+                        <div class="bg-blue-900 text-white text-center py-1 px-2 rounded-lg mb-1 font-black tracking-wider text-[11px]">
                             KARTU PESERTA UJIAN
                         </div>
-                        <div class="text-center font-bold text-slate-800 text-xs tracking-wider mb-1 uppercase">${subTitleText}</div>
-                        <div class="bg-blue-700 text-white text-center py-1 rounded-lg text-[11px] font-bold tracking-wider mb-4">
+                        <div class="text-center font-bold text-slate-800 text-[10px] uppercase tracking-wide mb-0.5">${subTitleText}</div>
+                        <div class="bg-blue-700 text-white text-center py-0.5 rounded text-[9px] font-bold tracking-wider mb-2.5">
                             TAHUN AJARAN ${appState.settings.tahunPelajaran}
                         </div>
 
-                        <!-- Data Siswa Style Form Titik-titik -->
-                        <div class="space-y-2 px-1 text-slate-900 font-semibold text-xs">
-                            <div class="grid grid-cols-12 gap-1 items-center border-b border-dashed border-slate-300 pb-1">
+                        <!-- Data Siswa (Compact, Titik-titik, Tanpa Foto) -->
+                        <div class="space-y-1 px-1 text-slate-900 font-semibold text-[11px]">
+                            <div class="grid grid-cols-12 gap-0.5 items-center border-b border-dashed border-slate-300 pb-0.5">
                                 <span class="col-span-4 text-slate-700">Nama</span>
                                 <span class="col-span-1 text-center">:</span>
-                                <span class="col-span-7 uppercase font-bold text-blue-900">${s.nama}</span>
+                                <span class="col-span-7 uppercase font-bold text-blue-900 truncate">${s.nama}</span>
                             </div>
-                            <div class="grid grid-cols-12 gap-1 items-center border-b border-dashed border-slate-300 pb-1">
+                            <div class="grid grid-cols-12 gap-0.5 items-center border-b border-dashed border-slate-300 pb-0.5">
                                 <span class="col-span-4 text-slate-700">Kelas</span>
                                 <span class="col-span-1 text-center">:</span>
                                 <span class="col-span-7 uppercase">${getKelasName(s.idKelas)}</span>
                             </div>
-                            <div class="grid grid-cols-12 gap-1 items-center border-b border-dashed border-slate-300 pb-1">
-                                <span class="col-span-4 text-slate-700">Tanggal Lahir</span>
+                            <div class="grid grid-cols-12 gap-0.5 items-center border-b border-dashed border-slate-300 pb-0.5">
+                                <span class="col-span-4 text-slate-700">Tgl Lahir</span>
                                 <span class="col-span-1 text-center">:</span>
-                                <span class="col-span-7">${s.dob || '-'}</span>
+                                <span class="col-span-7">${formattedDob}</span>
                             </div>
-                            <div class="grid grid-cols-12 gap-1 items-center border-b border-dashed border-slate-300 pb-1">
+                            <div class="grid grid-cols-12 gap-0.5 items-center border-b border-dashed border-slate-300 pb-0.5">
                                 <span class="col-span-4 text-slate-700">Username</span>
                                 <span class="col-span-1 text-center">:</span>
                                 <span class="col-span-7 font-mono font-bold text-brand-700">${s.username}</span>
                             </div>
-                            <div class="grid grid-cols-12 gap-1 items-center border-b border-dashed border-slate-300 pb-1">
+                            <div class="grid grid-cols-12 gap-0.5 items-center border-b border-dashed border-slate-300 pb-0.5">
                                 <span class="col-span-4 text-slate-700">Password</span>
                                 <span class="col-span-1 text-center">:</span>
                                 <span class="col-span-7 font-mono font-bold text-amber-700">${s.password}</span>
@@ -1215,19 +1230,17 @@
                         </div>
                     </div>
 
-                    <!-- Footer Kartu: Tanggal Cetak & TTD Kepala Sekolah -->
-                    <div class="pt-6 mt-4 border-t border-slate-200 flex items-end justify-between text-[11px]">
-                        <div class="bg-blue-50 border border-blue-200 p-2 rounded-xl text-slate-700">
-                            <p class="font-bold"><i class="fa-solid fa-calendar-days mr-1 text-blue-600"></i> Tanggal Cetak:</p>
-                            <p class="font-mono text-blue-900">${todayStr}</p>
+                    <!-- Footer Kartu: Tanggal Cetak & TTD -->
+                    <div class="pt-2 mt-2 border-t border-slate-200 flex items-end justify-between text-[9px]">
+                        <div>
+                            <p class="text-slate-500 font-medium">Cetak: ${todayStr}</p>
                         </div>
                         <div class="text-center">
-                            <p class="mb-1 text-slate-600 font-medium">Kepala Sekolah,</p>
-                            <div class="h-10 flex items-center justify-center my-0.5">
-                                <img src="${appState.settings.ttdUrl || ''}" class="max-h-10 object-contain" onerror="this.style.display='none'">
+                            <p class="text-slate-600 font-medium">Kepala Sekolah,</p>
+                            <div class="h-6 flex items-center justify-center my-0.5">
+                                <img src="${appState.settings.ttdUrl || ''}" class="max-h-6 object-contain" onerror="this.style.display='none'">
                             </div>
                             <p class="font-bold underline text-slate-900">${kepsekText}</p>
-                            <p class="text-[9px] text-slate-500">NIP. 19680512 199303 1 005</p>
                         </div>
                     </div>
                 `;
@@ -1651,9 +1664,16 @@
         function loadJadwalTable() {
             const tbody = document.getElementById('table-jadwal-body'); if (!tbody) return; tbody.innerHTML = '';
             appState.jadwal.forEach(j => {
+                let tgl = j.tanggal || '-';
+                if (tgl.includes('T')) tgl = tgl.split('T')[0];
+                let mulai = j.jamMulai || '';
+                if (mulai.includes('T')) mulai = mulai.substring(11, 16);
+                let selesai = j.jamSelesai || '';
+                if (selesai.includes('T')) selesai = selesai.substring(11, 16);
+
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
-                tr.innerHTML = `<td class="p-3.5 font-bold">${j.tanggal}</td><td class="p-3.5">${getKelasName(j.idKelas)}</td><td class="p-3.5">${getMapelName(j.idMapel)}</td><td class="p-3.5 text-xs font-mono">${j.jamMulai} - ${j.jamSelesai}</td><td class="p-3.5 text-xs">${j.durasi} menit</td><td class="p-3.5 text-center flex items-center justify-center gap-2"><button onclick="openModalEditJadwal('${j.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteJadwal('${j.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
+                tr.innerHTML = `<td class="p-3.5 font-bold">${tgl}</td><td class="p-3.5">${getKelasName(j.idKelas)}</td><td class="p-3.5">${getMapelName(j.idMapel)}</td><td class="p-3.5 text-xs font-mono">${mulai} - ${selesai}</td><td class="p-3.5 text-xs">${j.durasi} menit</td><td class="p-3.5 text-center flex items-center justify-center gap-2"><button onclick="openModalEditJadwal('${j.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteJadwal('${j.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -1685,6 +1705,7 @@
             appState.settings.tahunPelajaran = document.getElementById('set-tahun-pelajaran').value;
             appState.settings.semester = document.getElementById('set-semester').value;
             appState.settings.kepsekName = document.getElementById('set-kepsek-name').value;
+            appState.settings.kopUrl = document.getElementById('set-kop-url').value;
             appState.settings.logoUrl = document.getElementById('set-logo-url').value;
             appState.settings.ttdUrl = document.getElementById('set-ttd-url').value;
 
