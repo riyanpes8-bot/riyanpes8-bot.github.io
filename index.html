@@ -37,7 +37,7 @@
             width: 100vw !important;
             min-height: 100vh !important;
             overflow-x: hidden !important;
-            background-color: #f1f5f9;
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
             font-family: 'Inter', sans-serif;
         }
         #navbar-iframe, .navbar, .header-outer, .nav-outer, .sidebar-wrapper,
@@ -726,7 +726,7 @@
     <script>
         // KONFIGURASI APLIKASI
         const IS_PREVIEW = false;
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbx-WzTQc2LQWVh5XRuIs6KlHcymi5BZFoh3wrugcsEYg3y8BRgilyAmWFzOe0z7xN-o/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxeH1gFfq-OtuR6UL2vumSx9FADVVqG9lJiMK9VtpOfr4FKWwLw9WYjqR1TjBHXTSSv/exec";
 
         let appState = {
             settings: {
@@ -1261,38 +1261,73 @@
                 <!-- KOP SURAT -->
                 <div>
 
-                    <div class="border-b-2 border-blue-600 pb-1 mb-1 text-center">
-                        <img
-                            src="${kopUrl}"
-                            class="max-h-[26px] mx-auto object-contain"
-                            style="max-width:100%;"
-                            onerror="this.style.display='none'"
-                        >
-                    </div>
-
-                    <!-- JUDUL -->
                     <div
-                        class="bg-blue-900 text-white text-center py-1 px-2 rounded-md font-black tracking-wider"
-                        style="font-size:10px;"
-                    >
-                        KARTU PESERTA UJIAN
-                    </div>
+    style="
+        width:100%;
+        height:10mm;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        overflow:hidden;
+        margin:0;
+        padding:0;
+    "
+>
+    <img
+        src="${kopUrl}"
+        style="
+            width:100%;
+            height:auto;
+            max-width:100%;
+            max-height:10mm;
+            object-fit:contain;
+            object-position:center;
+            display:block;
+        "
+        onerror="this.style.display='none'"
+    >
+</div>
 
-                    <div
-                        class="text-center font-bold text-slate-800 uppercase tracking-wide"
-                        style="font-size:8px; margin-top:2px;"
-                    >
-                        ${subTitleText}
-                    </div>
+                    <!-- JUDUL KARTU -->
+<div
+    class="bg-blue-900 text-white text-center rounded-md font-black tracking-wider"
+    style="
+        font-size:10px;
+        line-height:12px;
+        padding:2px 6px;
+        margin:0;
+    "
+>
+    KARTU PESERTA UJIAN
+</div>
 
-                    <div
-                        class="bg-blue-700 text-white text-center rounded font-bold tracking-wider"
-                        style="font-size:7px; padding:2px; margin-top:2px;"
-                    >
-                        TAHUN AJARAN ${appState.settings.tahunPelajaran}
-                        &nbsp; | &nbsp;
-                        ${appState.settings.semester || ''}
-                    </div>
+<!-- SUB JUDUL -->
+<div
+    class="text-center font-bold text-slate-800 uppercase tracking-wide"
+    style="
+        font-size:8px;
+        line-height:9px;
+        margin:1px 0 0 0;
+        padding:0;
+    "
+>
+    ${subTitleText}
+</div>
+
+<!-- TAHUN AJARAN TANPA BACKGROUND -->
+<div
+    class="text-center font-bold text-blue-800 tracking-wide"
+    style="
+        font-size:7px;
+        line-height:8px;
+        margin:0;
+        padding:0;
+    "
+>
+    TAHUN AJARAN ${appState.settings.tahunPelajaran}
+    &nbsp; | &nbsp;
+    ${appState.settings.semester || ''}
+</div>
 
                     <!-- DATA SISWA -->
                     <div
