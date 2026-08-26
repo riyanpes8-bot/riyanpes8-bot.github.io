@@ -758,7 +758,7 @@
     <script>
         // KONFIGURASI APLIKASI
         const IS_PREVIEW = false;
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwNWBw_6UGZRkOgIid2jmkxnr5zbigZkxb3StdRcV51pAG-Mv-Ne06TRiOkHIG_niFV/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxGGKVPw77mihduQiib5-0qfcM2TxfKQSq3NC9bgOJ9qPXnZQShE-t0tkk9IvHBwjqT/exec";
 
         let appState = {
             settings: {
@@ -1437,6 +1437,7 @@
         overflow:visible;
         position:relative;
         z-index:10;
+        margin-top:-3mm;
     "
 >
 
@@ -1447,7 +1448,7 @@
             line-height:8px;
             font-weight:700;
             white-space:nowrap;
-            margin:0 0 1px 0;
+            margin:0;
         "
     >
         ADIWERNA, ${todayStr}
@@ -1457,13 +1458,10 @@
     <div
         style="
             font-size:8px;
-            line-height:10px;
+            line-height:9px;
             font-weight:800;
             white-space:nowrap;
-            display:block;
-            visibility:visible;
-            opacity:1;
-            margin-bottom:0;
+            margin:0;
         "
     >
         KEPALA SEKOLAH
@@ -1472,11 +1470,12 @@
     <!-- TTD -->
     <div
         style="
-            height:8mm;
+            height:7mm;
             display:flex;
             align-items:center;
             justify-content:center;
-            margin:0;
+            margin-top:-1mm;
+            margin-bottom:-1mm;
             overflow:visible;
         "
     >
@@ -1503,7 +1502,7 @@
     <div
         style="
             font-size:9px;
-            line-height:11px;
+            line-height:10px;
             font-weight:800;
             color:#0f172a;
             text-decoration:underline;
@@ -1512,8 +1511,8 @@
             visibility:visible;
             opacity:1;
             position:relative;
-            z-index:30;
-            margin-top:1mm;
+            z-index:100;
+            margin-top:-1mm;
         "
     >
         ${kepsekText}
