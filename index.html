@@ -758,7 +758,7 @@
     <script>
         // KONFIGURASI APLIKASI
         const IS_PREVIEW = false;
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyIEV_aU4E9LFl2YWRxYZpeQEbZ8_vdfaLdMev9eLUY6baTAKdYfCjUvuSZXuoL4UDZ/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwNWBw_6UGZRkOgIid2jmkxnr5zbigZkxb3StdRcV51pAG-Mv-Ne06TRiOkHIG_niFV/exec";
 
         let appState = {
             settings: {
@@ -1434,15 +1434,18 @@
         width:55%;
         min-width:0;
         color:#0f172a;
+        overflow:visible;
+        position:relative;
+        z-index:10;
     "
 >
 
     <!-- TEMPAT & TANGGAL -->
     <div
-        class="font-bold text-slate-800"
         style="
             font-size:7px;
             line-height:8px;
+            font-weight:700;
             white-space:nowrap;
             margin:0 0 1px 0;
         "
@@ -1452,14 +1455,15 @@
 
     <!-- KEPALA SEKOLAH -->
     <div
-        class="font-extrabold text-slate-900"
         style="
-            font-size:7.5px;
-            line-height:9px;
+            font-size:8px;
+            line-height:10px;
+            font-weight:800;
             white-space:nowrap;
             display:block;
             visibility:visible;
             opacity:1;
+            margin-bottom:0;
         "
     >
         KEPALA SEKOLAH
@@ -1468,7 +1472,7 @@
     <!-- TTD -->
     <div
         style="
-            height:9mm;
+            height:8mm;
             display:flex;
             align-items:center;
             justify-content:center;
@@ -1483,8 +1487,8 @@
                     src="${ttdUrl}"
                     style="
                         width:auto;
-                        max-width:28mm;
-                        height:8mm;
+                        max-width:26mm;
+                        height:7mm;
                         object-fit:contain;
                         display:block;
                     "
@@ -1497,14 +1501,19 @@
 
     <!-- NAMA KEPALA SEKOLAH -->
     <div
-        class="font-bold underline text-slate-900"
         style="
-            font-size:7.5px;
-            line-height:9px;
+            font-size:9px;
+            line-height:11px;
+            font-weight:800;
+            color:#0f172a;
+            text-decoration:underline;
             white-space:nowrap;
             display:block;
             visibility:visible;
             opacity:1;
+            position:relative;
+            z-index:30;
+            margin-top:1mm;
         "
     >
         ${kepsekText}
