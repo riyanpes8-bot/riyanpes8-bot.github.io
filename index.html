@@ -1,4 +1,3 @@
-<!-- Chosen Palette: Deep Puspendik Blue (#1e3a8a, #2563eb), Golden Amber (#f59e0b), Soft Slate (#f1f5f9) -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -146,7 +145,7 @@
         <!-- Notifikasi Toast -->
         <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-        <!-- Custom Modal Dialog (Pengganti Alert) -->
+        <!-- Custom Modal Dialog -->
         <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
             <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-slate-100 text-center">
                 <div id="modal-icon" class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto text-xl">
@@ -200,7 +199,7 @@
         </header>
 
         <main class="flex-1 max-w-7xl w-full mx-auto p-0 sm:p-4 lg:p-6">
-            <!-- VIEW 1: LOGIN VIEW (100% DINAMIS DARI PENGATURAN) -->
+            <!-- VIEW 1: LOGIN VIEW -->
             <section id="view-login" class="min-h-screen sm:min-h-[85vh] flex flex-col justify-start sm:justify-center items-center relative">
                 <div class="w-full puspendik-bg h-64 sm:h-72 flex flex-col items-center justify-start pt-8 sm:pt-10 text-white text-center shadow-lg">
                     <div class="flex items-center justify-center gap-4 px-4">
@@ -644,7 +643,7 @@
         </main>
     </div>
 
-    <!-- MODAL TAMBAH / EDIT SISWA -->
+    <!-- MODAL SISWA -->
     <div id="modal-siswa" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <h3 class="font-bold text-slate-800 text-lg border-b pb-2" id="modal-siswa-title">Tambah Siswa</h3>
@@ -725,29 +724,120 @@
 
     <!-- MODAL BANK SOAL -->
     <div id="modal-soal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <h3 class="font-bold text-slate-800 text-lg border-b pb-2" id="modal-soal-title">Tambah Soal</h3>
-            <form onsubmit="event.preventDefault(); saveSoalModal();" class="space-y-3">
+            <form onsubmit="event.preventDefault(); saveSoalModal();" class="space-y-4">
                 <input type="hidden" id="m-soal-id">
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-2 gap-3">
                     <div><label class="block text-xs font-bold uppercase mb-1">Kelas</label><select id="m-soal-kelas" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"></select></div>
                     <div><label class="block text-xs font-bold uppercase mb-1">Mapel</label><select id="m-soal-idmapel" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"></select></div>
                 </div>
-                <div><label class="block text-xs font-bold uppercase mb-1">Pertanyaan</label><textarea id="m-soal-pertanyaan" required rows="3" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"></textarea></div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div><label class="block text-xs font-bold uppercase mb-1">Opsi A</label><input type="text" id="m-soal-opsiA" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"></div>
-                    <div><label class="block text-xs font-bold uppercase mb-1">Opsi B</label><input type="text" id="m-soal-opsiB" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"></div>
-                    <div><label class="block text-xs font-bold uppercase mb-1">Opsi C</label><input type="text" id="m-soal-opsiC" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"></div>
-                    <div><label class="block text-xs font-bold uppercase mb-1">Opsi D</label><input type="text" id="m-soal-opsiD" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"></div>
+                
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold uppercase">Pertanyaan Soal</label>
+                    <textarea id="m-soal-pertanyaan" required rows="3" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm placeholder:text-slate-400" placeholder="Ketik butir pertanyaan soal..."></textarea>
+                    <div class="bg-slate-50 p-3 border rounded-xl space-y-2">
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase"><i class="fa-solid fa-image text-brand-600 mr-1"></i> Gambar Soal (Opsional)</label>
+                        <input type="file" id="m-soal-file-pertanyaan" accept="image/*" onchange="handleSoalImageUpload(event, 'preview-img-pertanyaan', 'data-img-pertanyaan')" class="block w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                        <input type="hidden" id="data-img-pertanyaan">
+                        <div id="wrapper-preview-pertanyaan" class="hidden relative inline-block mt-1">
+                            <img id="preview-img-pertanyaan" src="" class="max-h-28 rounded-lg border bg-white p-1 object-contain">
+                            <button type="button" onclick="clearSoalImage('preview-img-pertanyaan', 'data-img-pertanyaan', 'm-soal-file-pertanyaan', 'wrapper-preview-pertanyaan')" class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </div>
                 </div>
-                <div><label class="block text-xs font-bold uppercase mb-1">Opsi E</label><input type="text" id="m-soal-opsiE" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"></div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div><label class="block text-xs font-bold uppercase mb-1">Kunci</label><select id="m-soal-kunci" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm font-bold"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option></select></div>
-                    <div><label class="block text-xs font-bold uppercase mb-1">Bobot</label><input type="number" id="m-soal-bobot" value="10" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"></div>
+
+                <div class="space-y-3 border-t border-b py-3">
+                    <label class="block text-xs font-bold uppercase text-slate-700">Pilihan Opsi & Gambar Jawaban</label>
+                    
+                    <!-- Opsi A -->
+                    <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-sm text-brand-700 w-6">A.</span>
+                            <input type="text" id="m-soal-opsiA" required placeholder="Teks Jawaban A" class="w-full px-3 py-1.5 bg-white border rounded-lg text-sm">
+                        </div>
+                        <div class="pl-8 flex items-center gap-3">
+                            <input type="file" id="m-soal-file-opsiA" accept="image/*" onchange="handleSoalImageUpload(event, 'preview-img-opsiA', 'data-img-opsiA')" class="block w-full text-[11px] text-slate-500 file:mr-2 file:py-0.5 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-brand-50 file:text-brand-700">
+                            <input type="hidden" id="data-img-opsiA">
+                            <div id="wrapper-preview-opsiA" class="hidden relative shrink-0">
+                                <img id="preview-img-opsiA" src="" class="h-10 w-10 object-cover rounded border bg-white">
+                                <button type="button" onclick="clearSoalImage('preview-img-opsiA', 'data-img-opsiA', 'm-soal-file-opsiA', 'wrapper-preview-opsiA')" class="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Opsi B -->
+                    <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-sm text-brand-700 w-6">B.</span>
+                            <input type="text" id="m-soal-opsiB" required placeholder="Teks Jawaban B" class="w-full px-3 py-1.5 bg-white border rounded-lg text-sm">
+                        </div>
+                        <div class="pl-8 flex items-center gap-3">
+                            <input type="file" id="m-soal-file-opsiB" accept="image/*" onchange="handleSoalImageUpload(event, 'preview-img-opsiB', 'data-img-opsiB')" class="block w-full text-[11px] text-slate-500 file:mr-2 file:py-0.5 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-brand-50 file:text-brand-700">
+                            <input type="hidden" id="data-img-opsiB">
+                            <div id="wrapper-preview-opsiB" class="hidden relative shrink-0">
+                                <img id="preview-img-opsiB" src="" class="h-10 w-10 object-cover rounded border bg-white">
+                                <button type="button" onclick="clearSoalImage('preview-img-opsiB', 'data-img-opsiB', 'm-soal-file-opsiB', 'wrapper-preview-opsiB')" class="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Opsi C -->
+                    <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-sm text-brand-700 w-6">C.</span>
+                            <input type="text" id="m-soal-opsiC" required placeholder="Teks Jawaban C" class="w-full px-3 py-1.5 bg-white border rounded-lg text-sm">
+                        </div>
+                        <div class="pl-8 flex items-center gap-3">
+                            <input type="file" id="m-soal-file-opsiC" accept="image/*" onchange="handleSoalImageUpload(event, 'preview-img-opsiC', 'data-img-opsiC')" class="block w-full text-[11px] text-slate-500 file:mr-2 file:py-0.5 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-brand-50 file:text-brand-700">
+                            <input type="hidden" id="data-img-opsiC">
+                            <div id="wrapper-preview-opsiC" class="hidden relative shrink-0">
+                                <img id="preview-img-opsiC" src="" class="h-10 w-10 object-cover rounded border bg-white">
+                                <button type="button" onclick="clearSoalImage('preview-img-opsiC', 'data-img-opsiC', 'm-soal-file-opsiC', 'wrapper-preview-opsiC')" class="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Opsi D -->
+                    <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-sm text-brand-700 w-6">D.</span>
+                            <input type="text" id="m-soal-opsiD" required placeholder="Teks Jawaban D" class="w-full px-3 py-1.5 bg-white border rounded-lg text-sm">
+                        </div>
+                        <div class="pl-8 flex items-center gap-3">
+                            <input type="file" id="m-soal-file-opsiD" accept="image/*" onchange="handleSoalImageUpload(event, 'preview-img-opsiD', 'data-img-opsiD')" class="block w-full text-[11px] text-slate-500 file:mr-2 file:py-0.5 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-brand-50 file:text-brand-700">
+                            <input type="hidden" id="data-img-opsiD">
+                            <div id="wrapper-preview-opsiD" class="hidden relative shrink-0">
+                                <img id="preview-img-opsiD" src="" class="h-10 w-10 object-cover rounded border bg-white">
+                                <button type="button" onclick="clearSoalImage('preview-img-opsiD', 'data-img-opsiD', 'm-soal-file-opsiD', 'wrapper-preview-opsiD')" class="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Opsi E -->
+                    <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-sm text-brand-700 w-6">E.</span>
+                            <input type="text" id="m-soal-opsiE" placeholder="Teks Jawaban E (Opsional)" class="w-full px-3 py-1.5 bg-white border rounded-lg text-sm">
+                        </div>
+                        <div class="pl-8 flex items-center gap-3">
+                            <input type="file" id="m-soal-file-opsiE" accept="image/*" onchange="handleSoalImageUpload(event, 'preview-img-opsiE', 'data-img-opsiE')" class="block w-full text-[11px] text-slate-500 file:mr-2 file:py-0.5 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-brand-50 file:text-brand-700">
+                            <input type="hidden" id="data-img-opsiE">
+                            <div id="wrapper-preview-opsiE" class="hidden relative shrink-0">
+                                <img id="preview-img-opsiE" src="" class="h-10 w-10 object-cover rounded border bg-white">
+                                <button type="button" onclick="clearSoalImage('preview-img-opsiE', 'data-img-opsiE', 'm-soal-file-opsiE', 'wrapper-preview-opsiE')" class="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-xs font-bold uppercase mb-1">Kunci Jawaban</label><select id="m-soal-kunci" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm font-bold"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option></select></div>
+                    <div><label class="block text-xs font-bold uppercase mb-1">Bobot Nilai</label><input type="number" id="m-soal-bobot" value="10" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"></div>
                 </div>
                 <div class="pt-3 flex justify-end gap-2 border-t">
                     <button type="button" onclick="closeModal('modal-soal')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold shadow-md">Simpan</button>
+                    <button type="submit" class="px-5 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold shadow-md">Simpan Soal</button>
                 </div>
             </form>
         </div>
@@ -775,10 +865,9 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIKA LENGKAP -->
     <script>
         const IS_PREVIEW = false;
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyOBC-BB1IuTKH_VRXFliHcEL_eoLd62jT7W0y25Krilk67kFxR8MiMG_SVSS3myBG6/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzIHNdtKWknrUMPuZgmoZS-JXZXF-bwuzK6Av-RAOM0rK7VbZZlDBqtzIgwzew5O_Ap/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -787,7 +876,7 @@
                 appSubTitle: "",
                 tahunPelajaran: "2026/2027",
                 semester: "Ganjil",
-                kopUrl: "https://placehold.co/600x80/1e40af/ffffff?text=KOP+LEMBAGA+SEKOLAH",
+                kopUrl: "https://placehold.co/600x80/1e40af/ffffff?text=KOP+NAMA+SEKOLAH+%2F+LEMBAGA",
                 logoUrl: DEFAULT_LOGO,
                 ttdUrl: "https://placehold.co/120x60/transparent/1e3a8a?text=TTD+Kepsek",
                 kepsekName: "Drs. H. Riyan Miraldi, M.Pd",
@@ -823,7 +912,6 @@
         let modalResolveCallback = null;
 
         window.onload = function() {
-            // Instant render: Muat pengaturan dari LocalStorage (0 Detik)
             const cachedSettings = localStorage.getItem('cbt_settings');
             if (cachedSettings) {
                 try {
@@ -832,6 +920,7 @@
             }
 
             syncBrandingUI();
+            updateTokenUI();
             
             if (!IS_PREVIEW) {
                 fetchInitialDataFromGas();
@@ -883,238 +972,18 @@
             }
         }
 
-        function updateBackendStatusBadge(isConnected, text = '') {
-            const badge = document.getElementById('status-backend-btn');
-            const txt = document.getElementById('backend-status-text');
-            if (!badge || !txt) return;
-            if (isConnected) {
-                badge.className = 'flex items-center gap-2 bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-3 py-1 rounded-full text-xs font-semibold';
-                txt.innerText = text || 'Spreadsheet Terhubung';
-            } else {
-                badge.className = 'flex items-center gap-2 bg-amber-500/20 text-amber-200 border border-amber-400/30 px-3 py-1 rounded-full text-xs font-semibold';
-                txt.innerText = text || 'Menghubungkan...';
-            }
-        }
-
-        async function apiCall(action, payload = {}) {
-            if (IS_PREVIEW) {
-                console.log("Mock API Call:", action, payload);
-                return { status: 'success', message: 'Mock execution success' };
-            }
-            try {
-                payload.action = action;
-                payload.ta = appState.settings.tahunPelajaran;
-                payload.sem = appState.settings.semester;
-
-                const response = await fetch(GAS_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
-
-                return await response.json();
-            } catch (err) {
-                console.error("API Call error:", err);
-                showToast('Gagal terhubung ke Google Apps Script: ' + err.message, 'error');
-                return { status: 'error', message: err.toString() };
-            }
-        }
-
-        async function fetchInitialDataFromGas() {
-            if (IS_PREVIEW) return;
-            updateBackendStatusBadge(false, 'Memuat Data...');
-            try {
-                const url = `${GAS_URL}?action=getInitialData&ta=${encodeURIComponent(appState.settings.tahunPelajaran)}&sem=${encodeURIComponent(appState.settings.semester)}`;
-                const response = await fetch(url);
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    if (result.settings && Object.keys(result.settings).length > 0) {
-                        appState.settings = Object.assign(appState.settings, result.settings);
-                        localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
-                    }
-                    if (result.kelas) appState.kelas = result.kelas;
-                    if (result.mapel) appState.mapel = result.mapel;
-                    if (result.siswa) appState.siswa = result.siswa;
-                    if (result.soal) appState.soal = result.soal;
-                    if (result.jadwal) appState.jadwal = result.jadwal;
-                    if (result.hasil) appState.hasil = result.hasil;
-
-                    updateBackendStatusBadge(true, 'Spreadsheet Terhubung');
-                    syncBrandingUI();
-                    if (currentUser && currentUser.role === 'admin') initAdminDashboard();
+        function togglePasswordVisibility(id) {
+            const input = document.getElementById(id);
+            const icon = document.getElementById(id + '-eye');
+            if (input) {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    if (icon) icon.classList.replace('fa-eye', 'fa-eye-slash');
                 } else {
-                    updateBackendStatusBadge(false, 'Respon Error');
-                }
-            } catch (err) {
-                updateBackendStatusBadge(false, 'Koneksi Terputus');
-            }
-        }
-
-        function syncBrandingUI() {
-            const st = appState.settings;
-            
-            // Pengikatan data dinamis 100% pada tampilan Login & Header
-            const schoolNameEl = document.getElementById('login-school-name');
-            const appSubtitleEl = document.getElementById('login-app-subtitle');
-            if (schoolNameEl) schoolNameEl.innerText = st.schoolName || 'NAMA SEKOLAH / LEMBAGA';
-            if (appSubtitleEl) appSubtitleEl.innerText = st.appSubTitle || 'UJIAN SEMESTER GANJIL';
-            
-            const logoUrl = st.logoUrl || DEFAULT_LOGO;
-            const loginLogo = document.getElementById('login-logo-display');
-            const headerLogo = document.getElementById('header-logo-img');
-            const previewLogo = document.getElementById('preview-logo-img');
-            
-            if (loginLogo) loginLogo.src = logoUrl;
-            if (headerLogo) headerLogo.src = logoUrl;
-            if (previewLogo) previewLogo.src = logoUrl;
-            
-            document.getElementById('set-logo-url').value = logoUrl;
-
-            if (st.kopUrl) {
-                document.getElementById('preview-kop-img').src = st.kopUrl;
-                document.getElementById('set-kop-url').value = st.kopUrl;
-            }
-            if (st.ttdUrl) {
-                document.getElementById('preview-ttd-img').src = st.ttdUrl;
-                document.getElementById('set-ttd-url').value = st.ttdUrl;
-            }
-            
-            document.getElementById('app-title').innerText = st.schoolName || 'NAMA SEKOLAH / LEMBAGA';
-            document.getElementById('app-subtitle').innerText = st.appSubTitle || 'UJIAN SEMESTER GANJIL';
-            document.getElementById('header-ta-badge').innerText = `TA: ${st.tahunPelajaran} (${st.semester})`;
-        }
-
-        function handleImageUpload(event, targetField) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64String = e.target.result;
-                appState.settings[targetField] = base64String;
-                if (targetField === 'logoUrl') {
-                    document.getElementById('preview-logo-img').src = base64String;
-                    document.getElementById('set-logo-url').value = base64String;
-                } else if (targetField === 'kopUrl') {
-                    document.getElementById('preview-kop-img').src = base64String;
-                    document.getElementById('set-kop-url').value = base64String;
-                } else if (targetField === 'ttdUrl') {
-                    document.getElementById('preview-ttd-img').src = base64String;
-                    document.getElementById('set-ttd-url').value = base64String;
-                }
-                localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
-                showToast('Gambar berhasil dimuat!', 'success');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function changeAcademicSession(ta, sem) {
-            appState.settings.tahunPelajaran = ta;
-            appState.settings.semester = sem;
-            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
-            syncBrandingUI();
-            document.getElementById('overview-ta-title').innerText = `Tahun Pelajaran: ${ta} (Semester ${sem})`;
-            if (!IS_PREVIEW) fetchInitialDataFromGas();
-        }
-
-        function showView(viewId) {
-            ['view-login', 'view-student-verify', 'view-exam-workspace', 'view-admin-dashboard'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.classList.add('hidden');
-            });
-            document.getElementById(viewId).classList.remove('hidden');
-            const header = document.getElementById('main-header');
-            if (viewId === 'view-login') header.classList.add('hidden'); else header.classList.remove('hidden');
-
-            if (viewId === 'view-student-verify') {
-                updateTokenUI();
-            }
-
-            const badge = document.getElementById('user-profile-badge');
-            if (currentUser) {
-                badge.classList.remove('hidden'); badge.classList.add('flex');
-                document.getElementById('user-display-name').innerText = currentUser.username;
-                document.getElementById('user-role-tag').innerText = currentUser.role;
-            } else { badge.classList.add('hidden'); }
-        }
-        function toggleTokenStatus() {
-            if (typeof appState.settings.tokenActive === 'undefined') {
-                appState.settings.tokenActive = true;
-            }
-            appState.settings.tokenActive = !appState.settings.tokenActive;
-            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
-            updateTokenUI();
-            showToast(appState.settings.tokenActive ? 'Token Ujian Berhasil DIAKTIFKAN!' : 'Token Ujian Berhasil DINONAKTIFKAN!', appState.settings.tokenActive ? 'success' : 'info');
-            if (!IS_PREVIEW) {
-                apiCall('saveSettings', { settings: appState.settings });
-            }
-        }
-
-        function updateTokenUI() {
-            const isActive = appState.settings.tokenActive !== false;
-            
-            // Student verify view
-            const tokenInputBox = document.getElementById('token-input-container');
-            const tokenNoticeBox = document.getElementById('token-disabled-notice');
-            if (tokenInputBox && tokenNoticeBox) {
-                if (isActive) {
-                    tokenInputBox.classList.remove('hidden');
-                    tokenNoticeBox.classList.add('hidden');
-                } else {
-                    tokenInputBox.classList.add('hidden');
-                    tokenNoticeBox.classList.remove('hidden');
+                    input.type = 'password';
+                    if (icon) icon.classList.replace('fa-eye-slash', 'fa-eye');
                 }
             }
-
-            // Admin panel overview status
-            const statusBadge = document.getElementById('token-status-badge');
-            const toggleBtn = document.getElementById('btn-toggle-token');
-            const toggleBtnText = document.getElementById('btn-toggle-token-text');
-            const displayToken = document.getElementById('admin-token-display');
-
-            if (statusBadge && toggleBtn && toggleBtnText) {
-                if (isActive) {
-                    statusBadge.className = 'bg-emerald-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full';
-                    statusBadge.innerText = 'AKTIF';
-                    toggleBtn.className = 'bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md flex items-center gap-2';
-                    toggleBtnText.innerText = 'Matikan Token';
-                    if (displayToken) displayToken.innerText = appState.settings.currentToken || 'EXM123';
-                } else {
-                    statusBadge.className = 'bg-slate-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full';
-                    statusBadge.innerText = 'NON-AKTIF';
-                    toggleBtn.className = 'bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md flex items-center gap-2';
-                    toggleBtnText.innerText = 'Aktifkan Token';
-                    if (displayToken) displayToken.innerText = 'OFF';
-                }
-            }
-        }
-
-        function startTokenTimerEngine() {
-            if (tokenCountdownTimer) clearInterval(tokenCountdownTimer);
-            if (!appState.settings.currentToken) {
-                appState.settings.currentToken = "EXM123";
-            }
-            tokenCountdownTimer = setInterval(() => {
-                if (appState.settings.tokenActive !== false) {
-                    tokenSecondsLeft--;
-                    if (tokenSecondsLeft <= 0) {
-                        tokenSecondsLeft = 300;
-                        appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
-                    }
-                    const timerEl = document.getElementById('token-seconds');
-                    if (timerEl) timerEl.innerText = tokenSecondsLeft;
-                    const dispEl = document.getElementById('admin-token-display');
-                    if (dispEl) dispEl.innerText = appState.settings.currentToken;
-                }
-            }, 1000);
-        }
-
-        function forceRegenerateToken() {
-            tokenSecondsLeft = 300;
-            appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
-            updateTokenUI();
-            showToast('Token Ujian Berhasil Di-refresh!', 'success');
         }
 
         async function processLogin() {
@@ -1142,6 +1011,7 @@
                         document.getElementById('verify-fullname').value = res.studentData.nama;
                         document.getElementById('verify-pob').value = res.studentData.pob || '';
                         document.getElementById('verify-dob').value = res.studentData.dob || '';
+                        updateTokenUI();
                         showView('view-student-verify');
                     }
                     return;
@@ -1156,6 +1026,7 @@
                 document.getElementById('verify-fullname').value = matchedSiswa.nama;
                 document.getElementById('verify-pob').value = matchedSiswa.pob || '';
                 document.getElementById('verify-dob').value = matchedSiswa.dob || '';
+                updateTokenUI();
                 showView('view-student-verify');
                 return;
             }
@@ -1163,8 +1034,79 @@
             showToast('Username atau Password tidak cocok!', 'error');
         }
 
+        function updateTokenUI() {
+            const isTokenActive = appState.settings.tokenActive !== false;
+            const badge = document.getElementById('token-status-badge');
+            const btnText = document.getElementById('btn-toggle-token-text');
+            const tokenContainer = document.getElementById('token-input-container');
+            const tokenDisabledNotice = document.getElementById('token-disabled-notice');
+            
+            if (badge) {
+                badge.innerText = isTokenActive ? 'AKTIF' : 'NON-AKTIF';
+                badge.className = isTokenActive ? 'bg-emerald-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full' : 'bg-red-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full';
+            }
+            if (btnText) {
+                btnText.innerText = isTokenActive ? 'Matikan Token' : 'Aktifkan Token';
+            }
+            if (tokenContainer && tokenDisabledNotice) {
+                if (isTokenActive) {
+                    tokenContainer.classList.remove('hidden');
+                    tokenDisabledNotice.classList.add('hidden');
+                } else {
+                    tokenContainer.classList.add('hidden');
+                    tokenDisabledNotice.classList.remove('hidden');
+                }
+            }
+        }
+
+        function toggleTokenStatus() {
+            appState.settings.tokenActive = !(appState.settings.tokenActive !== false);
+            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+            updateTokenUI();
+            showToast(appState.settings.tokenActive ? 'Token Ujian Diaktifkan' : 'Token Ujian Dimatikan', appState.settings.tokenActive ? 'success' : 'info');
+            if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
+        }
+
+        function startTokenTimerEngine() {
+            if (tokenCountdownTimer) clearInterval(tokenCountdownTimer);
+            if (!appState.settings.currentToken) {
+                appState.settings.currentToken = "EXM123";
+            }
+            tokenCountdownTimer = setInterval(() => {
+                if (appState.settings.tokenActive !== false) {
+                    tokenSecondsLeft--;
+                    if (tokenSecondsLeft <= 0) {
+                        tokenSecondsLeft = 300;
+                        appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
+                        localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+                        if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
+                    }
+                    const timerEl = document.getElementById('token-seconds');
+                    if (timerEl) timerEl.innerText = tokenSecondsLeft;
+                    const dispEl = document.getElementById('admin-token-display');
+                    if (dispEl) dispEl.innerText = appState.settings.currentToken;
+                }
+            }, 1000);
+        }
+
+        function forceRegenerateToken() {
+            tokenSecondsLeft = 300;
+            appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
+            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+            updateTokenUI();
+            showToast('Token Ujian Berhasil Di-refresh!', 'success');
+            if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
+        }
+
         function processStudentVerify() {
             if (appState.settings.tokenActive !== false) {
+                const cachedSettings = localStorage.getItem('cbt_settings');
+                if (cachedSettings) {
+                    try {
+                        const parsed = JSON.parse(cachedSettings);
+                        if (parsed.currentToken) appState.settings.currentToken = parsed.currentToken;
+                    } catch(e) {}
+                }
                 const inputToken = document.getElementById('verify-token').value.trim().toUpperCase();
                 const currentToken = (appState.settings.currentToken || '').trim().toUpperCase();
                 if (!inputToken || inputToken !== currentToken) {
@@ -1179,6 +1121,29 @@
                 return;
             }
             initStudentExam(questions);
+        }
+
+        function handleSoalImageUpload(event, previewImgId, dataInputId) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                document.getElementById(dataInputId).value = base64Data;
+                const previewImg = document.getElementById(previewImgId);
+                previewImg.src = base64Data;
+                const wrapper = previewImg.parentElement;
+                if (wrapper) wrapper.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearSoalImage(previewImgId, dataInputId, fileInputId, wrapperId) {
+            document.getElementById(dataInputId).value = '';
+            document.getElementById(fileInputId).value = '';
+            const previewImg = document.getElementById(previewImgId);
+            previewImg.src = '';
+            if (wrapperId) document.getElementById(wrapperId).classList.add('hidden');
         }
 
         function initStudentExam(questions) {
@@ -1208,18 +1173,32 @@
         function renderQuestion() {
             const q = currentExamState.questions[currentExamState.currentIndex];
             document.getElementById('current-question-num').innerText = currentExamState.currentIndex + 1;
-            document.getElementById('question-text-box').innerText = q.pertanyaan;
+            
+            const qBox = document.getElementById('question-text-box');
+            qBox.innerHTML = `<div>${q.pertanyaan}</div>`;
+            if (q.gambarSoal) {
+                qBox.innerHTML += `<div class="mt-3"><img src="${q.gambarSoal}" class="max-h-72 rounded-xl border border-slate-200 bg-slate-50 p-1 object-contain"></div>`;
+            }
 
             const optsBox = document.getElementById('options-container');
             optsBox.innerHTML = '';
             ['A', 'B', 'C', 'D', 'E'].forEach(k => {
                 const optText = q['opsi' + k];
-                if (!optText) return;
+                const optImg = q['gambarOpsi' + k];
+                if (!optText && !optImg) return;
                 const isChecked = currentExamState.answers[q.id] === k;
                 const optEl = document.createElement('div');
-                optEl.className = `p-3.5 border-2 rounded-xl cursor-pointer flex items-center gap-3 transition-all ${isChecked ? 'border-brand-600 bg-brand-50/80 font-semibold' : 'border-slate-200 bg-slate-50'}`;
+                optEl.className = `p-3.5 border-2 rounded-xl cursor-pointer flex items-start gap-3 transition-all ${isChecked ? 'border-brand-600 bg-brand-50/80 font-semibold' : 'border-slate-200 bg-slate-50'}`;
                 optEl.onclick = () => { currentExamState.answers[q.id] = k; renderQuestion(); renderQuestionGrid(); };
-                optEl.innerHTML = `<div class="w-7 h-7 rounded-lg border-2 flex items-center justify-center font-bold text-xs ${isChecked ? 'bg-brand-600 border-brand-600 text-white' : 'bg-white text-slate-700'}">${k}</div><div class="text-sm flex-1">${optText}</div>`;
+                
+                let imgHtml = optImg ? `<div class="mt-2"><img src="${optImg}" class="max-h-36 rounded-lg border bg-white p-1 object-contain"></div>` : '';
+                optEl.innerHTML = `
+                    <div class="w-7 h-7 rounded-lg border-2 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 ${isChecked ? 'bg-brand-600 border-brand-600 text-white' : 'bg-white text-slate-700'}">${k}</div>
+                    <div class="text-sm flex-1">
+                        <div>${optText || ''}</div>
+                        ${imgHtml}
+                    </div>
+                `;
                 optsBox.appendChild(optEl);
             });
             document.getElementById('chk-doubt').checked = !!currentExamState.doubts[q.id];
@@ -1302,6 +1281,158 @@
             handleLogout();
         }
 
+        function updateBackendStatusBadge(isConnected, text = '') {
+            const badge = document.getElementById('status-backend-btn');
+            const txt = document.getElementById('backend-status-text');
+            if (!badge || !txt) return;
+            if (isConnected) {
+                badge.className = 'flex items-center gap-2 bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-3 py-1 rounded-full text-xs font-semibold';
+                txt.innerText = text || 'Spreadsheet Terhubung';
+            } else {
+                badge.className = 'flex items-center gap-2 bg-amber-500/20 text-amber-400/30 px-3 py-1 rounded-full text-xs font-semibold';
+                txt.innerText = text || 'Menghubungkan...';
+            }
+        }
+
+        async function apiCall(action, payload = {}) {
+            if (IS_PREVIEW) {
+                console.log("Mock API Call:", action, payload);
+                return { status: 'success', message: 'Mock execution success' };
+            }
+            try {
+                payload.action = action;
+                payload.ta = appState.settings.tahunPelajaran;
+                payload.sem = appState.settings.semester;
+
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+
+                return await response.json();
+            } catch (err) {
+                console.error("API Call error:", err);
+                showToast('Gagal terhubung ke Google Apps Script: ' + err.message, 'error');
+                return { status: 'error', message: err.toString() };
+            }
+        }
+
+        async function fetchInitialDataFromGas() {
+            if (IS_PREVIEW) return;
+            updateBackendStatusBadge(false, 'Memuat Data...');
+            try {
+                const url = `${GAS_URL}?action=getInitialData&ta=${encodeURIComponent(appState.settings.tahunPelajaran)}&sem=${encodeURIComponent(appState.settings.semester)}`;
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    if (result.settings && Object.keys(result.settings).length > 0) {
+                        appState.settings = Object.assign(appState.settings, result.settings);
+                        localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+                    }
+                    if (result.kelas) appState.kelas = result.kelas;
+                    if (result.mapel) appState.mapel = result.mapel;
+                    if (result.siswa) appState.siswa = result.siswa;
+                    if (result.soal) appState.soal = result.soal;
+                    if (result.jadwal) appState.jadwal = result.jadwal;
+                    if (result.hasil) appState.hasil = result.hasil;
+
+                    updateBackendStatusBadge(true, 'Spreadsheet Terhubung');
+                    syncBrandingUI();
+                    if (currentUser && currentUser.role === 'admin') initAdminDashboard();
+                } else {
+                    updateBackendStatusBadge(false, 'Respon Error');
+                }
+            } catch (err) {
+                updateBackendStatusBadge(false, 'Koneksi Terputus');
+            }
+        }
+
+        function syncBrandingUI() {
+            const st = appState.settings;
+            const schoolNameEl = document.getElementById('login-school-name');
+            const appSubtitleEl = document.getElementById('login-app-subtitle');
+            if (schoolNameEl) schoolNameEl.innerText = st.schoolName || 'NAMA SEKOLAH / LEMBAGA';
+            if (appSubtitleEl) appSubtitleEl.innerText = st.appSubTitle || 'UJIAN SEMESTER GANJIL';
+            
+            const logoUrl = st.logoUrl || DEFAULT_LOGO;
+            const loginLogo = document.getElementById('login-logo-display');
+            const headerLogo = document.getElementById('header-logo-img');
+            const previewLogo = document.getElementById('preview-logo-img');
+            
+            if (loginLogo) loginLogo.src = logoUrl;
+            if (headerLogo) headerLogo.src = logoUrl;
+            if (previewLogo) previewLogo.src = logoUrl;
+            
+            document.getElementById('set-logo-url').value = logoUrl;
+
+            if (st.kopUrl) {
+                document.getElementById('preview-kop-img').src = st.kopUrl;
+                document.getElementById('set-kop-url').value = st.kopUrl;
+            }
+            if (st.ttdUrl) {
+                document.getElementById('preview-ttd-img').src = st.ttdUrl;
+                document.getElementById('set-ttd-url').value = st.ttdUrl;
+            }
+            
+            document.getElementById('app-title').innerText = st.schoolName || 'NAMA SEKOLAH / LEMBAGA';
+            document.getElementById('app-subtitle').innerText = st.appSubTitle || 'UJIAN SEMESTER GANJIL';
+            document.getElementById('header-ta-badge').innerText = `TA: ${st.tahunPelajaran} (${st.semester})`;
+        }
+
+        function handleImageUpload(event, targetField) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64String = e.target.result;
+                appState.settings[targetField] = base64String;
+                if (targetField === 'logoUrl') {
+                    document.getElementById('preview-logo-img').src = base64String;
+                    document.getElementById('set-logo-url').value = base64String;
+                } else if (targetField === 'kopUrl') {
+                    document.getElementById('preview-kop-img').src = base64String;
+                    document.getElementById('set-kop-url').value = base64String;
+                } else if (targetField === 'ttdUrl') {
+                    document.getElementById('preview-ttd-img').src = base64String;
+                    document.getElementById('set-ttd-url').value = base64String;
+                }
+                localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+                showToast('Gambar berhasil dimuat!', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function changeAcademicSession(ta, sem) {
+            appState.settings.tahunPelajaran = ta;
+            appState.settings.semester = sem;
+            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+            syncBrandingUI();
+            document.getElementById('overview-ta-title').innerText = `Tahun Pelajaran: ${ta} (Semester ${sem})`;
+            if (!IS_PREVIEW) fetchInitialDataFromGas();
+        }
+
+        function showView(viewId) {
+            ['view-login', 'view-student-verify', 'view-exam-workspace', 'view-admin-dashboard'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            document.getElementById(viewId).classList.remove('hidden');
+            const header = document.getElementById('main-header');
+            if (viewId === 'view-login') header.classList.add('hidden'); else header.classList.remove('hidden');
+
+            const badge = document.getElementById('user-profile-badge');
+            if (currentUser) {
+                badge.classList.remove('hidden'); badge.classList.add('flex');
+                document.getElementById('user-display-name').innerText = currentUser.username;
+                document.getElementById('user-role-tag').innerText = currentUser.role;
+            } else { badge.classList.add('hidden'); }
+        }
+
+        function toggleMobileSidebar() { document.getElementById('admin-sidebar').classList.toggle('hidden'); }
+
         function generateRandomPassword() {
             const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             let pass = "";
@@ -1311,7 +1442,6 @@
 
         function initAdminDashboard() {
             syncBrandingUI();
-            updateTokenUI();
             loadStatsOverview();
             loadSiswaTable();
             renderCardsForPrint();
@@ -1346,6 +1476,28 @@
             document.getElementById('stat-total-kelas').innerText = appState.kelas.length;
             document.getElementById('stat-total-mapel').innerText = appState.mapel.length;
             document.getElementById('stat-total-hasil').innerText = appState.hasil.length;
+        }
+
+        function getKelasName(id) { const k = appState.kelas.find(i => i.id === id); return k ? k.nama : id; }
+        function getMapelName(id) { const m = appState.mapel.find(i => i.id === id); return m ? m.nama : id; }
+
+        function populateSelectOptions() {
+            ['filter-siswa-kelas', 'm-siswa-kelas', 'filter-kartu-kelas', 'filter-soal-kelas', 'm-soal-kelas', 'm-jadwal-kelas', 'filter-hasil-kelas'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const cur = el.value;
+                el.innerHTML = id.startsWith('filter') ? '<option value="">Semua Kelas</option>' : '<option value="">-- Pilih Kelas --</option>';
+                appState.kelas.forEach(k => { el.innerHTML += `<option value="${k.id}">${k.nama}</option>`; });
+                el.value = cur;
+            });
+            ['filter-soal-mapel', 'm-soal-idmapel', 'm-jadwal-idmapel', 'filter-hasil-mapel'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const cur = el.value;
+                el.innerHTML = id.startsWith('filter') ? '<option value="">Semua Mapel</option>' : '<option value="">-- Pilih Mapel --</option>';
+                appState.mapel.forEach(m => { el.innerHTML += `<option value="${m.id}">${m.nama}</option>`; });
+                el.value = cur;
+            });
         }
 
         function loadMapelTable() {
@@ -1447,28 +1599,6 @@
                     </div>
                 `;
                 container.appendChild(card);
-            });
-        }
-
-        function getKelasName(id) { const k = appState.kelas.find(i => i.id === id); return k ? k.nama : id; }
-        function getMapelName(id) { const m = appState.mapel.find(i => i.id === id); return m ? m.nama : id; }
-
-        function populateSelectOptions() {
-            ['filter-siswa-kelas', 'm-siswa-kelas', 'filter-kartu-kelas', 'filter-soal-kelas', 'm-soal-kelas', 'm-jadwal-kelas', 'filter-hasil-kelas'].forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                const cur = el.value;
-                el.innerHTML = id.startsWith('filter') ? '<option value="">Semua Kelas</option>' : '<option value="">-- Pilih Kelas --</option>';
-                appState.kelas.forEach(k => { el.innerHTML += `<option value="${k.id}">${k.nama}</option>`; });
-                el.value = cur;
-            });
-            ['filter-soal-mapel', 'm-soal-idmapel', 'm-jadwal-idmapel', 'filter-hasil-mapel'].forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                const cur = el.value;
-                el.innerHTML = id.startsWith('filter') ? '<option value="">Semua Mapel</option>' : '<option value="">-- Pilih Mapel --</option>';
-                appState.mapel.forEach(m => { el.innerHTML += `<option value="${m.id}">${m.nama}</option>`; });
-                el.value = cur;
             });
         }
 
@@ -1597,6 +1727,24 @@
             showToast('Kenaikan kelas berhasil diproses!', 'success');
         }
 
+        async function saveKelasModal() {
+            const id = document.getElementById('m-kelas-id').value;
+            const nama = document.getElementById('m-kelas-nama').value.toUpperCase();
+            closeModal('modal-kelas');
+            
+            const kelasObj = { id: id || ("K" + (appState.kelas.length + 1)), nama };
+            if (id) {
+                const k = appState.kelas.find(i => i.id === id);
+                if (k) k.nama = nama;
+            } else {
+                appState.kelas.push(kelasObj);
+            }
+            showToast('Kelas berhasil disimpan', 'success');
+            loadKelasCards();
+            loadStatsOverview();
+            await apiCall(id ? 'editKelas' : 'addKelas', { kelas: kelasObj });
+        }
+
         function openModalAddKelas() {
             document.getElementById('modal-kelas-title').innerText = "Tambah Kelas";
             document.getElementById('m-kelas-id').value = "";
@@ -1611,22 +1759,6 @@
             document.getElementById('m-kelas-id').value = k.id;
             document.getElementById('m-kelas-nama').value = k.nama;
             document.getElementById('modal-kelas').classList.remove('hidden');
-        }
-
-        async function saveKelasModal() {
-            const id = document.getElementById('m-kelas-id').value;
-            const nama = document.getElementById('m-kelas-nama').value.toUpperCase();
-            closeModal('modal-kelas');
-            if (id) {
-                const k = appState.kelas.find(i => i.id === id);
-                if (k) k.nama = nama;
-            } else {
-                appState.kelas.push({ id: "K" + (appState.kelas.length + 1), nama });
-            }
-            showToast('Kelas berhasil disimpan', 'success');
-            loadKelasCards();
-            loadStatsOverview();
-            await apiCall('addKelas', { kelas: { nama } });
         }
 
         function loadKelasCards() {
@@ -1647,6 +1779,25 @@
             }
         }
 
+        async function saveMapelModal() {
+            const id = document.getElementById('m-mapel-id').value;
+            const kode = document.getElementById('m-mapel-kode').value.toUpperCase();
+            const nama = document.getElementById('m-mapel-nama').value.toUpperCase();
+            closeModal('modal-mapel');
+            
+            const mapelObj = { id: id || ("M" + (appState.mapel.length + 1)), kode, nama };
+            if (id) {
+                const m = appState.mapel.find(i => i.id === id);
+                if (m) { m.kode = kode; m.nama = nama; }
+            } else {
+                appState.mapel.push(mapelObj);
+            }
+            showToast('Mapel berhasil disimpan', 'success');
+            loadMapelTable();
+            loadStatsOverview();
+            await apiCall(id ? 'editMapel' : 'addMapel', { mapel: mapelObj });
+        }
+
         function openModalAddMapel() {
             document.getElementById('modal-mapel-title').innerText = "Tambah Mapel";
             document.getElementById('m-mapel-id').value = "";
@@ -1663,23 +1814,6 @@
             document.getElementById('m-mapel-kode').value = m.kode;
             document.getElementById('m-mapel-nama').value = m.nama;
             document.getElementById('modal-mapel').classList.remove('hidden');
-        }
-
-        async function saveMapelModal() {
-            const id = document.getElementById('m-mapel-id').value;
-            const kode = document.getElementById('m-mapel-kode').value.toUpperCase();
-            const nama = document.getElementById('m-mapel-nama').value.toUpperCase();
-            closeModal('modal-mapel');
-            if (id) {
-                const m = appState.mapel.find(i => i.id === id);
-                if (m) { m.kode = kode; m.nama = nama; }
-            } else {
-                appState.mapel.push({ id: "M" + (appState.mapel.length + 1), kode, nama });
-            }
-            showToast('Mapel berhasil disimpan', 'success');
-            loadMapelTable();
-            loadStatsOverview();
-            await apiCall('addMapel', { mapel: { kode, nama } });
         }
 
         async function deleteMapel(id) {
@@ -1703,6 +1837,16 @@
             document.getElementById('m-soal-opsiC').value = "";
             document.getElementById('m-soal-opsiD').value = "";
             document.getElementById('m-soal-opsiE').value = "";
+            
+            ['pertanyaan', 'opsiA', 'opsiB', 'opsiC', 'opsiD', 'opsiE'].forEach(k => {
+                const wrapper = document.getElementById(`wrapper-preview-${k}`);
+                if (wrapper) wrapper.classList.add('hidden');
+                const fileInp = document.getElementById(`m-soal-file-${k}`);
+                if (fileInp) fileInp.value = '';
+                const dataInp = document.getElementById(`data-img-${k}`);
+                if (dataInp) dataInp.value = '';
+            });
+
             document.getElementById('modal-soal').classList.remove('hidden');
         }
 
@@ -1722,6 +1866,29 @@
             document.getElementById('m-soal-opsiE').value = s.opsiE || '';
             document.getElementById('m-soal-kunci').value = s.kunci;
             document.getElementById('m-soal-bobot').value = s.bobot;
+
+            const imgFields = {
+                'pertanyaan': s.gambarSoal,
+                'opsiA': s.gambarOpsiA,
+                'opsiB': s.gambarOpsiB,
+                'opsiC': s.gambarOpsiC,
+                'opsiD': s.gambarOpsiD,
+                'opsiE': s.gambarOpsiE
+            };
+
+            Object.keys(imgFields).forEach(k => {
+                const val = imgFields[k] || '';
+                document.getElementById(`data-img-${k}`).value = val;
+                const wrapper = document.getElementById(`wrapper-preview-${k}`);
+                const previewImg = document.getElementById(`preview-img-${k}`);
+                if (val && wrapper && previewImg) {
+                    previewImg.src = val;
+                    wrapper.classList.remove('hidden');
+                } else if (wrapper) {
+                    wrapper.classList.add('hidden');
+                }
+            });
+
             document.getElementById('modal-soal').classList.remove('hidden');
         }
 
@@ -1732,11 +1899,17 @@
                 idKelas: document.getElementById('m-soal-kelas').value,
                 idMapel: document.getElementById('m-soal-idmapel').value,
                 pertanyaan: document.getElementById('m-soal-pertanyaan').value,
+                gambarSoal: document.getElementById('data-img-pertanyaan').value || '',
                 opsiA: document.getElementById('m-soal-opsiA').value,
+                gambarOpsiA: document.getElementById('data-img-opsiA').value || '',
                 opsiB: document.getElementById('m-soal-opsiB').value,
+                gambarOpsiB: document.getElementById('data-img-opsiB').value || '',
                 opsiC: document.getElementById('m-soal-opsiC').value,
+                gambarOpsiC: document.getElementById('data-img-opsiC').value || '',
                 opsiD: document.getElementById('m-soal-opsiD').value,
+                gambarOpsiD: document.getElementById('data-img-opsiD').value || '',
                 opsiE: document.getElementById('m-soal-opsiE').value,
+                gambarOpsiE: document.getElementById('data-img-opsiE').value || '',
                 kunci: document.getElementById('m-soal-kunci').value,
                 bobot: parseInt(document.getElementById('m-soal-bobot').value) || 10
             };
@@ -1749,7 +1922,7 @@
             }
             showToast('Soal berhasil disimpan', 'success');
             loadBankSoalTable();
-            await apiCall('addSoal', { soal: soalObj });
+            await apiCall(id ? 'editSoal' : 'addSoal', { soal: soalObj });
         }
 
         function loadBankSoalTable() {
@@ -1757,9 +1930,12 @@
             const kelas = document.getElementById('filter-soal-kelas').value;
             const mapel = document.getElementById('filter-soal-mapel').value;
             appState.soal.filter(s => (!kelas || s.idKelas === kelas) && (!mapel || s.idMapel === mapel)).forEach((s, idx) => {
+                const hasImg = s.gambarSoal || s.gambarOpsiA || s.gambarOpsiB || s.gambarOpsiC || s.gambarOpsiD || s.gambarOpsiE;
+                const imgTag = hasImg ? `<span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-1.5 py-0.5 rounded ml-1" title="Memiliki Gambar"><i class="fa-solid fa-image"></i> Gambar</span>` : '';
+                
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
-                tr.innerHTML = `<td class="p-3.5 text-center font-bold">${idx + 1}</td><td class="p-3.5"><span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded">${getKelasName(s.idKelas)}</span> <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">${getMapelName(s.idMapel)}</span></td><td class="p-3.5">${s.pertanyaan}</td><td class="p-3.5 font-bold text-center">${s.kunci}</td><td class="p-3.5 text-center flex items-center justify-center gap-2"><button onclick="openModalEditSoal('${s.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteSoal('${s.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
+                tr.innerHTML = `<td class="p-3.5 text-center font-bold">${idx + 1}</td><td class="p-3.5"><span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded">${getKelasName(s.idKelas)}</span> <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">${getMapelName(s.idMapel)}</span>${imgTag}</td><td class="p-3.5"><div class="line-clamp-2">${s.pertanyaan}</div></td><td class="p-3.5 font-bold text-center">${s.kunci}</td><td class="p-3.5 text-center flex items-center justify-center gap-2"><button onclick="openModalEditSoal('${s.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteSoal('${s.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -1935,18 +2111,6 @@
             currentUser = null;
             showView('view-login');
             showToast('Berhasil Keluar', 'info');
-        }
-
-        function togglePasswordVisibility(id) {
-            const input = document.getElementById(id);
-            const icon = document.getElementById(id + '-eye');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
         }
 
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
