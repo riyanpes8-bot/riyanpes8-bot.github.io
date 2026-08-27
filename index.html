@@ -172,8 +172,8 @@
                         <img id="header-logo-img" src="" onerror="handleImageError(this)" class="w-7 h-7 object-contain" alt="Logo">
                     </div>
                     <div>
-                        <h1 class="font-bold text-base leading-none tracking-tight uppercase" id="app-title"></h1>
-                        <span class="text-xs text-brand-200" id="app-subtitle"></span>
+                        <h1 class="font-bold text-base leading-none tracking-tight uppercase" id="app-title">NAMA SEKOLAH / LEMBAGA</h1>
+                        <span class="text-xs text-brand-200" id="app-subtitle">UJIAN SEMESTER GANJIL</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -281,6 +281,10 @@
                     <div id="token-input-container">
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Token Ujian (6 Digit)</label>
                         <input type="text" id="verify-token" maxlength="6" placeholder="EXM123" class="w-full px-4 py-2.5 bg-yellow-50 border-2 border-yellow-400 rounded-xl text-center font-mono text-lg font-bold tracking-widest uppercase">
+                    </div>
+                    <div id="token-disabled-notice" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs text-emerald-800 flex items-center gap-2 font-medium">
+                        <i class="fa-solid fa-lock-open text-emerald-600 text-base"></i>
+                        <span>Token Ujian di-nonaktifkan. Anda dapat langsung melanjutkan tanpa memasukkan token.</span>
                     </div>
                     <div class="pt-2 flex gap-3">
                         <button type="button" onclick="handleLogout()" class="w-1/3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 px-3 rounded-xl text-sm transition-all">Batal</button>
@@ -415,17 +419,25 @@
                             </div>
                             <div class="bg-gradient-to-r from-slate-900 to-brand-900 text-white rounded-2xl p-6 shadow-lg flex flex-wrap items-center justify-between gap-6">
                                 <div>
-                                    <span class="bg-yellow-400 text-slate-900 font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full">DYNAMIC TOKEN GENERATOR</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="bg-yellow-400 text-slate-900 font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full">DYNAMIC TOKEN GENERATOR</span>
+                                        <span id="token-status-badge" class="bg-emerald-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full">AKTIF</span>
+                                    </div>
                                     <h3 class="text-xl font-bold mt-1">Token Ujian Aktif Saat Ini</h3>
                                 </div>
-                                <div class="flex items-center gap-6">
-                                    <div class="text-center bg-white/10 p-3 rounded-2xl border border-white/20">
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <div class="text-center bg-white/10 p-3 rounded-2xl border border-white/20 min-w-[130px]">
                                         <div id="admin-token-display" class="font-mono text-3xl font-extrabold text-yellow-300 tracking-widest">------</div>
                                         <div class="text-[11px] text-slate-300 mt-1">Perbaruan dalam: <span id="token-seconds">300</span>s</div>
                                     </div>
-                                    <button onclick="forceRegenerateToken()" class="bg-white/20 hover:bg-white/30 text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/30 transition-colors">
-                                        <i class="fa-solid fa-arrows-rotate"></i> Refresh Token
-                                    </button>
+                                    <div class="flex flex-col gap-2">
+                                        <button type="button" id="btn-toggle-token" onclick="toggleTokenStatus()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md flex items-center gap-2">
+                                            <i class="fa-solid fa-power-off"></i> <span id="btn-toggle-token-text">Matikan Token</span>
+                                        </button>
+                                        <button type="button" onclick="forceRegenerateToken()" class="bg-white/20 hover:bg-white/30 text-white text-xs font-semibold px-4 py-2 rounded-xl border border-white/30 transition-colors flex items-center gap-2">
+                                            <i class="fa-solid fa-arrows-rotate"></i> Refresh Token
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -766,7 +778,7 @@
     <!-- JAVASCRIPT LOGIKA LENGKAP -->
     <script>
         const IS_PREVIEW = false;
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwvXZ2Qp4sbrVGcITSxfZHvUtUoGDNwxAdYwaPRbtj2dIz3IpJLFdqAV7yQJUZnXtV6/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbyOBC-BB1IuTKH_VRXFliHcEL_eoLd62jT7W0y25Krilk67kFxR8MiMG_SVSS3myBG6/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -1015,6 +1027,10 @@
             const header = document.getElementById('main-header');
             if (viewId === 'view-login') header.classList.add('hidden'); else header.classList.remove('hidden');
 
+            if (viewId === 'view-student-verify') {
+                updateTokenUI();
+            }
+
             const badge = document.getElementById('user-profile-badge');
             if (currentUser) {
                 badge.classList.remove('hidden'); badge.classList.add('flex');
@@ -1022,17 +1038,69 @@
                 document.getElementById('user-role-tag').innerText = currentUser.role;
             } else { badge.classList.add('hidden'); }
         }
+        function toggleTokenStatus() {
+            if (typeof appState.settings.tokenActive === 'undefined') {
+                appState.settings.tokenActive = true;
+            }
+            appState.settings.tokenActive = !appState.settings.tokenActive;
+            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+            updateTokenUI();
+            showToast(appState.settings.tokenActive ? 'Token Ujian Berhasil DIAKTIFKAN!' : 'Token Ujian Berhasil DINONAKTIFKAN!', appState.settings.tokenActive ? 'success' : 'info');
+            if (!IS_PREVIEW) {
+                apiCall('saveSettings', { settings: appState.settings });
+            }
+        }
 
-        function toggleMobileSidebar() { document.getElementById('admin-sidebar').classList.toggle('hidden'); }
+        function updateTokenUI() {
+            const isActive = appState.settings.tokenActive !== false;
+            
+            // Student verify view
+            const tokenInputBox = document.getElementById('token-input-container');
+            const tokenNoticeBox = document.getElementById('token-disabled-notice');
+            if (tokenInputBox && tokenNoticeBox) {
+                if (isActive) {
+                    tokenInputBox.classList.remove('hidden');
+                    tokenNoticeBox.classList.add('hidden');
+                } else {
+                    tokenInputBox.classList.add('hidden');
+                    tokenNoticeBox.classList.remove('hidden');
+                }
+            }
+
+            // Admin panel overview status
+            const statusBadge = document.getElementById('token-status-badge');
+            const toggleBtn = document.getElementById('btn-toggle-token');
+            const toggleBtnText = document.getElementById('btn-toggle-token-text');
+            const displayToken = document.getElementById('admin-token-display');
+
+            if (statusBadge && toggleBtn && toggleBtnText) {
+                if (isActive) {
+                    statusBadge.className = 'bg-emerald-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full';
+                    statusBadge.innerText = 'AKTIF';
+                    toggleBtn.className = 'bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md flex items-center gap-2';
+                    toggleBtnText.innerText = 'Matikan Token';
+                    if (displayToken) displayToken.innerText = appState.settings.currentToken || 'EXM123';
+                } else {
+                    statusBadge.className = 'bg-slate-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full';
+                    statusBadge.innerText = 'NON-AKTIF';
+                    toggleBtn.className = 'bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-md flex items-center gap-2';
+                    toggleBtnText.innerText = 'Aktifkan Token';
+                    if (displayToken) displayToken.innerText = 'OFF';
+                }
+            }
+        }
 
         function startTokenTimerEngine() {
             if (tokenCountdownTimer) clearInterval(tokenCountdownTimer);
+            if (!appState.settings.currentToken) {
+                appState.settings.currentToken = "EXM123";
+            }
             tokenCountdownTimer = setInterval(() => {
-                if (appState.settings.tokenActive) {
+                if (appState.settings.tokenActive !== false) {
                     tokenSecondsLeft--;
                     if (tokenSecondsLeft <= 0) {
                         tokenSecondsLeft = 300;
-                        appState.settings.currentToken = 'EXM' + Math.floor(1000 + Math.random() * 9000);
+                        appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
                     }
                     const timerEl = document.getElementById('token-seconds');
                     if (timerEl) timerEl.innerText = tokenSecondsLeft;
@@ -1044,8 +1112,8 @@
 
         function forceRegenerateToken() {
             tokenSecondsLeft = 300;
-            appState.settings.currentToken = 'EXM' + Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('admin-token-display').innerText = appState.settings.currentToken;
+            appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
+            updateTokenUI();
             showToast('Token Ujian Berhasil Di-refresh!', 'success');
         }
 
@@ -1096,11 +1164,15 @@
         }
 
         function processStudentVerify() {
-            const token = document.getElementById('verify-token').value.trim().toUpperCase();
-            if (appState.settings.tokenActive && token !== appState.settings.currentToken) {
-                showToast('Token Ujian Salah!', 'error');
-                return;
+            if (appState.settings.tokenActive !== false) {
+                const inputToken = document.getElementById('verify-token').value.trim().toUpperCase();
+                const currentToken = (appState.settings.currentToken || '').trim().toUpperCase();
+                if (!inputToken || inputToken !== currentToken) {
+                    showToast('Token Ujian Salah!', 'error');
+                    return;
+                }
             }
+
             const questions = appState.soal.filter(q => q.idKelas === currentUser.studentData.idKelas);
             if (questions.length === 0) {
                 showToast('Belum ada soal ujian untuk kelas Anda!', 'error');
@@ -1239,6 +1311,7 @@
 
         function initAdminDashboard() {
             syncBrandingUI();
+            updateTokenUI();
             loadStatsOverview();
             loadSiswaTable();
             renderCardsForPrint();
