@@ -41,34 +41,34 @@
             font-family: 'Inter', sans-serif;
         }
         .puspendik-bg {
-    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-    position: relative;
-    overflow: hidden;
-}
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            position: relative;
+            overflow: hidden;
+        }
 
-.puspendik-bg::before {
-    content: "";
-    position: absolute;
-    width: 380px;
-    height: 380px;
-    background: rgba(255,255,255,0.08);
-    transform: rotate(-25deg);
-    top: -180px;
-    left: -120px;
-    border-radius: 30px;
-}
+        .puspendik-bg::before {
+            content: "";
+            position: absolute;
+            width: 380px;
+            height: 380px;
+            background: rgba(255,255,255,0.08);
+            transform: rotate(-25deg);
+            top: -180px;
+            left: -120px;
+            border-radius: 30px;
+        }
 
-.puspendik-bg::after {
-    content: "";
-    position: absolute;
-    width: 450px;
-    height: 450px;
-    background: rgba(255,255,255,0.05);
-    transform: rotate(25deg);
-    top: -250px;
-    right: -180px;
-    border-radius: 40px;
-}
+        .puspendik-bg::after {
+            content: "";
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            background: rgba(255,255,255,0.05);
+            transform: rotate(25deg);
+            top: -250px;
+            right: -180px;
+            border-radius: 40px;
+        }
         #navbar-iframe, .navbar, .header-outer, .nav-outer, .sidebar-wrapper,
         .footer-outer, .post-footer, .comments, .blog-pager, .post-title,
         .post-header, .widget, #header, #footer, #sidebar {
@@ -83,64 +83,58 @@
             background: transparent !important;
         }
         @media print {
-    @page {
-        size: A4 portrait;
-        margin: 8mm;
-    }
+            @page {
+                size: A4 portrait;
+                margin: 8mm;
+            }
 
-    html,
-    body {
-        margin: 0 !important;
-        padding: 0 !important;
-        background: white !important;
-    }
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+            }
 
-    body * {
-        visibility: hidden;
-    }
+            body * {
+                visibility: hidden;
+            }
 
-    #printable-area,
-    #printable-area * {
-        visibility: visible;
-    }
+            #printable-area, #printable-area * {
+                visibility: visible;
+            }
 
-    #printable-area {
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
+            #printable-area {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 6mm !important;
+            }
 
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 6mm !important;
-    }
+            .no-print {
+                display: none !important;
+            }
 
-    .no-print {
-        display: none !important;
-    }
+            .card-break {
+                width: 85.6mm !important;
+                height: 54mm !important;
+                min-height: 54mm !important;
+                max-height: 54mm !important;
+                margin: 0 !important;
+                padding: 3mm !important;
+                box-sizing: border-box !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                overflow: hidden !important;
+            }
 
-    .card-break {
-        width: 85.6mm !important;
-        height: 54mm !important;
-        min-height: 54mm !important;
-        max-height: 54mm !important;
-
-        margin: 0 !important;
-        padding: 3mm !important;
-
-        box-sizing: border-box !important;
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-
-        overflow: hidden !important;
-    }
-
-    .card-break img {
-        max-width: 100% !important;
-    }
-}
+            .card-break img {
+                max-width: 100% !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -149,20 +143,37 @@
     </div>
 
     <div id="app" class="min-h-screen flex flex-col">
+        <!-- Notifikasi Toast -->
         <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
+        <!-- Custom Modal Dialog (Pengganti Alert) -->
+        <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-slate-100 text-center">
+                <div id="modal-icon" class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto text-xl">
+                    <i class="fa-solid fa-info"></i>
+                </div>
+                <h3 id="modal-title" class="font-bold text-slate-800 text-lg">Informasi</h3>
+                <p id="modal-message" class="text-xs text-slate-600 leading-relaxed"></p>
+                <div class="pt-2 flex justify-center gap-3">
+                    <button type="button" id="modal-btn-cancel" onclick="closeCustomModal(false)" class="hidden px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all">Batal</button>
+                    <button type="button" id="modal-btn-confirm" onclick="closeCustomModal(true)" class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold transition-all shadow-md">OK</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header Utama -->
         <header id="main-header" class="bg-brand-800 text-white shadow-md sticky top-0 z-40 transition-all duration-300 hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <button id="btn-sidebar-toggle" onclick="toggleMobileSidebar()" class="md:hidden text-white hover:text-amber-300 p-2 rounded-lg">
                         <i class="fa-solid fa-bars text-xl"></i>
                     </button>
-                    <div class="bg-white/10 p-2 rounded-xl border border-white/20 backdrop-blur-sm">
-                        <img id="header-logo-img" src="" class="w-7 h-7 object-contain" alt="Logo">
+                    <div class="bg-white/10 p-2 rounded-xl border border-white/20 backdrop-blur-sm flex items-center justify-center">
+                        <img id="header-logo-img" src="" onerror="handleImageError(this)" class="w-7 h-7 object-contain" alt="Logo">
                     </div>
                     <div>
-                        <h1 class="font-bold text-base leading-none tracking-tight uppercase" id="app-title">PUSPENDIK</h1>
-                        <span class="text-xs text-brand-200" id="app-subtitle">CBT Application</span>
+                        <h1 class="font-bold text-base leading-none tracking-tight uppercase" id="app-title"></h1>
+                        <span class="text-xs text-brand-200" id="app-subtitle"></span>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -189,17 +200,18 @@
         </header>
 
         <main class="flex-1 max-w-7xl w-full mx-auto p-0 sm:p-4 lg:p-6">
-            <!-- VIEW 1: LOGIN VIEW -->
+            <!-- VIEW 1: LOGIN VIEW (100% DINAMIS DARI PENGATURAN) -->
             <section id="view-login" class="min-h-screen sm:min-h-[85vh] flex flex-col justify-start sm:justify-center items-center relative">
                 <div class="w-full puspendik-bg h-64 sm:h-72 flex flex-col items-center justify-start pt-8 sm:pt-10 text-white text-center shadow-lg">
                     <div class="flex items-center justify-center gap-4 px-4">
-                        <img id="login-logo-display" src="" class="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-md bg-white/10 p-1.5 rounded-2xl border border-white/20" alt="Logo">
+                        <img id="login-logo-display" src="" onerror="handleImageError(this)" class="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-md bg-white/10 p-1.5 rounded-2xl border border-white/20" alt="Logo Lembaga">
                         <div class="text-left">
-                            <h2 id="login-school-name"
-    class="text-lg sm:text-3xl font-extrabold tracking-wide leading-none text-white drop-shadow whitespace-nowrap">
-    PUSPENDIK
-</h2>
-                            <p id="login-app-subtitle" class="text-sm sm:text-base text-blue-100 font-medium tracking-widest mt-0.5">CBT Application</p>
+                            <h2 id="login-school-name" class="text-lg sm:text-3xl font-extrabold tracking-wide leading-none text-white drop-shadow uppercase">
+                                SD NEGERI KALISAPU 01
+                            </h2>
+                            <p id="login-app-subtitle" class="text-sm sm:text-base text-blue-100 font-medium tracking-widest mt-1 uppercase">
+                                UJIAN SEMESTER GANJIL
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -207,7 +219,7 @@
                     <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 p-8 space-y-6">
                         <div class="space-y-1">
                             <h3 class="text-2xl font-bold text-slate-700">Selamat Datang</h3>
-                            <p class="text-xs text-slate-400 font-medium">Masuk untuk memulai ujian CBT</p>
+                            <p class="text-xs text-slate-400 font-medium">Masuk untuk memulai sesi ujian CBT</p>
                         </div>
                         <form id="form-login" onsubmit="event.preventDefault(); processLogin();" class="space-y-5">
                             <div class="relative group">
@@ -229,15 +241,18 @@
                             </div>
                             <div class="pt-2">
                                 <button type="submit" id="btn-submit-login" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-3 px-6 rounded-full shadow-lg shadow-blue-500/30 transition-all text-sm tracking-wide flex items-center justify-center gap-2">
-                                    <span>Login</span> <i class="fa-solid fa-arrow-right"></i>
+                                    <span>Login Masuk</span> <i class="fa-solid fa-arrow-right"></i>
                                 </button>
+                            </div>
+                            <div class="text-center pt-1">
+                                <p class="text-[11px] text-slate-400">Admin default: <span class="font-mono font-bold text-slate-600">riyanmiraldi</span> / <span class="font-mono font-bold text-slate-600">miraldi123</span></p>
                             </div>
                         </form>
                     </div>
                 </div>
             </section>
 
-            <!-- VIEW 2: VERIFIKASI SISWA -->
+            <!-- VIEW 2: VERIFIKASI IDENTITAS SISWA -->
             <section id="view-student-verify" class="hidden max-w-lg mx-auto bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden my-6">
                 <div class="bg-brand-900 p-6 text-white text-center">
                     <div class="w-12 h-12 bg-brand-700/50 rounded-full flex items-center justify-center mx-auto mb-2 border border-brand-500">
@@ -256,7 +271,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nama Lengkap (Konfirmasi)</label>
-                        <input type="text" id="verify-fullname" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm uppercase">
+                        <input type="text" id="verify-fullname" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm uppercase font-semibold">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
@@ -281,7 +296,7 @@
                 </form>
             </section>
 
-            <!-- VIEW 3: WORKSPACE UJIAN CBT -->
+            <!-- VIEW 3: LEMBAR UJIAN CBT SISWA -->
             <section id="view-exam-workspace" class="hidden space-y-4">
                 <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-4">
                     <div class="flex items-center gap-3">
@@ -303,7 +318,7 @@
                                 <div id="exam-timer-clock" class="font-mono text-lg font-bold tracking-wider text-yellow-300">00:00:00</div>
                             </div>
                         </div>
-                        <button onclick="confirmSubmitExam()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-all">
+                        <button onclick="confirmSubmitExam()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-all shadow-md">
                             <i class="fa-solid fa-paper-plane"></i> <span class="hidden sm:inline">Selesai Ujian</span>
                         </button>
                     </div>
@@ -316,8 +331,8 @@
                                     Soal No. <span id="current-question-num" class="text-sm">1</span>
                                 </span>
                                 <div class="flex items-center gap-2">
-                                    <button onclick="adjustFontSize(-1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">A-</button>
-                                    <button onclick="adjustFontSize(1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">A+</button>
+                                    <button onclick="adjustFontSize(-1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold" title="Perkecil Teks">A-</button>
+                                    <button onclick="adjustFontSize(1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold" title="Perbesar Teks">A+</button>
                                 </div>
                             </div>
                             <div id="question-text-box" class="text-slate-800 font-medium text-base leading-relaxed mb-6 space-y-3"></div>
@@ -339,14 +354,14 @@
                     <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
                         <h4 class="font-bold text-slate-800 text-sm border-b border-slate-100 pb-2 flex items-center justify-between">
                             <span><i class="fa-solid fa-border-all text-brand-600 mr-1"></i> Navigasi Soal</span>
-                            <span id="answered-count-badge" class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-600">0/0 Jawab</span>
+                            <span id="answered-count-badge" class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-bold">0/0 Jawab</span>
                         </h4>
                         <div id="question-grid" class="grid grid-cols-5 gap-2 max-h-[320px] overflow-y-auto p-1"></div>
                     </div>
                 </div>
             </section>
 
-            <!-- VIEW 4: ADMIN DASHBOARD -->
+            <!-- VIEW 4: ADMIN DASHBOARD CONTROL HUB -->
             <section id="view-admin-dashboard" class="hidden">
                 <div class="flex flex-col md:flex-row gap-6">
                     <aside id="admin-sidebar" class="w-full md:w-64 bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col gap-1 shrink-0">
@@ -413,7 +428,7 @@
                                         <div id="admin-token-display" class="font-mono text-3xl font-extrabold text-yellow-300 tracking-widest">------</div>
                                         <div class="text-[11px] text-slate-300 mt-1">Perbaruan dalam: <span id="token-seconds">300</span>s</div>
                                     </div>
-                                    <button onclick="forceRegenerateToken()" class="bg-white/20 hover:bg-white/30 text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/30">
+                                    <button onclick="forceRegenerateToken()" class="bg-white/20 hover:bg-white/30 text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/30 transition-colors">
                                         <i class="fa-solid fa-arrows-rotate"></i> Refresh Token
                                     </button>
                                 </div>
@@ -424,17 +439,17 @@
                         <div id="admin-tab-siswa" class="admin-subtab hidden space-y-4">
                             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
                                 <div class="flex items-center gap-3">
-                                    <input type="text" id="search-siswa" onkeyup="filterSiswaTable()" placeholder="Cari Siswa..." class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm w-64">
+                                    <input type="text" id="search-siswa" onkeyup="filterSiswaTable()" placeholder="Cari Siswa..." class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm w-64 focus:outline-none focus:border-brand-600">
                                     <select id="filter-siswa-kelas" onchange="filterSiswaTable()" class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm"></select>
                                 </div>
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <button onclick="openModalAddSiswa()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Tambah Siswa</button>
-                                    <button onclick="downloadSiswaTemplate()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"><i class="fa-solid fa-file-excel"></i> Template Import</button>
-                                    <label class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer">
+                                    <button onclick="openModalAddSiswa()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-plus"></i> Tambah Siswa</button>
+                                    <button onclick="downloadSiswaTemplate()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-file-excel"></i> Template Import</button>
+                                    <label class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer shadow-sm">
                                         <i class="fa-solid fa-file-import"></i> Import Siswa
                                         <input type="file" id="import-siswa-file" accept=".csv, .txt" onchange="handleImportSiswaFile(event)" class="hidden">
                                     </label>
-                                    <button onclick="openModalPromoteSiswa()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"><i class="fa-solid fa-angles-up"></i> Tarik & Naik Kelas</button>
+                                    <button onclick="openModalPromoteSiswa()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-angles-up"></i> Tarik & Naik Kelas</button>
                                 </div>
                             </div>
                             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -452,13 +467,12 @@
                         <!-- CETAK KARTU SUBTAB -->
                         <div id="admin-tab-kartu" class="admin-subtab hidden space-y-4">
                             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4 no-print">
-                                <h3 class="font-bold text-slate-800">Cetak Kartu Login Ujian (Ukuran Compact)</h3>
+                                <h3 class="font-bold text-slate-800">Cetak Kartu Login Ujian (Ukuran Compact 85.6mm x 54mm)</h3>
                                 <div class="flex items-center gap-3">
                                     <select id="filter-kartu-kelas" onchange="renderCardsForPrint()" class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm"></select>
-                                    <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-print"></i> Cetak Kartu</button>
+                                    <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-sm"><i class="fa-solid fa-print"></i> Cetak Kartu</button>
                                 </div>
                             </div>
-                            <!-- Grid 3 kolom untuk kartu ukuran compact agar muat banyak dalam 1 halaman A4 -->
                             <div id="printable-area" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                         </div>
 
@@ -466,7 +480,7 @@
                         <div id="admin-tab-kelas" class="admin-subtab hidden space-y-4">
                             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
                                 <h3 class="font-bold text-slate-800">Daftar Kelas</h3>
-                                <button onclick="openModalAddKelas()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Tambah Kelas</button>
+                                <button onclick="openModalAddKelas()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-plus"></i> Tambah Kelas</button>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="kelas-cards-container"></div>
                         </div>
@@ -475,7 +489,7 @@
                         <div id="admin-tab-mapel" class="admin-subtab hidden space-y-4">
                             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
                                 <h3 class="font-bold text-slate-800">Mata Pelajaran</h3>
-                                <button onclick="openModalAddMapel()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Tambah Mapel</button>
+                                <button onclick="openModalAddMapel()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-plus"></i> Tambah Mapel</button>
                             </div>
                             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                                 <table class="w-full text-left text-sm">
@@ -495,9 +509,9 @@
                                     <select id="filter-soal-mapel" onchange="loadBankSoalTable()" class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm"></select>
                                 </div>
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <button onclick="openModalAddSoal()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Tambah Soal</button>
-                                    <button onclick="downloadSoalTemplate()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"><i class="fa-solid fa-file-excel"></i> Template Soal</button>
-                                    <label class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer">
+                                    <button onclick="openModalAddSoal()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-plus"></i> Tambah Soal</button>
+                                    <button onclick="downloadSoalTemplate()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-file-excel"></i> Template Soal</button>
+                                    <label class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer shadow-sm">
                                         <i class="fa-solid fa-file-import"></i> Import Soal
                                         <input type="file" id="import-soal-file" accept=".csv, .txt" onchange="handleImportSoalFile(event)" class="hidden">
                                     </label>
@@ -517,7 +531,7 @@
                         <div id="admin-tab-jadwal" class="admin-subtab hidden space-y-4">
                             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
                                 <h3 class="font-bold text-slate-800">Jadwal Ujian</h3>
-                                <button onclick="openModalAddJadwal()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Tambah Jadwal</button>
+                                <button onclick="openModalAddJadwal()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-plus"></i> Tambah Jadwal</button>
                             </div>
                             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                                 <table class="w-full text-left text-sm">
@@ -536,7 +550,7 @@
                                     <select id="filter-hasil-kelas" onchange="loadHasilTable()" class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm"></select>
                                     <select id="filter-hasil-mapel" onchange="loadHasilTable()" class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm"></select>
                                 </div>
-                                <button onclick="window.print()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Cetak Rekap PDF</button>
+                                <button onclick="window.print()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-sm"><i class="fa-solid fa-file-pdf"></i> Cetak Rekap PDF</button>
                             </div>
                             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                                 <table class="w-full text-left text-sm">
@@ -612,7 +626,7 @@
                                     </div>
                                     <div class="pt-2 flex justify-between items-center">
                                         <button type="button" onclick="triggerDatabaseSetup()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs"><i class="fa-solid fa-database mr-1"></i> Inisialisasi Spreadsheet</button>
-                                        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Simpan Pengaturan</button>
+                                        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm shadow-md">Simpan Pengaturan</button>
                                     </div>
                                 </form>
                             </div>
@@ -623,7 +637,7 @@
         </main>
     </div>
 
-    <!-- MODAL SISWA -->
+    <!-- MODAL TAMBAH / EDIT SISWA -->
     <div id="modal-siswa" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <h3 class="font-bold text-slate-800 text-lg border-b pb-2" id="modal-siswa-title">Tambah Siswa</h3>
@@ -640,7 +654,7 @@
                 <div><label class="block text-xs font-bold uppercase mb-1">Password</label><input type="text" id="m-siswa-password" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm font-mono font-bold"></div>
                 <div class="pt-3 flex justify-end gap-2 border-t">
                     <button type="button" onclick="closeModal('modal-siswa')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold">Simpan</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold shadow-md">Simpan</button>
                 </div>
             </form>
         </div>
@@ -665,7 +679,7 @@
                 </div>
                 <div class="pt-3 flex justify-end gap-2 border-t">
                     <button type="button" onclick="closeModal('modal-promote')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-xl text-xs font-bold">Proses Kenaikan</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-xl text-xs font-bold shadow-md">Proses Kenaikan</button>
                 </div>
             </form>
         </div>
@@ -680,7 +694,7 @@
                 <div><label class="block text-xs font-bold uppercase mb-1">Nama Kelas</label><input type="text" id="m-kelas-nama" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm uppercase"></div>
                 <div class="pt-3 flex justify-end gap-2 border-t">
                     <button type="button" onclick="closeModal('modal-kelas')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold">Simpan</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold shadow-md">Simpan</button>
                 </div>
             </form>
         </div>
@@ -696,7 +710,7 @@
                 <div><label class="block text-xs font-bold uppercase mb-1">Nama Mapel</label><input type="text" id="m-mapel-nama" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm uppercase"></div>
                 <div class="pt-3 flex justify-end gap-2 border-t">
                     <button type="button" onclick="closeModal('modal-mapel')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold">Simpan</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold shadow-md">Simpan</button>
                 </div>
             </form>
         </div>
@@ -726,7 +740,7 @@
                 </div>
                 <div class="pt-3 flex justify-end gap-2 border-t">
                     <button type="button" onclick="closeModal('modal-soal')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold">Simpan</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold shadow-md">Simpan</button>
                 </div>
             </form>
         </div>
@@ -748,26 +762,26 @@
                 </div>
                 <div class="pt-3 flex justify-end gap-2 border-t">
                     <button type="button" onclick="closeModal('modal-jadwal')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold">Simpan</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold shadow-md">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- JAVASCRIPT APP LOGIC -->
+    <!-- JAVASCRIPT LOGIKA LENGKAP -->
     <script>
-        // KONFIGURASI APLIKASI
         const IS_PREVIEW = false;
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbzxiPt2dmVr6AfvIydHVHMZZgXqxXt0X7jPDd317DmZg0qIb6cGnMH41qfVqJRGBILW/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycby-bOSMYwRRM_X5sDYuiHJH0pcluwtuqralyQUlDk4fZBRYy61TIED-kzJFu1_4duYB/exec";
+        const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
             settings: {
-                schoolName: "",
-                appSubTitle: "",
+                schoolName: "SD NEGERI KALISAPU 01",
+                appSubTitle: "UJIAN SEMESTER GANJIL",
                 tahunPelajaran: "2026/2027",
                 semester: "Ganjil",
                 kopUrl: "https://placehold.co/600x80/1e40af/ffffff?text=KOP+LEMBAGA+SD+NEGERI+KALISAPU+01",
-                logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png",
+                logoUrl: DEFAULT_LOGO,
                 ttdUrl: "https://placehold.co/120x60/transparent/1e3a8a?text=TTD+Kepsek",
                 kepsekName: "Drs. H. Riyan Miraldi, M.Pd",
                 tokenActive: true,
@@ -786,8 +800,8 @@
                 { id: "S2", nisn: "00123457", nama: "SITI AMINAH", username: "SITI AMINAH", password: "Pass9x3", idKelas: "K1", pob: "Bandung", dob: "2006-08-15" }
             ],
             soal: [
-                { id: "Q1", idKelas: "K1", idMapel: "M1", pertanyaan: "Berapakah hasil dari 15 x 12?", opsiA: "160", opsiB: "180", opsiC: "200", opsiD: "210", opsiE: "220", kunci: "B", bobot: 20 },
-                { id: "Q2", idKelas: "K1", idMapel: "M1", pertanyaan: "Akar kuadrat dari 144 adalah?", opsiA: "10", opsiB: "11", opsiC: "12", opsiD: "13", opsiE: "14", kunci: "C", bobot: 20 }
+                { id: "Q1", idKelas: "K1", idMapel: "M1", pertanyaan: "Berapakah hasil dari 15 x 12?", opsiA: "160", opsiB: "180", opsiC: "200", opsiD: "210", opsiE: "220", kunci: "B", bobot: 50 },
+                { id: "Q2", idKelas: "K1", idMapel: "M1", pertanyaan: "Akar kuadrat dari 144 adalah?", opsiA: "10", opsiB: "11", opsiC: "12", opsiD: "13", opsiE: "14", kunci: "C", bobot: 50 }
             ],
             jadwal: [
                 { id: "J1", idKelas: "K1", idMapel: "M1", tanggal: "2026-08-25", jamMulai: "08:00", jamSelesai: "10:00", durasi: 60 }
@@ -796,21 +810,36 @@
         };
 
         let currentUser = null;
-        let currentExamState = { questions: [], answers: {}, doubts: {}, currentIndex: 0, timerInterval: null, secondsLeft: 3600 };
+        let currentExamState = { questions: [], answers: {}, doubts: {}, currentIndex: 0, timerInterval: null, secondsLeft: 3600, fontSizeDelta: 0 };
         let tokenCountdownTimer = null;
         let tokenSecondsLeft = 300;
+        let modalResolveCallback = null;
 
         window.onload = function() {
+            // Instant render: Muat pengaturan dari LocalStorage (0 Detik)
+            const cachedSettings = localStorage.getItem('cbt_settings');
+            if (cachedSettings) {
+                try {
+                    appState.settings = Object.assign(appState.settings, JSON.parse(cachedSettings));
+                } catch(e) {}
+            }
+
+            syncBrandingUI();
+            
             if (!IS_PREVIEW) {
                 fetchInitialDataFromGas();
             } else {
                 updateBackendStatusBadge(true, 'Mode Preview (Data Simulasi)');
                 initAdminDashboard();
             }
-            syncBrandingUI();
             startTokenTimerEngine();
             showView('view-login');
         };
+
+        function handleImageError(img) {
+            img.onerror = null;
+            img.src = DEFAULT_LOGO;
+        }
 
         function showToast(msg, type = 'info') {
             const container = document.getElementById('toast-container');
@@ -825,6 +854,26 @@
                 toast.classList.add('opacity-0', 'translate-x-full');
                 setTimeout(() => toast.remove(), 300);
             }, 3500);
+        }
+
+        function showCustomModal(title, msg, isConfirm = false, iconClass = 'fa-info') {
+            return new Promise((resolve) => {
+                modalResolveCallback = resolve;
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-message').innerText = msg;
+                document.getElementById('modal-icon').innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
+                const cancelBtn = document.getElementById('modal-btn-cancel');
+                if (isConfirm) cancelBtn.classList.remove('hidden'); else cancelBtn.classList.add('hidden');
+                document.getElementById('custom-modal').classList.remove('hidden');
+            });
+        }
+
+        function closeCustomModal(result) {
+            document.getElementById('custom-modal').classList.add('hidden');
+            if (modalResolveCallback) {
+                modalResolveCallback(result);
+                modalResolveCallback = null;
+            }
         }
 
         function updateBackendStatusBadge(isConnected, text = '') {
@@ -874,7 +923,10 @@
                 const result = await response.json();
 
                 if (result.status === 'success') {
-                    if (result.settings && Object.keys(result.settings).length > 0) appState.settings = Object.assign(appState.settings, result.settings);
+                    if (result.settings && Object.keys(result.settings).length > 0) {
+                        appState.settings = Object.assign(appState.settings, result.settings);
+                        localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+                    }
                     if (result.kelas) appState.kelas = result.kelas;
                     if (result.mapel) appState.mapel = result.mapel;
                     if (result.siswa) appState.siswa = result.siswa;
@@ -895,14 +947,24 @@
 
         function syncBrandingUI() {
             const st = appState.settings;
-            document.getElementById('login-school-name').innerText = st.schoolName || 'PUSPENDIK';
-            document.getElementById('login-app-subtitle').innerText = st.appSubTitle || 'CBT Application';
-            if (st.logoUrl) {
-                document.getElementById('login-logo-display').src = st.logoUrl;
-                document.getElementById('header-logo-img').src = st.logoUrl;
-                document.getElementById('preview-logo-img').src = st.logoUrl;
-                document.getElementById('set-logo-url').value = st.logoUrl;
-            }
+            
+            // Pengikatan data dinamis 100% pada tampilan Login & Header
+            const schoolNameEl = document.getElementById('login-school-name');
+            const appSubtitleEl = document.getElementById('login-app-subtitle');
+            if (schoolNameEl) schoolNameEl.innerText = st.schoolName || 'SD NEGERI KALISAPU 01';
+            if (appSubtitleEl) appSubtitleEl.innerText = st.appSubTitle || 'UJIAN SEMESTER GANJIL';
+            
+            const logoUrl = st.logoUrl || DEFAULT_LOGO;
+            const loginLogo = document.getElementById('login-logo-display');
+            const headerLogo = document.getElementById('header-logo-img');
+            const previewLogo = document.getElementById('preview-logo-img');
+            
+            if (loginLogo) loginLogo.src = logoUrl;
+            if (headerLogo) headerLogo.src = logoUrl;
+            if (previewLogo) previewLogo.src = logoUrl;
+            
+            document.getElementById('set-logo-url').value = logoUrl;
+
             if (st.kopUrl) {
                 document.getElementById('preview-kop-img').src = st.kopUrl;
                 document.getElementById('set-kop-url').value = st.kopUrl;
@@ -911,8 +973,9 @@
                 document.getElementById('preview-ttd-img').src = st.ttdUrl;
                 document.getElementById('set-ttd-url').value = st.ttdUrl;
             }
-            document.getElementById('app-title').innerText = st.schoolName || 'PUSPENDIK';
-            document.getElementById('app-subtitle').innerText = st.appSubTitle || 'CBT Application';
+            
+            document.getElementById('app-title').innerText = st.schoolName || 'SD NEGERI KALISAPU 01';
+            document.getElementById('app-subtitle').innerText = st.appSubTitle || 'UJIAN SEMESTER GANJIL';
             document.getElementById('header-ta-badge').innerText = `TA: ${st.tahunPelajaran} (${st.semester})`;
         }
 
@@ -933,6 +996,7 @@
                     document.getElementById('preview-ttd-img').src = base64String;
                     document.getElementById('set-ttd-url').value = base64String;
                 }
+                localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
                 showToast('Gambar berhasil dimuat!', 'success');
             };
             reader.readAsDataURL(file);
@@ -941,6 +1005,7 @@
         function changeAcademicSession(ta, sem) {
             appState.settings.tahunPelajaran = ta;
             appState.settings.semester = sem;
+            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
             syncBrandingUI();
             document.getElementById('overview-ta-title').innerText = `Tahun Pelajaran: ${ta} (Semester ${sem})`;
             if (!IS_PREVIEW) fetchInitialDataFromGas();
@@ -1055,6 +1120,7 @@
             currentExamState.doubts = {};
             currentExamState.currentIndex = 0;
             currentExamState.secondsLeft = 3600;
+            currentExamState.fontSizeDelta = 0;
 
             document.getElementById('exam-subject-title').innerText = getMapelName(questions[0].idMapel);
             document.getElementById('exam-student-info').innerText = "Siswa: " + currentUser.studentData.nama;
@@ -1064,6 +1130,12 @@
             renderQuestion();
             renderQuestionGrid();
             startExamClock();
+        }
+
+        function adjustFontSize(delta) {
+            currentExamState.fontSizeDelta = Math.max(-2, Math.min(4, currentExamState.fontSizeDelta + delta));
+            const baseSize = 16 + currentExamState.fontSizeDelta * 2;
+            document.getElementById('question-text-box').style.fontSize = baseSize + 'px';
         }
 
         function renderQuestion() {
@@ -1137,7 +1209,10 @@
             }, 1000);
         }
 
-        function confirmSubmitExam() { if (confirm("Akhiri ujian dan kirim jawaban?")) submitExamAnswers(); }
+        async function confirmSubmitExam() { 
+            const isConfirmed = await showCustomModal("Konfirmasi Akhiri Ujian", "Apakah Anda yakin ingin menyelesaikan ujian dan mengirim seluruh lembar jawaban?", true, "fa-circle-question");
+            if (isConfirmed) submitExamAnswers(); 
+        }
 
         async function submitExamAnswers() {
             if (currentExamState.timerInterval) clearInterval(currentExamState.timerInterval);
@@ -1156,7 +1231,7 @@
             };
 
             await apiCall('submitExam', resultObj);
-            alert(`Ujian Selesai! Score Anda: ${nilai}`);
+            await showCustomModal("Ujian Selesai", `Terima kasih! Lembar ujian berhasil dikirim. Nilai perolehan Anda: ${nilai}`, false, "fa-circle-check");
             handleLogout();
         }
 
@@ -1227,7 +1302,7 @@
                 if (formattedDob.includes('T')) formattedDob = formattedDob.split('T')[0];
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
-                tr.innerHTML = `<td class="p-3.5 font-mono text-xs">${s.nisn}</td><td class="p-3.5 font-bold">${s.nama}</td><td class="p-3.5">${getKelasName(s.idKelas)}</td><td class="p-3.5 text-xs">${s.pob || '-' }, ${formattedDob}</td><td class="p-3.5 font-mono text-xs">${s.username}</td><td class="p-3.5 font-mono text-xs text-amber-700">${s.password}</td><td class="p-3.5 text-center flex items-center justify-center gap-2"><button onclick="openModalEditSiswa('${s.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteSiswa('${s.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
+                tr.innerHTML = `<td class="p-3.5 font-mono text-xs">${s.nisn}</td><td class="p-3.5 font-bold">${s.nama}</td><td class="p-3.5">${getKelasName(s.idKelas)}</td><td class="p-3.5 text-xs">${s.pob || '-' }, ${formattedDob}</td><td class="p-3.5 font-mono text-xs">${s.username}</td><td class="p-3.5 font-mono text-xs text-amber-700 font-bold">${s.password}</td><td class="p-3.5 text-center flex items-center justify-center gap-2"><button onclick="openModalEditSiswa('${s.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteSiswa('${s.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
                 tbody.appendChild(tr);
             });
             populateSelectOptions();
@@ -1240,291 +1315,72 @@
             loadSiswaTable(filtered);
         }
 
-        // RENDER KARTU UJIAN COMPACT SESUAI REFERENSI GAMBAR
         function renderCardsForPrint() {
-    const container = document.getElementById('printable-area');
-    if (!container) return;
+            const container = document.getElementById('printable-area');
+            if (!container) return;
+            container.innerHTML = '';
 
-    container.innerHTML = '';
+            const selectedKelas = document.getElementById('filter-kartu-kelas').value;
+            const todayStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            const subTitleText = appState.settings.appSubTitle || 'UJIAN SEMESTER GANJIL';
+            const kepsekText = appState.settings.kepsekName || 'Drs. H. Riyan Miraldi, M.Pd';
+            const kopUrl = appState.settings.kopUrl || '';
+            const ttdUrl = appState.settings.ttdUrl || '';
 
-    const selectedKelas = document.getElementById('filter-kartu-kelas').value;
+            appState.siswa.filter(s => !selectedKelas || s.idKelas === selectedKelas).forEach(s => {
+                let formattedDob = s.dob || '-';
+                if (formattedDob.includes('T')) formattedDob = formattedDob.split('T')[0];
 
-    const todayStr = new Date().toLocaleDateString('id-ID', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    });
+                const card = document.createElement('div');
+                card.className = 'bg-white border-2 border-blue-600 rounded-xl card-break text-[10px] relative overflow-hidden flex flex-col justify-between';
+                card.style.width = '85.6mm';
+                card.style.height = '54mm';
+                card.style.minHeight = '54mm';
+                card.style.maxHeight = '54mm';
+                card.style.boxSizing = 'border-box';
+                card.style.padding = '3mm';
 
-    const subTitleText =
-        appState.settings.appSubTitle || 'UJIAN SEMESTER GANJIL';
-
-    const kepsekText =
-        appState.settings.kepsekName || 'Drs. H. Riyan Miraldi, M.Pd';
-
-    const kopUrl =
-        appState.settings.kopUrl || '';
-
-    const ttdUrl =
-        appState.settings.ttdUrl || '';
-
-    appState.siswa
-        .filter(s => !selectedKelas || s.idKelas === selectedKelas)
-        .forEach(s => {
-
-            let formattedDob = s.dob || '-';
-
-            if (formattedDob.includes('T')) {
-                formattedDob = formattedDob.split('T')[0];
-            }
-
-            const card = document.createElement('div');
-
-            card.className =
-                'bg-white border-2 border-blue-600 rounded-xl card-break text-[10px] relative overflow-hidden flex flex-col justify-between';
-
-            card.style.width = '85.6mm';
-            card.style.height = '54mm';
-            card.style.minHeight = '54mm';
-            card.style.maxHeight = '54mm';
-            card.style.boxSizing = 'border-box';
-            card.style.padding = '3mm';
-
-            card.innerHTML = `
-                <!-- KOP SURAT -->
-                <div>
-
-                    <div
-    style="
-        width:100%;
-        height:10mm;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        overflow:hidden;
-        margin:0;
-        padding:0;
-    "
->
-    <img
-        src="${kopUrl}"
-        style="
-            width:100%;
-            height:auto;
-            max-width:100%;
-            max-height:10mm;
-            object-fit:contain;
-            object-position:center;
-            display:block;
-        "
-        onerror="this.style.display='none'"
-    >
-</div>
-
-                    <!-- JUDUL KARTU -->
-<div
-    class="bg-blue-900 text-white text-center rounded-md font-black tracking-wider"
-    style="
-        font-size:10px;
-        line-height:12px;
-        padding:2px 6px;
-        margin:0;
-    "
->
-    KARTU PESERTA UJIAN
-</div>
-
-<!-- SUB JUDUL -->
-<div
-    class="text-center font-bold text-slate-800 uppercase tracking-wide"
-    style="
-        font-size:8px;
-        line-height:9px;
-        margin:1px 0 0 0;
-        padding:0;
-    "
->
-    ${subTitleText}
-</div>
-
-<!-- TAHUN AJARAN TANPA BACKGROUND -->
-<div
-    class="text-center font-bold text-blue-800 tracking-wide"
-    style="
-        font-size:7px;
-        line-height:8px;
-        margin:0;
-        padding:0;
-    "
->
-    TAHUN AJARAN ${appState.settings.tahunPelajaran}
-    &nbsp; | &nbsp;
-    ${appState.settings.semester || ''}
-</div>
-
-                    <!-- DATA SISWA -->
-                    <div
-                        class="text-slate-900 font-semibold"
-                        style="font-size:8.5px; margin-top:4px;"
-                    >
-
-                        <div class="grid grid-cols-12">
-                            <span class="col-span-3">Nama</span>
-                            <span class="col-span-1 text-center">:</span>
-                            <span class="col-span-8 uppercase font-bold text-blue-900 truncate">
-                                ${s.nama}
-                            </span>
+                card.innerHTML = `
+                    <div>
+                        <div style="width:100%;height:10mm;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0;padding:0;">
+                            <img src="${kopUrl}" style="width:100%;height:auto;max-width:100%;max-height:10mm;object-fit:contain;object-position:center;display:block;" onerror="this.style.display='none'">
                         </div>
-
-                        <div class="grid grid-cols-12">
-                            <span class="col-span-3">Kelas</span>
-                            <span class="col-span-1 text-center">:</span>
-                            <span class="col-span-8 uppercase">
-                                ${getKelasName(s.idKelas)}
-                            </span>
+                        <div class="bg-blue-900 text-white text-center rounded-md font-black tracking-wider" style="font-size:10px;line-height:12px;padding:2px 6px;margin:0;">
+                            KARTU PESERTA UJIAN
                         </div>
-
-                        <div class="grid grid-cols-12">
-                            <span class="col-span-3">Tgl Lahir</span>
-                            <span class="col-span-1 text-center">:</span>
-                            <span class="col-span-8">
-                                ${formattedDob}
-                            </span>
+                        <div class="text-center font-bold text-slate-800 uppercase tracking-wide" style="font-size:8px;line-height:9px;margin:1px 0 0 0;padding:0;">
+                            ${subTitleText}
                         </div>
-
-                        <div class="grid grid-cols-12">
-                            <span class="col-span-3">Username</span>
-                            <span class="col-span-1 text-center">:</span>
-                            <span class="col-span-8 font-mono font-bold text-blue-700">
-                                ${s.username}
-                            </span>
+                        <div class="text-center font-bold text-blue-800 tracking-wide" style="font-size:7px;line-height:8px;margin:0;padding:0;">
+                            TAHUN AJARAN ${appState.settings.tahunPelajaran} &nbsp; | &nbsp; ${appState.settings.semester || ''}
                         </div>
-
-                        <div class="grid grid-cols-12">
-                            <span class="col-span-3">Password</span>
-                            <span class="col-span-1 text-center">:</span>
-                            <span class="col-span-8 font-mono font-bold text-amber-700">
-                                ${s.password}
-                            </span>
+                        <div class="text-slate-900 font-semibold" style="font-size:8.5px; margin-top:4px;">
+                            <div class="grid grid-cols-12"><span class="col-span-3">Nama</span><span class="col-span-1 text-center">:</span><span class="col-span-8 uppercase font-bold text-blue-900 truncate">${s.nama}</span></div>
+                            <div class="grid grid-cols-12"><span class="col-span-3">Kelas</span><span class="col-span-1 text-center">:</span><span class="col-span-8 uppercase">${getKelasName(s.idKelas)}</span></div>
+                            <div class="grid grid-cols-12"><span class="col-span-3">Tgl Lahir</span><span class="col-span-1 text-center">:</span><span class="col-span-8">${formattedDob}</span></div>
+                            <div class="grid grid-cols-12"><span class="col-span-3">Username</span><span class="col-span-1 text-center">:</span><span class="col-span-8 font-mono font-bold text-blue-700">${s.username}</span></div>
+                            <div class="grid grid-cols-12"><span class="col-span-3">Password</span><span class="col-span-1 text-center">:</span><span class="col-span-8 font-mono font-bold text-amber-700">${s.password}</span></div>
                         </div>
-
                     </div>
-                </div>
-
-                <!-- FOOTER -->
-                <div
-                    class="border-t border-slate-300 flex items-end justify-between"
-                    style="margin-top:2px; padding-top:2px;"
-                >
-
-                    <!-- TANGGAL CETAK -->
-                    <div
-                        class="text-slate-500"
-                        style="font-size:7px; width:42%;"
-                    >
-                        Cetak:<br>
-                        <span class="font-medium">
-                            ${todayStr}
-                        </span>
+                    <div class="border-t border-slate-300 flex items-end justify-between" style="margin-top:2px; padding-top:2px;">
+                        <div class="text-slate-500" style="font-size:7px; width:42%;">
+                            Cetak:<br><span class="font-medium">${todayStr}</span>
+                        </div>
+                        <div class="text-center" style="width:55%;min-width:0;color:#0f172a;overflow:visible;position:relative;z-index:10;margin-top:-3mm;">
+                            <div style="font-size:7px;line-height:8px;font-weight:700;white-space:nowrap;margin:0;">ADIWERNA, ${todayStr}</div>
+                            <div style="font-size:8px;line-height:9px;font-weight:800;white-space:nowrap;margin:0;">KEPALA SEKOLAH</div>
+                            <div style="height:7mm;display:flex;align-items:center;justify-content:center;margin-top:-1mm;margin-bottom:-1mm;overflow:visible;">
+                                ${ttdUrl ? `<img src="${ttdUrl}" style="width:auto;max-width:26mm;height:7mm;object-fit:contain;display:block;" onerror="this.style.display='none'">` : ''}
+                            </div>
+                            <div style="font-size:9px;line-height:10px;font-weight:800;color:#0f172a;text-decoration:underline;white-space:nowrap;display:block;visibility:visible;opacity:1;position:relative;z-index:100;margin-top:-1mm;">
+                                ${kepsekText}
+                            </div>
+                        </div>
                     </div>
-
-                    <!-- TTD KEPALA SEKOLAH -->
-<div
-    class="text-center"
-    style="
-        width:55%;
-        min-width:0;
-        color:#0f172a;
-        overflow:visible;
-        position:relative;
-        z-index:10;
-        margin-top:-3mm;
-    "
->
-
-    <!-- TEMPAT & TANGGAL -->
-    <div
-        style="
-            font-size:7px;
-            line-height:8px;
-            font-weight:700;
-            white-space:nowrap;
-            margin:0;
-        "
-    >
-        ADIWERNA, ${todayStr}
-    </div>
-
-    <!-- KEPALA SEKOLAH -->
-    <div
-        style="
-            font-size:8px;
-            line-height:9px;
-            font-weight:800;
-            white-space:nowrap;
-            margin:0;
-        "
-    >
-        KEPALA SEKOLAH
-    </div>
-
-    <!-- TTD -->
-    <div
-        style="
-            height:7mm;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            margin-top:-1mm;
-            margin-bottom:-1mm;
-            overflow:visible;
-        "
-    >
-        ${
-            ttdUrl
-            ? `
-                <img
-                    src="${ttdUrl}"
-                    style="
-                        width:auto;
-                        max-width:26mm;
-                        height:7mm;
-                        object-fit:contain;
-                        display:block;
-                    "
-                    onerror="this.style.display='none'"
-                >
-            `
-            : ''
+                `;
+                container.appendChild(card);
+            });
         }
-    </div>
-
-    <!-- NAMA KEPALA SEKOLAH -->
-    <div
-        style="
-            font-size:9px;
-            line-height:10px;
-            font-weight:800;
-            color:#0f172a;
-            text-decoration:underline;
-            white-space:nowrap;
-            display:block;
-            visibility:visible;
-            opacity:1;
-            position:relative;
-            z-index:100;
-            margin-top:-1mm;
-        "
-    >
-        ${kepsekText}
-    </div>
-
-</div>
-                </div>
-            `;
-
-            container.appendChild(card);
-        });
-}
 
         function getKelasName(id) { const k = appState.kelas.find(i => i.id === id); return k ? k.nama : id; }
         function getMapelName(id) { const m = appState.mapel.find(i => i.id === id); return m ? m.nama : id; }
@@ -1605,7 +1461,8 @@
         }
 
         async function deleteSiswa(id) {
-            if (confirm("Hapus siswa ini?")) {
+            const isConfirmed = await showCustomModal("Konfirmasi Hapus", "Hapus data siswa ini secara permanen?", true, "fa-trash-can");
+            if (isConfirmed) {
                 appState.siswa = appState.siswa.filter(i => i.id !== id);
                 showToast('Siswa berhasil dihapus', 'success');
                 loadSiswaTable();
@@ -1712,7 +1569,8 @@
         }
 
         async function deleteKelas(id) {
-            if (confirm("Hapus kelas ini?")) {
+            const isConfirmed = await showCustomModal("Konfirmasi Hapus", "Hapus kelas ini beserta konfigurasi terkait?", true, "fa-trash-can");
+            if (isConfirmed) {
                 appState.kelas = appState.kelas.filter(i => i.id !== id);
                 showToast('Kelas dihapus', 'success');
                 loadKelasCards();
@@ -1757,7 +1615,8 @@
         }
 
         async function deleteMapel(id) {
-            if (confirm("Hapus mapel ini?")) {
+            const isConfirmed = await showCustomModal("Konfirmasi Hapus", "Hapus mata pelajaran ini?", true, "fa-trash-can");
+            if (isConfirmed) {
                 appState.mapel = appState.mapel.filter(i => i.id !== id);
                 showToast('Mapel dihapus', 'success');
                 loadMapelTable();
@@ -1838,7 +1697,8 @@
         }
 
         async function deleteSoal(id) {
-            if (confirm("Hapus soal ini?")) {
+            const isConfirmed = await showCustomModal("Konfirmasi Hapus", "Hapus butir soal ini?", true, "fa-trash-can");
+            if (isConfirmed) {
                 appState.soal = appState.soal.filter(i => i.id !== id);
                 showToast('Soal dihapus', 'success');
                 loadBankSoalTable();
@@ -1957,7 +1817,8 @@
         }
 
         async function deleteJadwal(id) {
-            if (confirm("Hapus jadwal ujian ini?")) {
+            const isConfirmed = await showCustomModal("Konfirmasi Hapus", "Hapus jadwal ujian ini?", true, "fa-trash-can");
+            if (isConfirmed) {
                 appState.jadwal = appState.jadwal.filter(i => i.id !== id);
                 showToast('Jadwal dihapus', 'success');
                 loadJadwalTable();
@@ -1987,6 +1848,7 @@
             appState.settings.logoUrl = document.getElementById('set-logo-url').value;
             appState.settings.ttdUrl = document.getElementById('set-ttd-url').value;
 
+            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
             syncBrandingUI();
             renderCardsForPrint();
             showToast('Pengaturan berhasil disimpan!', 'success');
@@ -1994,7 +1856,8 @@
         }
 
         async function triggerDatabaseSetup() {
-            if (confirm("Inisialisasi semua tab database Spreadsheet?")) {
+            const isConfirmed = await showCustomModal("Inisialisasi Spreadsheet", "Buat dan reset semua tab lembar kerja Spreadsheet?", true, "fa-database");
+            if (isConfirmed) {
                 showToast('Struktur Spreadsheet berhasil diinisialisasi!', 'success');
                 await apiCall('setupDatabase');
             }
