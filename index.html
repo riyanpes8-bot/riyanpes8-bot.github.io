@@ -374,6 +374,7 @@
                         <button onclick="switchAdminTab('mapel')" id="tab-btn-mapel" class="admin-tab-btn bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold px-3.5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-3 transition-all text-left w-full"><i class="fa-solid fa-book-bookmark w-5 text-center"></i> Mata Pelajaran</button>
                         <button onclick="switchAdminTab('soal')" id="tab-btn-soal" class="admin-tab-btn bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold px-3.5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-3 transition-all text-left w-full"><i class="fa-solid fa-file-circle-question w-5 text-center"></i> Bank Soal</button>
                         <button onclick="switchAdminTab('jadwal')" id="tab-btn-jadwal" class="admin-tab-btn bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold px-3.5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-3 transition-all text-left w-full"><i class="fa-solid fa-calendar-days w-5 text-center"></i> Jadwal Ujian</button>
+                        <button onclick="switchAdminTab('monitoring')" id="tab-btn-monitoring" class="admin-tab-btn bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold px-3.5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-3 transition-all text-left w-full"><i class="fa-solid fa-tower-broadcast w-5 text-center"></i> Monitoring Realtime</button>
                         <button onclick="switchAdminTab('hasil')" id="tab-btn-hasil" class="admin-tab-btn bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold px-3.5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-3 transition-all text-left w-full"><i class="fa-solid fa-square-poll-vertical w-5 text-center"></i> Hasil Ujian</button>
                         <button onclick="switchAdminTab('pengaturan')" id="tab-btn-pengaturan" class="admin-tab-btn bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold px-3.5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-3 transition-all text-left w-full"><i class="fa-solid fa-sliders w-5 text-center"></i> Pengaturan</button>
                     </aside>
@@ -546,6 +547,30 @@
                                     </thead>
                                     <tbody id="table-jadwal-body" class="divide-y divide-slate-100"></tbody>
                                 </table>
+                            </div>
+                        </div>
+
+                        <!-- MONITORING UJIAN REALTIME SUBTAB -->
+                        <div id="admin-tab-monitoring" class="admin-subtab hidden space-y-4">
+                            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-base">Monitoring Ujian Realtime</h3>
+                                    <p class="text-xs text-slate-500">Pantau aktivitas ujian siswa, progres jawab, dan status pengerjaan secara langsung.</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <select id="filter-mon-kelas" onchange="loadMonitoringTable()" class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm"></select>
+                                    <button onclick="loadMonitoringTable()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-sm"><i class="fa-solid fa-arrows-rotate"></i> Refresh Data</button>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-sm">
+                                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[11px] border-b">
+                                            <tr><th class="p-3.5">NISN</th><th class="p-3.5">Nama Siswa</th><th class="p-3.5">Kelas</th><th class="p-3.5">Status Sesi</th><th class="p-3.5">Progres Jawab</th><th class="p-3.5">Nilai Sementara</th><th class="p-3.5 text-center">Aksi Kontrol</th></tr>
+                                        </thead>
+                                        <tbody id="table-monitoring-body" class="divide-y divide-slate-100"></tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
 
@@ -867,7 +892,7 @@
 
     <script>
         const IS_PREVIEW = false;
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyY5Td803rF4_bLfqvucI-FQvyAqtMHx7iIh8hmLfSFrijrycdDyPckKqWffIM4Vjyz/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxz9EvghWVBnnvEsvsqIYQVmKXUKjSONIXCxBb13I6CuL2RTgrWI3BDLU46SAGmKesx/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -1443,6 +1468,7 @@
             loadMapelTable();
             loadBankSoalTable();
             loadJadwalTable();
+            loadMonitoringTable();
             loadHasilTable();
             document.getElementById('set-school-name').value = appState.settings.schoolName || '';
             document.getElementById('set-app-subtitle').value = appState.settings.appSubTitle || '';
@@ -1476,7 +1502,7 @@
         function getMapelName(id) { const m = appState.mapel.find(i => i.id === id); return m ? m.nama : id; }
 
         function populateSelectOptions() {
-            ['filter-siswa-kelas', 'm-siswa-kelas', 'filter-kartu-kelas', 'filter-soal-kelas', 'm-soal-kelas', 'm-jadwal-kelas', 'filter-hasil-kelas'].forEach(id => {
+            ['filter-siswa-kelas', 'm-siswa-kelas', 'filter-kartu-kelas', 'filter-soal-kelas', 'm-soal-kelas', 'm-jadwal-kelas', 'filter-mon-kelas', 'filter-hasil-kelas'].forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
                 const cur = el.value;
@@ -2050,6 +2076,39 @@
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
                 tr.innerHTML = `<td class="p-3.5 font-bold">${tgl}</td><td class="p-3.5">${getKelasName(j.idKelas)}</td><td class="p-3.5">${getMapelName(j.idMapel)}</td><td class="p-3.5 text-xs font-mono">${mulai} - ${selesai}</td><td class="p-3.5 text-xs">${j.durasi} menit</td><td class="p-3.5 text-center flex items-center justify-center gap-2"><button onclick="openModalEditJadwal('${j.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteJadwal('${j.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function loadMonitoringTable() {
+            const tbody = document.getElementById('table-monitoring-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            const kelasId = document.getElementById('filter-mon-kelas').value;
+
+            appState.siswa.filter(s => !kelasId || s.idKelas === kelasId).forEach(s => {
+                const isSubmitted = appState.hasil.some(h => String(h.idSiswa) === String(s.id));
+                const statusBadge = isSubmitted 
+                    ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-check-circle mr-1"></i> Selesai (Submit)</span>'
+                    : '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-clock mr-1"></i> Belum / Aktif</span>';
+                
+                const studentResult = appState.hasil.find(h => String(h.idSiswa) === String(s.id));
+                const scoreText = studentResult ? `<span class="font-extrabold text-brand-700 text-base">${studentResult.nilai}</span>` : '<span class="text-slate-400 text-xs">-</span>';
+                const progressText = isSubmitted ? '100% (Selesai)' : 'Aktif / Standby';
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 border-b';
+                tr.innerHTML = `
+                    <td class="p-3.5 font-mono text-xs">${s.nisn}</td>
+                    <td class="p-3.5 font-bold">${s.nama}</td>
+                    <td class="p-3.5">${getKelasName(s.idKelas)}</td>
+                    <td class="p-3.5">${statusBadge}</td>
+                    <td class="p-3.5 text-xs text-slate-600">${progressText}</td>
+                    <td class="p-3.5">${scoreText}</td>
+                    <td class="p-3.5 text-center flex items-center justify-center gap-2">
+                        <button onclick="showToast('Siswa ${s.nama} terpantau terhubung.', 'info')" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all"><i class="fa-solid fa-eye text-brand-600 mr-1"></i> Detail</button>
+                    </td>
+                `;
                 tbody.appendChild(tr);
             });
         }
