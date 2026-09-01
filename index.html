@@ -543,7 +543,7 @@
                             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                                 <table class="w-full text-left text-sm">
                                     <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[11px] border-b">
-                                        <tr><th class="p-3.5">Tanggal</th><th class="p-3.5">Kelas</th><th class="p-3.5">Mapel</th><th class="p-3.5">Waktu</th><th class="p-3.5">Durasi</th><th class="p-3.5 text-center">Aksi</th></tr>
+                                        <tr><th class="p-3.5">Tanggal Mulai</th><th class="p-3.5">Tanggal Selesai (Hari)</th><th class="p-3.5">Kelas</th><th class="p-3.5">Mapel</th><th class="p-3.5">Jam</th><th class="p-3.5">Durasi</th><th class="p-3.5 text-center">Aksi</th></tr>
                                     </thead>
                                     <tbody id="table-jadwal-body" class="divide-y divide-slate-100"></tbody>
                                 </table>
@@ -876,11 +876,13 @@
                 <input type="hidden" id="m-jadwal-id">
                 <div><label class="block text-xs font-bold uppercase mb-1">Kelas</label><select id="m-jadwal-kelas" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"></select></div>
                 <div><label class="block text-xs font-bold uppercase mb-1">Mapel</label><select id="m-jadwal-idmapel" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"></select></div>
-                <div><label class="block text-xs font-bold uppercase mb-1">Tanggal</label><input type="date" id="m-jadwal-tanggal" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm"></div>
-                <div class="grid grid-cols-3 gap-2">
-                    <div><label class="block text-xs font-bold uppercase mb-1">Mulai</label><input type="time" id="m-jadwal-mulai" required class="w-full px-2 py-2 bg-slate-50 border rounded-xl text-xs"></div>
-                    <div><label class="block text-xs font-bold uppercase mb-1">Selesai</label><input type="time" id="m-jadwal-selesai" required class="w-full px-2 py-2 bg-slate-50 border rounded-xl text-xs"></div>
-                    <div><label class="block text-xs font-bold uppercase mb-1">Durasi</label><input type="number" id="m-jadwal-durasi" value="60" required class="w-full px-2 py-2 bg-slate-50 border rounded-xl text-xs"></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="block text-xs font-bold uppercase mb-1">Tanggal Mulai</label><input type="date" id="m-jadwal-tanggal" required class="w-full px-2 py-2 bg-slate-50 border rounded-xl text-xs"></div>
+                    <div><label class="block text-xs font-bold uppercase mb-1">Tanggal Selesai (Hari)</label><input type="date" id="m-jadwal-selesai-hari" required class="w-full px-2 py-2 bg-slate-50 border rounded-xl text-xs"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="block text-xs font-bold uppercase mb-1">Jam Mulai</label><input type="time" id="m-jadwal-mulai" required class="w-full px-2 py-2 bg-slate-50 border rounded-xl text-xs"></div>
+                    <div><label class="block text-xs font-bold uppercase mb-1">Durasi (Menit)</label><input type="number" id="m-jadwal-durasi" value="60" required class="w-full px-2 py-2 bg-slate-50 border rounded-xl text-xs"></div>
                 </div>
                 <div class="pt-3 flex justify-end gap-2 border-t">
                     <button type="button" onclick="closeModal('modal-jadwal')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Batal</button>
@@ -892,7 +894,7 @@
 
     <script>
         const IS_PREVIEW = false;
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbxz9EvghWVBnnvEsvsqIYQVmKXUKjSONIXCxBb13I6CuL2RTgrWI3BDLU46SAGmKesx/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzELDs0i04ID1AXO33ewSngr1BndEJvMtHUXMhSFTMlZjJqyC6lu3CvJxZ4xOX_NOtM/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -925,7 +927,7 @@
                 { id: "Q2", idKelas: "K1", idMapel: "M1", pertanyaan: "Akar kuadrat dari 144 adalah?", opsiA: "10", opsiB: "11", opsiC: "12", opsiD: "13", opsiE: "14", kunci: "C", bobot: 50 }
             ],
             jadwal: [
-                { id: "J1", idKelas: "K1", idMapel: "M1", tanggal: "2026-08-25", jamMulai: "08:00", jamSelesai: "10:00", durasi: 60 }
+                { id: "J1", idKelas: "K1", idMapel: "M1", tanggal: "2026-08-25", tanggalSelesai: "2026-08-25", jamMulai: "08:00", durasi: 60 }
             ],
             hasil: []
         };
@@ -1134,11 +1136,49 @@
                 }
             }
 
+            // Validasi apakah sudah pernah mengerjakan ujian untuk mapel di kelas tersebut
             const questions = appState.soal.filter(q => q.idKelas === currentUser.studentData.idKelas);
             if (questions.length === 0) {
                 showToast('Belum ada soal ujian untuk kelas Anda!', 'error');
                 return;
             }
+
+            const currentMapelId = questions[0].idMapel;
+
+            // Cek apakah siswa sudah mengerjakan mapel ini
+            const hasDone = appState.hasil.some(h => String(h.idSiswa) === String(currentUser.studentData.id) && String(h.idMapel) === String(currentMapelId));
+            if (hasDone) {
+                showToast('Anda sudah mengerjakan mata pelajaran ini dan tidak dapat mengerjakan ulang!', 'error');
+                return;
+            }
+
+            // Validasi Jadwal (Waktu & Tanggal Pengerjaan)
+            const activeJadwal = appState.jadwal.find(j => String(j.idKelas) === String(currentUser.studentData.idKelas) && String(j.idMapel) === String(currentMapelId));
+            if (activeJadwal) {
+                const now = new Date();
+                const tglMulai = activeJadwal.tanggal ? new Date(activeJadwal.tanggal + 'T00:00:00') : null;
+                const tglSelesai = activeJadwal.tanggalSelesai ? new Date(activeJadwal.tanggalSelesai + 'T23:59:59') : (tglMulai ? new Date(activeJadwal.tanggal + 'T23:59:59') : null);
+
+                if (tglMulai && now < tglMulai) {
+                    showToast('Ujian belum dimulai! Jadwal mulai pada tanggal ' + activeJadwal.tanggal, 'error');
+                    return;
+                }
+                if (tglSelesai && now > tglSelesai) {
+                    showToast('Maaf, waktu/tanggal pengerjaan ujian telah berakhir!', 'error');
+                    return;
+                }
+
+                // Cek jam mulai jika ada
+                if (activeJadwal.jamMulai) {
+                    const [jam, menit] = activeJadwal.jamMulai.split(':');
+                    const startDateTime = new Date(activeJadwal.tanggal + 'T' + jam + ':' + menit + ':00');
+                    if (now < startDateTime) {
+                        showToast('Ujian belum dimulai. Harap tunggu hingga pukul ' + activeJadwal.jamMulai, 'error');
+                        return;
+                    }
+                }
+            }
+
             initStudentExam(questions);
         }
 
@@ -1295,6 +1335,7 @@
                 benar, salah, nilai
             };
 
+            appState.hasil.push(resultObj);
             await apiCall('submitExam', resultObj);
             await showCustomModal("Ujian Selesai", `Terima kasih! Lembar ujian berhasil dikirim. Nilai perolehan Anda: ${nilai}`, false, "fa-circle-check");
             handleLogout();
@@ -2022,6 +2063,10 @@
             populateSelectOptions();
             document.getElementById('modal-jadwal-title').innerText = "Tambah Jadwal";
             document.getElementById('m-jadwal-id').value = "";
+            document.getElementById('m-jadwal-tanggal').value = new Date().toISOString().split('T')[0];
+            document.getElementById('m-jadwal-selesai-hari').value = new Date().toISOString().split('T')[0];
+            document.getElementById('m-jadwal-mulai').value = "08:00";
+            document.getElementById('m-jadwal-durasi').value = "60";
             document.getElementById('modal-jadwal').classList.remove('hidden');
         }
 
@@ -2034,8 +2079,8 @@
             document.getElementById('m-jadwal-kelas').value = j.idKelas;
             document.getElementById('m-jadwal-idmapel').value = j.idMapel;
             document.getElementById('m-jadwal-tanggal').value = j.tanggal;
+            document.getElementById('m-jadwal-selesai-hari').value = j.tanggalSelesai || j.tanggal;
             document.getElementById('m-jadwal-mulai').value = j.jamMulai;
-            document.getElementById('m-jadwal-selesai').value = j.jamSelesai;
             document.getElementById('m-jadwal-durasi').value = j.durasi;
             document.getElementById('modal-jadwal').classList.remove('hidden');
         }
@@ -2047,8 +2092,8 @@
                 idKelas: document.getElementById('m-jadwal-kelas').value,
                 idMapel: document.getElementById('m-jadwal-idmapel').value,
                 tanggal: document.getElementById('m-jadwal-tanggal').value,
+                tanggalSelesai: document.getElementById('m-jadwal-selesai-hari').value,
                 jamMulai: document.getElementById('m-jadwal-mulai').value,
-                jamSelesai: document.getElementById('m-jadwal-selesai').value,
                 durasi: document.getElementById('m-jadwal-durasi').value
             };
             closeModal('modal-jadwal');
@@ -2066,16 +2111,17 @@
         function loadJadwalTable() {
             const tbody = document.getElementById('table-jadwal-body'); if (!tbody) return; tbody.innerHTML = '';
             appState.jadwal.forEach(j => {
-                let tgl = j.tanggal || '-';
-                if (tgl.includes('T')) tgl = tgl.split('T')[0];
+                let tglMulai = j.tanggal || '-';
+                if (tglMulai.includes('T')) tglMulai = tglMulai.split('T')[0];
+                let tglSelesai = j.tanggalSelesai || tglMulai;
+                if (tglSelesai.includes('T')) tglSelesai = tglSelesai.split('T')[0];
+
                 let mulai = j.jamMulai || '';
                 if (mulai.includes('T')) mulai = mulai.substring(11, 16);
-                let selesai = j.jamSelesai || '';
-                if (selesai.includes('T')) selesai = selesai.substring(11, 16);
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
-                tr.innerHTML = `<td class="p-3.5 font-bold">${tgl}</td><td class="p-3.5">${getKelasName(j.idKelas)}</td><td class="p-3.5">${getMapelName(j.idMapel)}</td><td class="p-3.5 text-xs font-mono">${mulai} - ${selesai}</td><td class="p-3.5 text-xs">${j.durasi} menit</td><td class="p-3.5 text-center flex items-center justify-center gap-2"><button onclick="openModalEditJadwal('${j.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteJadwal('${j.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
+                tr.innerHTML = `<td class="p-3.5 font-bold">${tglMulai}</td><td class="p-3.5 font-bold text-brand-700">${tglSelesai}</td><td class="p-3.5">${getKelasName(j.idKelas)}</td><td class="p-3.5">${getMapelName(j.idMapel)}</td><td class="p-3.5 text-xs font-mono">${mulai}</td><td class="p-3.5 text-xs">${j.durasi} menit</td><td class="p-3.5 text-center flex items-center justify-center gap-2"><button onclick="openModalEditJadwal('${j.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteJadwal('${j.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>`;
                 tbody.appendChild(tr);
             });
         }
