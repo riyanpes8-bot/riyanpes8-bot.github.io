@@ -135,6 +135,8 @@
             }
         }
     </style>
+    ```html
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
     <div style="display:none;" id="blogger-thumbnail">
@@ -453,7 +455,16 @@
                                     <button onclick="downloadSiswaTemplate()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-file-excel"></i> Template Import</button>
                                     <label class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer shadow-sm">
                                         <i class="fa-solid fa-file-import"></i> Import Siswa
-                                        <input type="file" id="import-siswa-file" accept=".csv, .txt" onchange="handleImportSiswaFile(event)" class="hidden">
+                                        <input type="file" id="import-siswa-file" ```html
+<input
+    type="file"
+    id="import-siswa-file"
+    accept=".xlsx,.xls"
+    onchange="handleImportSiswaFile(event)"
+    class="hidden"
+>
+```
+ onchange="handleImportSiswaFile(event)" class="hidden">
                                     </label>
                                     <button onclick="openModalPromoteSiswa()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-angles-up"></i> Tarik & Naik Kelas</button>
                                 </div>
@@ -519,7 +530,16 @@
                                     <button onclick="downloadSoalTemplate()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-file-excel"></i> Template Soal</button>
                                     <label class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer shadow-sm">
                                         <i class="fa-solid fa-file-import"></i> Import Soal
-                                        <input type="file" id="import-soal-file" accept=".csv, .txt" onchange="handleImportSoalFile(event)" class="hidden">
+                                        <input type="file" id="import-soal-file" ```html
+<input
+    type="file"
+    id="import-soal-file"
+    accept=".xlsx,.xls"
+    onchange="handleImportSoalFile(event)"
+    class="hidden"
+>
+```
+ onchange="handleImportSoalFile(event)" class="hidden">
                                     </label>
                                 </div>
                             </div>
@@ -867,7 +887,7 @@
 
     <script>
         const IS_PREVIEW = false;
-        const GAS_URL = "https://script.google.com/macros/s/AKfycby-F0MBNF6MlJViBfYqyJ00a4G_ik1K0Z5xzaVPGzAqFmoS8Hri1oLwhsAmS5XmdewU/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbyNpknnrtszxksdVxbXs4QL8jOzAy9AXLcQlJ5iXTWRCPlMjTFS2n4eSyuWS_jCgAby/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -1670,42 +1690,145 @@
             }
         }
 
-        function downloadSiswaTemplate() {
-            const csvContent = "data:text/csv;charset=utf-8,NISN,Nama_Lengkap,ID_Kelas,Tempat_Lahir,Tanggal_Lahir\n00123456,AHMAD FADLI,K1,Jakarta,2006-05-12\n00123457,SITI AMINAH,K1,Bandung,2006-08-15";
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "Template_Import_Siswa.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+        ```javascript
+function downloadSiswaTemplate() {
+    const data = [
+        [
+            "NISN",
+            "Nama_Lengkap",
+            "ID_Kelas",
+            "Tempat_Lahir",
+            "Tanggal_Lahir"
+        ],
+        [
+            "00123456",
+            "AHMAD FADLI",
+            "K1",
+            "Jakarta",
+            "2006-05-12"
+        ],
+        [
+            "00123457",
+            "SITI AMINAH",
+            "K1",
+            "Bandung",
+            "2006-08-15"
+        ]
+    ];
 
-        async function handleImportSiswaFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const text = e.target.result;
-                const lines = text.split("\n");
-                let count = 0;
-                for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
-                    const cols = line.split(",");
-                    if (cols.length >= 5) {
-                        appState.siswa.push({
-                            id: "S" + (appState.siswa.length + 1),
-                            nisn: cols[0].trim(),
-                            nama: cols[1].trim().toUpperCase(),
-                            username: cols[1].trim().toUpperCase(),
-                            password: generateRandomPassword(),
-                            idKelas: cols[2].trim(),
-                            pob: cols[3].trim(),
-                            dob: cols[4].trim()
-                        });
-                        count++;
-                    }
+    const ws = XLSX.utils.aoa_to_sheet(data);
+
+    // Lebar kolom
+    ws['!cols'] = [
+        { wch: 18 },
+        { wch: 28 },
+        { wch: 15 },
+        { wch: 20 },
+        { wch: 18 }
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Data Siswa");
+
+    XLSX.writeFile(wb, "Template_Import_Siswa.xlsx");
+}
+```
+
+
+        ```javascript
+async function handleImportSiswaFile(event) {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = async function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+
+            const workbook = XLSX.read(data, {
+                type: "array"
+            });
+
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+
+            const rows = XLSX.utils.sheet_to_json(worksheet, {
+                header: 1,
+                defval: ""
+            });
+
+            let count = 0;
+
+            for (let i = 1; i < rows.length; i++) {
+
+                const row = rows[i];
+
+                if (!row || row.length < 5) continue;
+
+                const nisn = String(row[0] || "").trim();
+                const nama = String(row[1] || "").trim();
+                const idKelas = String(row[2] || "").trim();
+                const pob = String(row[3] || "").trim();
+                const dob = String(row[4] || "").trim();
+
+                if (!nisn && !nama) continue;
+
+                appState.siswa.push({
+                    id: "S" + Date.now() + "_" + i,
+
+                    nisn: nisn,
+
+                    nama: nama.toUpperCase(),
+
+                    username: nama.toUpperCase(),
+
+                    password: generateRandomPassword(),
+
+                    idKelas: idKelas,
+
+                    pob: pob,
+
+                    dob: dob
+                });
+
+                count++;
+            }
+
+            showToast(
+                "Berhasil mengimpor " + count + " siswa!",
+                "success"
+            );
+
+            loadSiswaTable();
+
+            renderCardsForPrint();
+
+            loadStatsOverview();
+
+            await apiCall("importSiswaBatch", {
+                siswaList: appState.siswa
+            });
+
+        } catch (error) {
+
+            console.error("Import siswa error:", error);
+
+            showToast(
+                "Gagal membaca file Excel: " + error.message,
+                "error"
+            );
+
+        } finally {
+
+            event.target.value = "";
+        }
+    };
+
+    reader.readAsArrayBuffer(file);
+}
+```
                 }
                 showToast('Berhasil mengimpor ' + count + ' siswa!', 'success');
                 loadSiswaTable();
@@ -1950,45 +2073,183 @@
             }
         }
 
-        function downloadSoalTemplate() {
-            const csvContent = "data:text/csv;charset=utf-8,ID_Kelas,ID_Mapel,Pertanyaan,Opsi_A,Opsi_B,Opsi_C,Opsi_D,Opsi_E,Kunci,Bobot\nK1,M1,Berapakah 2 + 2?,2,3,4,5,6,C,10";
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "Template_Import_Soal.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+        ```javascript
+function downloadSoalTemplate() {
+    const data = [
+        [
+            "ID_Kelas",
+            "ID_Mapel",
+            "Pertanyaan",
+            "Opsi_A",
+            "Opsi_B",
+            "Opsi_C",
+            "Opsi_D",
+            "Opsi_E",
+            "Kunci",
+            "Bobot"
+        ],
+        [
+            "K1",
+            "M1",
+            "Berapakah 2 + 2?",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "C",
+            "10"
+        ]
+    ];
 
-        async function handleImportSoalFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const text = e.target.result;
-                const lines = text.split("\n");
-                let count = 0;
-                for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
-                    const cols = line.split(",");
-                    if (cols.length >= 10) {
-                        appState.soal.push({
-                            id: "Q" + (appState.soal.length + 1),
-                            idKelas: cols[0].trim(),
-                            idMapel: cols[1].trim(),
-                            pertanyaan: cols[2].trim(),
-                            opsiA: cols[3].trim(),
-                            opsiB: cols[4].trim(),
-                            opsiC: cols[5].trim(),
-                            opsiD: cols[6].trim(),
-                            opsiE: cols[7].trim(),
-                            kunci: cols[8].trim().toUpperCase(),
-                            bobot: parseInt(cols[9].trim()) || 10
-                        });
-                        count++;
-                    }
+    const ws = XLSX.utils.aoa_to_sheet(data);
+
+    // Lebar kolom
+    ws['!cols'] = [
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 40 },
+        { wch: 20 },
+        { wch: 20 },
+        { wch: 20 },
+        { wch: 20 },
+        { wch: 20 },
+        { wch: 10 },
+        { wch: 10 }
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Bank Soal");
+
+    XLSX.writeFile(wb, "Template_Import_Soal.xlsx");
+}
+```
+        ```javascript
+async function handleImportSoalFile(event) {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = async function(e) {
+
+        try {
+
+            const data = new Uint8Array(e.target.result);
+
+            const workbook = XLSX.read(data, {
+                type: "array"
+            });
+
+            const sheetName = workbook.SheetNames[0];
+
+            const worksheet = workbook.Sheets[sheetName];
+
+            const rows = XLSX.utils.sheet_to_json(
+                worksheet,
+                {
+                    header: 1,
+                    defval: ""
+                }
+            );
+
+            let count = 0;
+
+            for (let i = 1; i < rows.length; i++) {
+
+                const row = rows[i];
+
+                if (!row || row.length < 10) continue;
+
+                const idKelas = String(row[0] || "").trim();
+                const idMapel = String(row[1] || "").trim();
+                const pertanyaan = String(row[2] || "").trim();
+
+                const opsiA = String(row[3] || "").trim();
+                const opsiB = String(row[4] || "").trim();
+                const opsiC = String(row[5] || "").trim();
+                const opsiD = String(row[6] || "").trim();
+                const opsiE = String(row[7] || "").trim();
+
+                const kunci = String(row[8] || "")
+                    .trim()
+                    .toUpperCase();
+
+                const bobot =
+                    parseInt(String(row[9] || "").trim()) || 10;
+
+                if (!pertanyaan) continue;
+
+                appState.soal.push({
+
+                    id: "Q" + Date.now() + "_" + i,
+
+                    idKelas: idKelas,
+
+                    idMapel: idMapel,
+
+                    pertanyaan: pertanyaan,
+
+                    gambarSoal: "",
+
+                    opsiA: opsiA,
+
+                    gambarOpsiA: "",
+
+                    opsiB: opsiB,
+
+                    gambarOpsiB: "",
+
+                    opsiC: opsiC,
+
+                    gambarOpsiC: "",
+
+                    opsiD: opsiD,
+
+                    gambarOpsiD: "",
+
+                    opsiE: opsiE,
+
+                    gambarOpsiE: "",
+
+                    kunci: kunci,
+
+                    bobot: bobot
+                });
+
+                count++;
+            }
+
+            showToast(
+                "Berhasil mengimpor " + count + " soal!",
+                "success"
+            );
+
+            loadBankSoalTable();
+
+            await apiCall("importSoalBatch", {
+                soalList: appState.soal
+            });
+
+        } catch (error) {
+
+            console.error("Import soal error:", error);
+
+            showToast(
+                "Gagal membaca file Excel: " + error.message,
+                "error"
+            );
+
+        } finally {
+
+            event.target.value = "";
+        }
+    };
+
+    reader.readAsArrayBuffer(file);
+}
+```
                 }
                 showToast('Berhasil mengimpor ' + count + ' soal!', 'success');
                 loadBankSoalTable();
