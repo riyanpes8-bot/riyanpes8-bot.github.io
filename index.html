@@ -867,7 +867,7 @@
 
     <script>
         const IS_PREVIEW = false;
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbxOeiALf_xYBxpE1aO5A_ta2qZZz5IxYBCRcAuiaOeW6R4ryucefOyEVTYbag7IkKLo/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbyY5Td803rF4_bLfqvucI-FQvyAqtMHx7iIh8hmLfSFrijrycdDyPckKqWffIM4Vjyz/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -1001,19 +1001,13 @@
             if (!IS_PREVIEW) {
                 const res = await apiCall('login', { username: userVal, password: passVal, ta: appState.settings.tahunPelajaran });
                 if (res.status === 'success') {
-                    if (res.role === 'admin') {
-                        currentUser = { username: res.username, role: 'admin' };
-                        initAdminDashboard();
-                        showView('view-admin-dashboard');
-                    } else {
-                        currentUser = { username: res.username, role: 'siswa', studentData: res.studentData };
-                        document.getElementById('verify-logged-user').innerText = res.studentData.nama + " (" + getKelasName(res.studentData.idKelas) + ")";
-                        document.getElementById('verify-fullname').value = res.studentData.nama;
-                        document.getElementById('verify-pob').value = res.studentData.pob || '';
-                        document.getElementById('verify-dob').value = res.studentData.dob || '';
-                        updateTokenUI();
-                        showView('view-student-verify');
-                    }
+                    currentUser = { username: res.username, role: 'siswa', studentData: res.studentData };
+                    document.getElementById('verify-logged-user').innerText = res.studentData.nama + " (" + getKelasName(res.studentData.idKelas) + ")";
+                    document.getElementById('verify-fullname').value = res.studentData.nama;
+                    document.getElementById('verify-pob').value = res.studentData.pob || '';
+                    document.getElementById('verify-dob').value = res.studentData.dob || '';
+                    updateTokenUI();
+                    showView('view-student-verify');
                     return;
                 }
             }
@@ -1671,11 +1665,11 @@
         }
 
         function downloadSiswaTemplate() {
-            const csvContent = "data:text/csv;charset=utf-8,NISN,Nama_Lengkap,ID_Kelas,Tempat_Lahir,Tanggal_Lahir\n00123456,AHMAD FADLI,K1,Jakarta,2006-05-12\n00123457,SITI AMINAH,K1,Bandung,2006-08-15";
+            const csvContent = "data:text/csv;charset=utf-8,NISN\tNama_Lengkap\tID_Kelas\tTempat_Lahir\tTanggal_Lahir\n00123456\tAHMAD FADLI\tK1\tJakarta\t2006-05-12\n00123457\tSITI AMINAH\tK1\tBandung\t2006-08-15";
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "Template_Import_Siswa.csv");
+            link.setAttribute("download", "Template_Import_Siswa.tsv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1692,7 +1686,7 @@
                 for (let i = 1; i < lines.length; i++) {
                     const line = lines[i].trim();
                     if (!line) continue;
-                    const cols = line.split(",");
+                    const cols = line.split(/\t|,/);
                     if (cols.length >= 5) {
                         appState.siswa.push({
                             id: "S" + (appState.siswa.length + 1),
@@ -1951,11 +1945,11 @@
         }
 
         function downloadSoalTemplate() {
-            const csvContent = "data:text/csv;charset=utf-8,ID_Kelas,ID_Mapel,Pertanyaan,Opsi_A,Opsi_B,Opsi_C,Opsi_D,Opsi_E,Kunci,Bobot\nK1,M1,Berapakah 2 + 2?,2,3,4,5,6,C,10";
+            const csvContent = "data:text/csv;charset=utf-8,ID_Kelas\tID_Mapel\tPertanyaan\tOpsi_A\tOpsi_B\tOpsi_C\tOpsi_D\tOpsi_E\tKunci\tBobot\nK1\tM1\tBerapakah 2 + 2?\t2\t3\t4\t5\t6\tC\t10";
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "Template_Import_Soal.csv");
+            link.setAttribute("download", "Template_Import_Soal.tsv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1972,7 +1966,7 @@
                 for (let i = 1; i < lines.length; i++) {
                     const line = lines[i].trim();
                     if (!line) continue;
-                    const cols = line.split(",");
+                    const cols = line.split(/\t|,/);
                     if (cols.length >= 10) {
                         appState.soal.push({
                             id: "Q" + (appState.soal.length + 1),
