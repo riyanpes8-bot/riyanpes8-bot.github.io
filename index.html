@@ -538,7 +538,6 @@
     onchange="handleImportSoalFile(event)"
     class="hidden"
 >
-```
  onchange="handleImportSoalFile(event)" class="hidden">
                                     </label>
                                 </div>
@@ -887,7 +886,7 @@
 
     <script>
         const IS_PREVIEW = false;
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyNpknnrtszxksdVxbXs4QL8jOzAy9AXLcQlJ5iXTWRCPlMjTFS2n4eSyuWS_jCgAby/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxPx8Yqiha8e_vSCNVNcOoJqhirZuXprMXTyJ0owQfiV7YrZiMNUdyADqH1ZtelPZOc/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -1690,7 +1689,7 @@
             }
         }
 
-        ```javascript
+          javascript
 function downloadSiswaTemplate() {
     const data = [
         [
@@ -1732,9 +1731,6 @@ function downloadSiswaTemplate() {
 
     XLSX.writeFile(wb, "Template_Import_Siswa.xlsx");
 }
-```
-
-
         ```javascript
 async function handleImportSiswaFile(event) {
     const file = event.target.files[0];
@@ -1828,7 +1824,6 @@ async function handleImportSiswaFile(event) {
 
     reader.readAsArrayBuffer(file);
 }
-```
                 }
                 showToast('Berhasil mengimpor ' + count + ' siswa!', 'success');
                 loadSiswaTable();
@@ -2123,7 +2118,6 @@ function downloadSoalTemplate() {
 
     XLSX.writeFile(wb, "Template_Import_Soal.xlsx");
 }
-```
         ```javascript
 async function handleImportSoalFile(event) {
     const file = event.target.files[0];
@@ -2249,7 +2243,6 @@ async function handleImportSoalFile(event) {
 
     reader.readAsArrayBuffer(file);
 }
-```
                 }
                 showToast('Berhasil mengimpor ' + count + ' soal!', 'success');
                 loadBankSoalTable();
