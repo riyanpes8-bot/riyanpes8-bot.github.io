@@ -893,8 +893,8 @@
     </div>
 
     <script>
-        const IS_PREVIEW = false;
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbzELDs0i04ID1AXO33ewSngr1BndEJvMtHUXMhSFTMlZjJqyC6lu3CvJxZ4xOX_NOtM/exec";
+        const IS_PREVIEW = false; // Set true jika ingin uji coba lokal tanpa GAS
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbz3cDnrbpTmy90qFlf2qXkW_uxSkeaZyF2MYJKZQ-UN3TaoQ0Hsgrltt-Q5ZuVEy88s/exec"; // Masukkan URL Web App GAS Anda di sini
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -910,25 +910,11 @@
                 tokenActive: true,
                 currentToken: "EXM123"
             },
-            kelas: [
-                { id: "K1", nama: "X-IPA 1" },
-                { id: "K2", nama: "XI-IPA 1" }
-            ],
-            mapel: [
-                { id: "M1", kode: "MAT", nama: "MATEMATIKA" },
-                { id: "M2", kode: "BIN", nama: "BAHASA INDONESIA" }
-            ],
-            siswa: [
-                { id: "S1", nisn: "00123456", nama: "AHMAD FADLI", username: "AHMAD FADLI", password: "Pass8x2", idKelas: "K1", pob: "Jakarta", dob: "2006-05-12" },
-                { id: "S2", nisn: "00123457", nama: "SITI AMINAH", username: "SITI AMINAH", password: "Pass9x3", idKelas: "K1", pob: "Bandung", dob: "2006-08-15" }
-            ],
-            soal: [
-                { id: "Q1", idKelas: "K1", idMapel: "M1", pertanyaan: "Berapakah hasil dari 15 x 12?", opsiA: "160", opsiB: "180", opsiC: "200", opsiD: "210", opsiE: "220", kunci: "B", bobot: 50 },
-                { id: "Q2", idKelas: "K1", idMapel: "M1", pertanyaan: "Akar kuadrat dari 144 adalah?", opsiA: "10", opsiB: "11", opsiC: "12", opsiD: "13", opsiE: "14", kunci: "C", bobot: 50 }
-            ],
-            jadwal: [
-                { id: "J1", idKelas: "K1", idMapel: "M1", tanggal: "2026-08-25", tanggalSelesai: "2026-08-25", jamMulai: "08:00", durasi: 60 }
-            ],
+            kelas: [],
+            mapel: [],
+            siswa: [],
+            soal: [],
+            jadwal: [],
             hasil: []
         };
 
@@ -939,13 +925,6 @@
         let modalResolveCallback = null;
 
         window.onload = function() {
-            const cachedSettings = localStorage.getItem('cbt_settings');
-            if (cachedSettings) {
-                try {
-                    appState.settings = Object.assign(appState.settings, JSON.parse(cachedSettings));
-                } catch(e) {}
-            }
-
             syncBrandingUI();
             updateTokenUI();
             
@@ -1036,6 +1015,9 @@
                     updateTokenUI();
                     showView('view-student-verify');
                     return;
+                } else {
+                    showToast(res.message || 'Username atau Password salah!', 'error');
+                    return;
                 }
             }
 
@@ -1078,14 +1060,15 @@
                     tokenDisabledNotice.classList.remove('hidden');
                 }
             }
+            const dispEl = document.getElementById('admin-token-display');
+            if (dispEl) dispEl.innerText = appState.settings.currentToken || "EXM123";
         }
 
-        function toggleTokenStatus() {
+        async function toggleTokenStatus() {
             appState.settings.tokenActive = !(appState.settings.tokenActive !== false);
-            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
             updateTokenUI();
             showToast(appState.settings.tokenActive ? 'Token Ujian Diaktifkan' : 'Token Ujian Dimatikan', appState.settings.tokenActive ? 'success' : 'info');
-            if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
+            if (!IS_PREVIEW) await apiCall('saveSettings', { settings: appState.settings });
         }
 
         function startTokenTimerEngine() {
@@ -1093,66 +1076,57 @@
             if (!appState.settings.currentToken) {
                 appState.settings.currentToken = "EXM123";
             }
-            tokenCountdownTimer = setInterval(() => {
+            tokenCountdownTimer = setInterval(async () => {
                 if (appState.settings.tokenActive !== false) {
                     tokenSecondsLeft--;
                     if (tokenSecondsLeft <= 0) {
                         tokenSecondsLeft = 300;
                         appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
-                        localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
-                        if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
+                        updateTokenUI();
+                        if (!IS_PREVIEW) await apiCall('saveSettings', { settings: appState.settings });
                     }
                     const timerEl = document.getElementById('token-seconds');
                     if (timerEl) timerEl.innerText = tokenSecondsLeft;
-                    const dispEl = document.getElementById('admin-token-display');
-                    if (dispEl) dispEl.innerText = appState.settings.currentToken;
                 }
             }, 1000);
         }
 
-        function forceRegenerateToken() {
+        async function forceRegenerateToken() {
             tokenSecondsLeft = 300;
             appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
-            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
             updateTokenUI();
-            showToast('Token Ujian Berhasil Di-refresh!', 'success');
-            if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
+            showToast('Token Ujian Berhasil Di-refresh & Disinkronkan!', 'success');
+            if (!IS_PREVIEW) await apiCall('saveSettings', { settings: appState.settings });
         }
 
-        function processStudentVerify() {
+        async function processStudentVerify() {
+            // Ambil data terbaru dari server agar token selalu sinkron real-time
+            if (!IS_PREVIEW) {
+                await fetchInitialDataFromGas();
+            }
+
             if (appState.settings.tokenActive !== false) {
-                const cachedSettings = localStorage.getItem('cbt_settings');
-                if (cachedSettings) {
-                    try {
-                        const parsed = JSON.parse(cachedSettings);
-                        if (parsed.currentToken) appState.settings.currentToken = parsed.currentToken;
-                    } catch(e) {}
-                }
                 const inputToken = document.getElementById('verify-token').value.trim().toUpperCase();
                 const currentToken = (appState.settings.currentToken || '').trim().toUpperCase();
                 if (!inputToken || inputToken !== currentToken) {
-                    showToast('Token Ujian Salah!', 'error');
+                    showToast('Token Ujian Salah atau Kedaluwarsa!', 'error');
                     return;
                 }
             }
 
-            // Validasi apakah sudah pernah mengerjakan ujian untuk mapel di kelas tersebut
-            const questions = appState.soal.filter(q => q.idKelas === currentUser.studentData.idKelas);
+            const questions = appState.soal.filter(q => String(q.idKelas) === String(currentUser.studentData.idKelas));
             if (questions.length === 0) {
                 showToast('Belum ada soal ujian untuk kelas Anda!', 'error');
                 return;
             }
 
             const currentMapelId = questions[0].idMapel;
-
-            // Cek apakah siswa sudah mengerjakan mapel ini
             const hasDone = appState.hasil.some(h => String(h.idSiswa) === String(currentUser.studentData.id) && String(h.idMapel) === String(currentMapelId));
             if (hasDone) {
                 showToast('Anda sudah mengerjakan mata pelajaran ini dan tidak dapat mengerjakan ulang!', 'error');
                 return;
             }
 
-            // Validasi Jadwal (Waktu & Tanggal Pengerjaan)
             const activeJadwal = appState.jadwal.find(j => String(j.idKelas) === String(currentUser.studentData.idKelas) && String(j.idMapel) === String(currentMapelId));
             if (activeJadwal) {
                 const now = new Date();
@@ -1166,16 +1140,6 @@
                 if (tglSelesai && now > tglSelesai) {
                     showToast('Maaf, waktu/tanggal pengerjaan ujian telah berakhir!', 'error');
                     return;
-                }
-
-                // Cek jam mulai jika ada
-                if (activeJadwal.jamMulai) {
-                    const [jam, menit] = activeJadwal.jamMulai.split(':');
-                    const startDateTime = new Date(activeJadwal.tanggal + 'T' + jam + ':' + menit + ':00');
-                    if (now < startDateTime) {
-                        showToast('Ujian belum dimulai. Harap tunggu hingga pukul ' + activeJadwal.jamMulai, 'error');
-                        return;
-                    }
                 }
             }
 
@@ -1390,7 +1354,6 @@
                 if (result.status === 'success') {
                     if (result.settings && Object.keys(result.settings).length > 0) {
                         appState.settings = Object.assign(appState.settings, result.settings);
-                        localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
                     }
                     if (result.kelas) appState.kelas = result.kelas;
                     if (result.mapel) appState.mapel = result.mapel;
@@ -1401,6 +1364,7 @@
 
                     updateBackendStatusBadge(true, 'Spreadsheet Terhubung');
                     syncBrandingUI();
+                    updateTokenUI();
                     if (currentUser && currentUser.role === 'admin') initAdminDashboard();
                 } else {
                     updateBackendStatusBadge(false, 'Respon Error');
@@ -1459,7 +1423,6 @@
                     document.getElementById('preview-ttd-img').src = base64String;
                     document.getElementById('set-ttd-url').value = base64String;
                 }
-                localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
                 showToast('Gambar berhasil dimuat!', 'success');
             };
             reader.readAsDataURL(file);
@@ -1468,7 +1431,6 @@
         function changeAcademicSession(ta, sem) {
             appState.settings.tahunPelajaran = ta;
             appState.settings.semester = sem;
-            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
             syncBrandingUI();
             document.getElementById('overview-ta-title').innerText = `Tahun Pelajaran: ${ta} (Semester ${sem})`;
             if (!IS_PREVIEW) fetchInitialDataFromGas();
@@ -1539,8 +1501,8 @@
             document.getElementById('stat-total-hasil').innerText = appState.hasil.length;
         }
 
-        function getKelasName(id) { const k = appState.kelas.find(i => i.id === id); return k ? k.nama : id; }
-        function getMapelName(id) { const m = appState.mapel.find(i => i.id === id); return m ? m.nama : id; }
+        function getKelasName(id) { const k = appState.kelas.find(i => String(i.id) === String(id)); return k ? k.nama : id; }
+        function getMapelName(id) { const m = appState.mapel.find(i => String(i.id) === String(id)); return m ? m.nama : id; }
 
         function populateSelectOptions() {
             ['filter-siswa-kelas', 'm-siswa-kelas', 'filter-kartu-kelas', 'filter-soal-kelas', 'm-soal-kelas', 'm-jadwal-kelas', 'filter-mon-kelas', 'filter-hasil-kelas'].forEach(id => {
@@ -1592,7 +1554,7 @@
         function filterSiswaTable() {
             const query = document.getElementById('search-siswa').value.toLowerCase();
             const kelasId = document.getElementById('filter-siswa-kelas').value;
-            const filtered = appState.siswa.filter(s => (s.nama.toLowerCase().includes(query) || s.nisn.includes(query)) && (!kelasId || s.idKelas === kelasId));
+            const filtered = appState.siswa.filter(s => (s.nama.toLowerCase().includes(query) || s.nisn.includes(query)) && (!kelasId || String(s.idKelas) === String(kelasId)));
             loadSiswaTable(filtered);
         }
 
@@ -1608,7 +1570,7 @@
             const kopUrl = appState.settings.kopUrl || '';
             const ttdUrl = appState.settings.ttdUrl || '';
 
-            appState.siswa.filter(s => !selectedKelas || s.idKelas === selectedKelas).forEach(s => {
+            appState.siswa.filter(s => !selectedKelas || String(s.idKelas) === String(selectedKelas)).forEach(s => {
                 let formattedDob = s.dob || '-';
                 if (formattedDob.includes('T')) formattedDob = formattedDob.split('T')[0];
 
@@ -1678,7 +1640,7 @@
 
         function openModalEditSiswa(id) {
             populateSelectOptions();
-            const s = appState.siswa.find(i => i.id === id);
+            const s = appState.siswa.find(i => String(i.id) === String(id));
             if (!s) return;
             document.getElementById('modal-siswa-title').innerText = "Edit Siswa";
             document.getElementById('m-siswa-id').value = s.id;
@@ -1696,7 +1658,7 @@
             const id = document.getElementById('m-siswa-id').value;
             const nama = document.getElementById('m-siswa-nama').value.toUpperCase();
             const siswaObj = {
-                id: id,
+                id: id || ("S" + Date.now()),
                 nisn: document.getElementById('m-siswa-nisn').value,
                 nama, username: nama,
                 password: document.getElementById('m-siswa-password').value,
@@ -1706,10 +1668,9 @@
             };
             closeModal('modal-siswa');
             if (id) {
-                const idx = appState.siswa.findIndex(i => i.id === id);
+                const idx = appState.siswa.findIndex(i => String(i.id) === String(id));
                 if (idx !== -1) appState.siswa[idx] = siswaObj;
             } else {
-                siswaObj.id = "S" + (appState.siswa.length + 1);
                 appState.siswa.push(siswaObj);
             }
             showToast('Data siswa berhasil disimpan!', 'success');
@@ -1722,7 +1683,7 @@
         async function deleteSiswa(id) {
             const isConfirmed = await showCustomModal("Konfirmasi Hapus", "Hapus data siswa ini secara permanen?", true, "fa-trash-can");
             if (isConfirmed) {
-                appState.siswa = appState.siswa.filter(i => i.id !== id);
+                appState.siswa = appState.siswa.filter(i => String(i.id) !== String(id));
                 showToast('Siswa berhasil dihapus', 'success');
                 loadSiswaTable();
                 renderCardsForPrint();
@@ -1756,7 +1717,7 @@
                     const cols = line.split(/\t|,/);
                     if (cols.length >= 5) {
                         appState.siswa.push({
-                            id: "S" + (appState.siswa.length + 1),
+                            id: "S" + Date.now() + i,
                             nisn: cols[0].trim(),
                             nama: cols[1].trim().toUpperCase(),
                             username: cols[1].trim().toUpperCase(),
@@ -1793,9 +1754,9 @@
             const nama = document.getElementById('m-kelas-nama').value.toUpperCase();
             closeModal('modal-kelas');
             
-            const kelasObj = { id: id || ("K" + (appState.kelas.length + 1)), nama };
+            const kelasObj = { id: id || ("K" + Date.now()), nama };
             if (id) {
-                const k = appState.kelas.find(i => i.id === id);
+                const k = appState.kelas.find(i => String(i.id) === String(id));
                 if (k) k.nama = nama;
             } else {
                 appState.kelas.push(kelasObj);
@@ -1814,7 +1775,7 @@
         }
 
         function openModalEditKelas(id) {
-            const k = appState.kelas.find(i => i.id === id);
+            const k = appState.kelas.find(i => String(i.id) === String(id));
             if (!k) return;
             document.getElementById('modal-kelas-title').innerText = "Edit Kelas";
             document.getElementById('m-kelas-id').value = k.id;
@@ -1832,7 +1793,7 @@
         async function deleteKelas(id) {
             const isConfirmed = await showCustomModal("Konfirmasi Hapus", "Hapus kelas ini beserta konfigurasi terkait?", true, "fa-trash-can");
             if (isConfirmed) {
-                appState.kelas = appState.kelas.filter(i => i.id !== id);
+                appState.kelas = appState.kelas.filter(i => String(i.id) !== String(id));
                 showToast('Kelas dihapus', 'success');
                 loadKelasCards();
                 loadStatsOverview();
@@ -1846,9 +1807,9 @@
             const nama = document.getElementById('m-mapel-nama').value.toUpperCase();
             closeModal('modal-mapel');
             
-            const mapelObj = { id: id || ("M" + (appState.mapel.length + 1)), kode, nama };
+            const mapelObj = { id: id || ("M" + Date.now()), kode, nama };
             if (id) {
-                const m = appState.mapel.find(i => i.id === id);
+                const m = appState.mapel.find(i => String(i.id) === String(id));
                 if (m) { m.kode = kode; m.nama = nama; }
             } else {
                 appState.mapel.push(mapelObj);
@@ -1868,7 +1829,7 @@
         }
 
         function openModalEditMapel(id) {
-            const m = appState.mapel.find(i => i.id === id);
+            const m = appState.mapel.find(i => String(i.id) === String(id));
             if (!m) return;
             document.getElementById('modal-mapel-title').innerText = "Edit Mapel";
             document.getElementById('m-mapel-id').value = m.id;
@@ -1880,7 +1841,7 @@
         async function deleteMapel(id) {
             const isConfirmed = await showCustomModal("Konfirmasi Hapus", "Hapus mata pelajaran ini?", true, "fa-trash-can");
             if (isConfirmed) {
-                appState.mapel = appState.mapel.filter(i => i.id !== id);
+                appState.mapel = appState.mapel.filter(i => String(i.id) !== String(id));
                 showToast('Mapel dihapus', 'success');
                 loadMapelTable();
                 loadStatsOverview();
@@ -1913,7 +1874,7 @@
 
         function openModalEditSoal(id) {
             populateSelectOptions();
-            const s = appState.soal.find(i => i.id === id);
+            const s = appState.soal.find(i => String(i.id) === String(id));
             if (!s) return;
             document.getElementById('modal-soal-title').innerText = "Edit Soal";
             document.getElementById('m-soal-id').value = s.id;
@@ -1956,7 +1917,7 @@
         async function saveSoalModal() {
             const id = document.getElementById('m-soal-id').value;
             const soalObj = {
-                id: id || ("Q" + (appState.soal.length + 1)),
+                id: id || ("Q" + Date.now()),
                 idKelas: document.getElementById('m-soal-kelas').value,
                 idMapel: document.getElementById('m-soal-idmapel').value,
                 pertanyaan: document.getElementById('m-soal-pertanyaan').value,
@@ -1976,7 +1937,7 @@
             };
             closeModal('modal-soal');
             if (id) {
-                const idx = appState.soal.findIndex(i => i.id === id);
+                const idx = appState.soal.findIndex(i => String(i.id) === String(id));
                 if (idx !== -1) appState.soal[idx] = soalObj;
             } else {
                 appState.soal.push(soalObj);
@@ -1990,7 +1951,7 @@
             const tbody = document.getElementById('table-soal-body'); if (!tbody) return; tbody.innerHTML = '';
             const kelas = document.getElementById('filter-soal-kelas').value;
             const mapel = document.getElementById('filter-soal-mapel').value;
-            appState.soal.filter(s => (!kelas || s.idKelas === kelas) && (!mapel || s.idMapel === mapel)).forEach((s, idx) => {
+            appState.soal.filter(s => (!kelas || String(s.idKelas) === String(kelas)) && (!mapel || String(s.idMapel) === String(mapel))).forEach((s, idx) => {
                 const hasImg = s.gambarSoal || s.gambarOpsiA || s.gambarOpsiB || s.gambarOpsiC || s.gambarOpsiD || s.gambarOpsiE;
                 const imgTag = hasImg ? `<span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-1.5 py-0.5 rounded ml-1" title="Memiliki Gambar"><i class="fa-solid fa-image"></i> Gambar</span>` : '';
                 
@@ -2004,7 +1965,7 @@
         async function deleteSoal(id) {
             const isConfirmed = await showCustomModal("Konfirmasi Hapus", "Hapus butir soal ini?", true, "fa-trash-can");
             if (isConfirmed) {
-                appState.soal = appState.soal.filter(i => i.id !== id);
+                appState.soal = appState.soal.filter(i => String(i.id) !== String(id));
                 showToast('Soal dihapus', 'success');
                 loadBankSoalTable();
                 await apiCall('deleteSoal', { idSoal: id });
@@ -2036,7 +1997,7 @@
                     const cols = line.split(/\t|,/);
                     if (cols.length >= 10) {
                         appState.soal.push({
-                            id: "Q" + (appState.soal.length + 1),
+                            id: "Q" + Date.now() + i,
                             idKelas: cols[0].trim(),
                             idMapel: cols[1].trim(),
                             pertanyaan: cols[2].trim(),
@@ -2072,7 +2033,7 @@
 
         function openModalEditJadwal(id) {
             populateSelectOptions();
-            const j = appState.jadwal.find(i => i.id === id);
+            const j = appState.jadwal.find(i => String(i.id) === String(id));
             if (!j) return;
             document.getElementById('modal-jadwal-title').innerText = "Edit Jadwal";
             document.getElementById('m-jadwal-id').value = j.id;
@@ -2088,7 +2049,7 @@
         async function saveJadwalModal() {
             const id = document.getElementById('m-jadwal-id').value;
             const jadwalObj = {
-                id: id || ("J" + (appState.jadwal.length + 1)),
+                id: id || ("J" + Date.now()),
                 idKelas: document.getElementById('m-jadwal-kelas').value,
                 idMapel: document.getElementById('m-jadwal-idmapel').value,
                 tanggal: document.getElementById('m-jadwal-tanggal').value,
@@ -2098,7 +2059,7 @@
             };
             closeModal('modal-jadwal');
             if (id) {
-                const idx = appState.jadwal.findIndex(i => i.id === id);
+                const idx = appState.jadwal.findIndex(i => String(i.id) === String(id));
                 if (idx !== -1) appState.jadwal[idx] = jadwalObj;
             } else {
                 appState.jadwal.push(jadwalObj);
@@ -2132,7 +2093,7 @@
             tbody.innerHTML = '';
             const kelasId = document.getElementById('filter-mon-kelas').value;
 
-            appState.siswa.filter(s => !kelasId || s.idKelas === kelasId).forEach(s => {
+            appState.siswa.filter(s => !kelasId || String(s.idKelas) === String(kelasId)).forEach(s => {
                 const isSubmitted = appState.hasil.some(h => String(h.idSiswa) === String(s.id));
                 const statusBadge = isSubmitted 
                     ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-check-circle mr-1"></i> Selesai (Submit)</span>'
@@ -2162,7 +2123,7 @@
         async function deleteJadwal(id) {
             const isConfirmed = await showCustomModal("Konfirmasi Hapus", "Hapus jadwal ujian ini?", true, "fa-trash-can");
             if (isConfirmed) {
-                appState.jadwal = appState.jadwal.filter(i => i.id !== id);
+                appState.jadwal = appState.jadwal.filter(i => String(i.id) !== String(id));
                 showToast('Jadwal dihapus', 'success');
                 loadJadwalTable();
                 await apiCall('deleteJadwal', { idJadwal: id });
@@ -2173,7 +2134,7 @@
             const tbody = document.getElementById('table-hasil-body'); if (!tbody) return; tbody.innerHTML = '';
             const kelas = document.getElementById('filter-hasil-kelas').value;
             const mapel = document.getElementById('filter-hasil-mapel').value;
-            appState.hasil.filter(h => (!kelas || h.idKelas === kelas) && (!mapel || h.idMapel === mapel)).forEach(h => {
+            appState.hasil.filter(h => (!kelas || String(h.idKelas) === String(kelas)) && (!mapel || String(h.idMapel) === String(mapel))).forEach(h => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
                 tr.innerHTML = `<td class="p-3.5 font-bold">${h.namaSiswa}</td><td class="p-3.5">${getKelasName(h.idKelas)}</td><td class="p-3.5">${getMapelName(h.idMapel)}</td><td class="p-3.5 text-xs"><span class="text-emerald-600 font-bold">${h.benar} B</span> / <span class="text-red-600 font-bold">${h.salah} S</span></td><td class="p-3.5 font-extrabold text-base text-brand-700">${h.nilai}</td><td class="p-3.5 text-xs text-slate-500">${h.submitTime || '-'}</td>`;
@@ -2191,7 +2152,6 @@
             appState.settings.logoUrl = document.getElementById('set-logo-url').value;
             appState.settings.ttdUrl = document.getElementById('set-ttd-url').value;
 
-            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
             syncBrandingUI();
             renderCardsForPrint();
             showToast('Pengaturan berhasil disimpan!', 'success');
