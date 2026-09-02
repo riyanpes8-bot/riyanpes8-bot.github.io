@@ -370,6 +370,7 @@
                             <span class="text-xs font-bold text-brand-800">CBT Control Hub</span>
                         </div>
                         <button onclick="switchAdminTab('overview')" id="tab-btn-overview" class="admin-tab-btn bg-brand-600 text-white font-semibold px-3.5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-3 transition-all text-left w-full"><i class="fa-solid fa-chart-pie w-5 text-center"></i> Overview</button>
+                        <button onclick="switchAdminTab('guru')" id="tab-btn-guru" class="admin-tab-btn bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold px-3.5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-3 transition-all text-left w-full"><i class="fa-solid fa-chalkboard-user w-5 text-center"></i> Data Guru</button>
                         <button onclick="switchAdminTab('siswa')" id="tab-btn-siswa" class="admin-tab-btn bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold px-3.5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-3 transition-all text-left w-full"><i class="fa-solid fa-users w-5 text-center"></i> Data Siswa</button>
                         <button onclick="switchAdminTab('kartu')" id="tab-btn-kartu" class="admin-tab-btn bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold px-3.5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-3 transition-all text-left w-full"><i class="fa-solid fa-address-card w-5 text-center"></i> Cetak Kartu</button>
                         <button onclick="switchAdminTab('kelas')" id="tab-btn-kelas" class="admin-tab-btn bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold px-3.5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-3 transition-all text-left w-full"><i class="fa-solid fa-door-open w-5 text-center"></i> Data Kelas</button>
@@ -419,7 +420,8 @@
                                     <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-square-check"></i></div>
                                 </div>
                             </div>
-                            <div class="bg-gradient-to-r from-slate-900 to-brand-900 text-white rounded-2xl p-6 shadow-lg flex flex-wrap items-center justify-between gap-6">
+                            <!-- KARTU TOKEN GENERATOR (Hanya untuk Admin) -->
+                            <div id="overview-token-container" class="bg-gradient-to-r from-slate-900 to-brand-900 text-white rounded-2xl p-6 shadow-lg flex flex-wrap items-center justify-between gap-6">
                                 <div>
                                     <div class="flex items-center gap-2">
                                         <span class="bg-yellow-400 text-slate-900 font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full">DYNAMIC TOKEN GENERATOR</span>
@@ -440,6 +442,35 @@
                                             <i class="fa-solid fa-arrows-rotate"></i> Refresh Token
                                         </button>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DATA GURU SUBTAB -->
+                        <div id="admin-tab-guru" class="admin-subtab hidden space-y-4">
+                            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+                                <div class="flex items-center gap-3">
+                                    <input type="text" id="search-guru" onkeyup="filterGuruTable()" placeholder="Cari Data Guru..." class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm w-64 focus:outline-none focus:border-brand-600">
+                                </div>
+                                <button onclick="openModalAddGuru()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm">
+                                    <i class="fa-solid fa-plus"></i> Tambah Guru
+                                </button>
+                            </div>
+                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-sm">
+                                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[11px] border-b">
+                                            <tr>
+                                                <th class="p-3.5">Nama Guru</th>
+                                                <th class="p-3.5">Username</th>
+                                                <th class="p-3.5">Password</th>
+                                                <th class="p-3.5">Kelas Diampu</th>
+                                                <th class="p-3.5">Mapel Diampu</th>
+                                                <th class="p-3.5 text-center">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="table-guru-body" class="divide-y divide-slate-100"></tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -670,6 +701,42 @@
         </main>
     </div>
 
+    <!-- MODAL GURU -->
+    <div id="modal-guru" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 my-8">
+            <h3 class="font-bold text-slate-800 text-lg border-b pb-2" id="modal-guru-title">Tambah Guru</h3>
+            <form onsubmit="event.preventDefault(); saveGuruModal();" class="space-y-4">
+                <input type="hidden" id="m-guru-id">
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1">Nama Lengkap Guru</label>
+                    <input type="text" id="m-guru-nama" required oninput="handleGuruNameInput(this.value)" placeholder="Contoh: Budi Santoso, S.Pd" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm font-semibold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1 text-slate-700">Kelas yang Diampu</label>
+                    <div id="m-guru-kelas-list" class="bg-slate-50 p-3 border rounded-xl max-h-36 overflow-y-auto space-y-1.5 text-xs"></div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-1 text-slate-700">Mata Pelajaran yang Diampu</label>
+                    <div id="m-guru-mapel-list" class="bg-slate-50 p-3 border rounded-xl max-h-36 overflow-y-auto space-y-1.5 text-xs"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1">Username (Otomatis)</label>
+                        <input type="text" id="m-guru-username" readonly class="w-full px-3 py-2 bg-slate-200 border rounded-xl text-sm font-mono font-bold text-brand-800">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase mb-1">Password (Manual)</label>
+                        <input type="text" id="m-guru-password" required placeholder="Ketik Password..." class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-sm font-mono font-bold">
+                    </div>
+                </div>
+                <div class="pt-3 flex justify-end gap-2 border-t">
+                    <button type="button" onclick="closeModal('modal-guru')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Batal</button>
+                    <button type="submit" class="px-5 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold shadow-md">Simpan Data Guru</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL SISWA -->
     <div id="modal-siswa" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
@@ -897,8 +964,8 @@
     <script>
         // KONFIGURASI APLIKASI
         // UBAH IS_PREVIEW KE false JIKA AKAN DI-DEPLOY KE BLOGGER TERHUBUNG BACKEND GAS
-        const IS_PREVIEW = false; // Default true untuk Canvas Preview
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbzvNwrCiqND5I6VcmivwTw9wsw-Zm08trUMi8RyCPBMhrUPC0V0M5H_3sKUO9j8DOgi/exec";
+        const IS_PREVIEW = true; // Default true untuk Canvas Preview
+        const GAS_URL = "URL_DEPLOY_GAS_ANDA_DISINI";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -921,6 +988,12 @@
             mapel: [
                 { id: "M1", kode: "MAT", nama: "MATEMATIKA" },
                 { id: "M2", kode: "BIN", nama: "BAHASA INDONESIA" }
+            ],
+            guru: [
+                { id: "G1", nama: "Budi Santoso, S.Pd", username: "BUDI SANTOSO, S.PD", password: "guru123", taughtKelas: ["K1"], taughtMapel: ["M1"] }
+            ],
+            pengurus: [
+                { id: "P1", nama: "Pengurus CBT", username: "pengurus", password: "pengurus123" }
             ],
             siswa: [
                 { id: "S1", nisn: "00123456", nama: "AHMAD FADLI", username: "AHMAD FADLI", password: "Pass8x2", idKelas: "K1", pob: "Jakarta", dob: "2006-05-12" },
@@ -1031,6 +1104,31 @@
                 return;
             }
 
+            // Direct Pengurus Login
+            if (userVal.toLowerCase() === 'pengurus' && passVal === 'pengurus123') {
+                currentUser = { username: 'Pengurus CBT', role: 'pengurus' };
+                showToast('Login Pengurus Berhasil!', 'success');
+                initAdminDashboard();
+                showView('view-admin-dashboard');
+                return;
+            }
+
+            // Autentikasi Guru (Berdasarkan data Guru di appState)
+            const matchedGuru = appState.guru.find(g => (g.username || g.nama || '').toLowerCase() === userVal.toLowerCase() && g.password === passVal);
+            if (matchedGuru || (userVal.toLowerCase() === 'guru' && passVal === 'guru123')) {
+                const gData = matchedGuru || { id: "G1", nama: "Guru Pengampu", taughtKelas: ["K1"], taughtMapel: ["M1"] };
+                currentUser = { 
+                    username: gData.nama, 
+                    role: 'guru', 
+                    taughtKelas: gData.taughtKelas || ["K1"], 
+                    taughtMapel: gData.taughtMapel || ["M1"] 
+                };
+                showToast('Login Guru Berhasil!', 'success');
+                initAdminDashboard();
+                showView('view-admin-dashboard');
+                return;
+            }
+
             // Direct Dummy Peserta Login
             if (userVal.toLowerCase() === 'peserta' && passVal === 'peserta123') {
                 const dummyStudent = appState.siswa.find(s => s.username.toLowerCase() === 'peserta') || {
@@ -1050,13 +1148,20 @@
             if (!IS_PREVIEW) {
                 const res = await apiCall('login', { username: userVal, password: passVal, ta: appState.settings.tahunPelajaran });
                 if (res.status === 'success') {
-                    currentUser = { username: res.username, role: 'siswa', studentData: res.studentData };
-                    document.getElementById('verify-logged-user').innerText = res.studentData.nama + " (" + getKelasName(res.studentData.idKelas) + ")";
-                    document.getElementById('verify-fullname').value = res.studentData.nama;
-                    document.getElementById('verify-pob').value = res.studentData.pob || '';
-                    document.getElementById('verify-dob').value = res.studentData.dob || '';
-                    updateTokenUI();
-                    showView('view-student-verify');
+                    if (res.role === 'admin' || res.role === 'pengurus' || res.role === 'guru') {
+                        currentUser = res;
+                        showToast(`Login ${res.role.toUpperCase()} Berhasil!`, 'success');
+                        initAdminDashboard();
+                        showView('view-admin-dashboard');
+                    } else {
+                        currentUser = { username: res.username, role: 'siswa', studentData: res.studentData };
+                        document.getElementById('verify-logged-user').innerText = res.studentData.nama + " (" + getKelasName(res.studentData.idKelas) + ")";
+                        document.getElementById('verify-fullname').value = res.studentData.nama;
+                        document.getElementById('verify-pob').value = res.studentData.pob || '';
+                        document.getElementById('verify-dob').value = res.studentData.dob || '';
+                        updateTokenUI();
+                        showView('view-student-verify');
+                    }
                     return;
                 }
             }
@@ -1418,6 +1523,7 @@
                     }
                     if (result.kelas) appState.kelas = result.kelas;
                     if (result.mapel) appState.mapel = result.mapel;
+                    if (result.guru) appState.guru = result.guru;
                     if (result.siswa) appState.siswa = result.siswa;
                     if (result.soal) appState.soal = result.soal;
                     if (result.jadwal) appState.jadwal = result.jadwal;
@@ -1526,7 +1632,38 @@
 
         function initAdminDashboard() {
             syncBrandingUI();
+            
+            // Atur Hak Akses Navigasi Menu berdasarkan Role
+            const role = currentUser ? currentUser.role : 'admin';
+            
+            // Sembunyikan/Tampilkan Token Generator Card pada Overview
+            const tokenBox = document.getElementById('overview-token-container');
+            if (tokenBox) {
+                if (role === 'admin') {
+                    tokenBox.classList.remove('hidden');
+                } else {
+                    tokenBox.classList.add('hidden');
+                }
+            }
+
+            // Sembunyikan/Tampilkan Tombol Navigasi Sidebar
+            const allNavTabs = ['guru', 'siswa', 'kartu', 'kelas', 'mapel', 'jadwal', 'pengaturan'];
+            allNavTabs.forEach(tab => {
+                const btn = document.getElementById('tab-btn-' + tab);
+                if (btn) {
+                    if (role === 'admin') {
+                        btn.classList.remove('hidden');
+                    } else {
+                        btn.classList.add('hidden');
+                    }
+                }
+            });
+
+            // Default aktifkan tab Overview
+            switchAdminTab('overview');
+
             loadStatsOverview();
+            loadGuruTable();
             loadSiswaTable();
             renderCardsForPrint();
             loadKelasCards();
@@ -1548,7 +1685,9 @@
                 btn.classList.remove('bg-brand-600', 'text-white');
                 btn.classList.add('bg-slate-50', 'text-slate-700');
             });
-            document.getElementById('admin-tab-' + tabName).classList.remove('hidden');
+            const subtabEl = document.getElementById('admin-tab-' + tabName);
+            if (subtabEl) subtabEl.classList.remove('hidden');
+            
             const activeBtn = document.getElementById('tab-btn-' + tabName);
             if (activeBtn) {
                 activeBtn.classList.remove('bg-slate-50', 'text-slate-700');
@@ -1567,22 +1706,173 @@
         function getMapelName(id) { const m = appState.mapel.find(i => i.id === id); return m ? m.nama : id; }
 
         function populateSelectOptions() {
+            const isGuru = currentUser && currentUser.role === 'guru';
+            const taughtK = isGuru ? (currentUser.taughtKelas || []) : [];
+            const taughtM = isGuru ? (currentUser.taughtMapel || []) : [];
+
             ['filter-siswa-kelas', 'm-siswa-kelas', 'filter-kartu-kelas', 'filter-soal-kelas', 'm-soal-kelas', 'm-jadwal-kelas', 'filter-mon-kelas', 'filter-hasil-kelas'].forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
                 const cur = el.value;
                 el.innerHTML = id.startsWith('filter') ? '<option value="">Semua Kelas</option>' : '<option value="">-- Pilih Kelas --</option>';
-                appState.kelas.forEach(k => { el.innerHTML += `<option value="${k.id}">${k.nama}</option>`; });
+                
+                appState.kelas.forEach(k => { 
+                    if (!isGuru || taughtK.includes(k.id)) {
+                        el.innerHTML += `<option value="${k.id}">${k.nama}</option>`; 
+                    }
+                });
                 el.value = cur;
             });
+
             ['filter-soal-mapel', 'm-soal-idmapel', 'm-jadwal-idmapel', 'filter-hasil-mapel'].forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
                 const cur = el.value;
                 el.innerHTML = id.startsWith('filter') ? '<option value="">Semua Mapel</option>' : '<option value="">-- Pilih Mapel --</option>';
-                appState.mapel.forEach(m => { el.innerHTML += `<option value="${m.id}">${m.nama}</option>`; });
+                
+                appState.mapel.forEach(m => { 
+                    if (!isGuru || taughtM.includes(m.id)) {
+                        el.innerHTML += `<option value="${m.id}">${m.nama}</option>`; 
+                    }
+                });
                 el.value = cur;
             });
+        }
+
+        // --- MANAJEMEN DATA GURU ---
+        function handleGuruNameInput(val) {
+            document.getElementById('m-guru-username').value = val.trim().toUpperCase();
+        }
+
+        function renderGuruCheckboxes(selectedKelas = [], selectedMapel = []) {
+            const kContainer = document.getElementById('m-guru-kelas-list');
+            const mContainer = document.getElementById('m-guru-mapel-list');
+            if (!kContainer || !mContainer) return;
+
+            kContainer.innerHTML = '';
+            appState.kelas.forEach(k => {
+                const isChecked = selectedKelas.includes(k.id);
+                kContainer.innerHTML += `
+                    <label class="flex items-center gap-2 cursor-pointer font-semibold text-slate-700 hover:text-brand-600">
+                        <input type="checkbox" value="${k.id}" class="chk-guru-kelas w-4 h-4 text-brand-600 rounded" ${isChecked ? 'checked' : ''}>
+                        <span>${k.nama}</span>
+                    </label>
+                `;
+            });
+
+            mContainer.innerHTML = '';
+            appState.mapel.forEach(m => {
+                const isChecked = selectedMapel.includes(m.id);
+                mContainer.innerHTML += `
+                    <label class="flex items-center gap-2 cursor-pointer font-semibold text-slate-700 hover:text-brand-600">
+                        <input type="checkbox" value="${m.id}" class="chk-guru-mapel w-4 h-4 text-brand-600 rounded" ${isChecked ? 'checked' : ''}>
+                        <span>${m.nama} (${m.kode})</span>
+                    </label>
+                `;
+            });
+        }
+
+        function openModalAddGuru() {
+            document.getElementById('modal-guru-title').innerText = "Tambah Data Guru";
+            document.getElementById('m-guru-id').value = "";
+            document.getElementById('m-guru-nama').value = "";
+            document.getElementById('m-guru-username').value = "";
+            document.getElementById('m-guru-password').value = generateRandomPassword();
+            renderGuruCheckboxes([], []);
+            document.getElementById('modal-guru').classList.remove('hidden');
+        }
+
+        function openModalEditGuru(id) {
+            const g = appState.guru.find(i => i.id === id);
+            if (!g) return;
+            document.getElementById('modal-guru-title').innerText = "Edit Data Guru";
+            document.getElementById('m-guru-id').value = g.id;
+            document.getElementById('m-guru-nama').value = g.nama;
+            document.getElementById('m-guru-username').value = g.username || g.nama.toUpperCase();
+            document.getElementById('m-guru-password').value = g.password;
+            
+            const taughtK = Array.isArray(g.taughtKelas) ? g.taughtKelas : (typeof g.taughtKelas === 'string' ? g.taughtKelas.split(',') : []);
+            const taughtM = Array.isArray(g.taughtMapel) ? g.taughtMapel : (typeof g.taughtMapel === 'string' ? g.taughtMapel.split(',') : []);
+            renderGuruCheckboxes(taughtK, taughtM);
+
+            document.getElementById('modal-guru').classList.remove('hidden');
+        }
+
+        async function saveGuruModal() {
+            const id = document.getElementById('m-guru-id').value;
+            const nama = document.getElementById('m-guru-nama').value.trim();
+            const username = document.getElementById('m-guru-username').value.trim().toUpperCase();
+            const password = document.getElementById('m-guru-password').value.trim();
+
+            const selectedKelas = Array.from(document.querySelectorAll('.chk-guru-kelas:checked')).map(el => el.value);
+            const selectedMapel = Array.from(document.querySelectorAll('.chk-guru-mapel:checked')).map(el => el.value);
+
+            if (!nama || !password) {
+                showToast('Nama Guru dan Password wajib diisi!', 'error');
+                return;
+            }
+
+            const guruObj = {
+                id: id || ("G" + (appState.guru.length + 1)),
+                nama, username, password,
+                taughtKelas: selectedKelas,
+                taughtMapel: selectedMapel
+            };
+
+            closeModal('modal-guru');
+            if (id) {
+                const idx = appState.guru.findIndex(i => i.id === id);
+                if (idx !== -1) appState.guru[idx] = guruObj;
+            } else {
+                appState.guru.push(guruObj);
+            }
+            showToast('Data Guru berhasil disimpan!', 'success');
+            loadGuruTable();
+            await apiCall(id ? 'editGuru' : 'addGuru', { guru: guruObj });
+        }
+
+        async function deleteGuru(id) {
+            const isConfirmed = await showCustomModal("Konfirmasi Hapus", "Hapus akun data guru ini?", true, "fa-trash-can");
+            if (isConfirmed) {
+                appState.guru = appState.guru.filter(i => i.id !== id);
+                showToast('Data Guru berhasil dihapus', 'success');
+                loadGuruTable();
+                await apiCall('deleteGuru', { idGuru: id });
+            }
+        }
+
+        function loadGuruTable(data = null) {
+            const tbody = document.getElementById('table-guru-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            (data || appState.guru).forEach(g => {
+                const taughtK = Array.isArray(g.taughtKelas) ? g.taughtKelas : (typeof g.taughtKelas === 'string' ? g.taughtKelas.split(',') : []);
+                const taughtM = Array.isArray(g.taughtMapel) ? g.taughtMapel : (typeof g.taughtMapel === 'string' ? g.taughtMapel.split(',') : []);
+
+                const kelasBadges = taughtK.map(kId => `<span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-0.5 rounded-md mr-1">${getKelasName(kId)}</span>`).join('') || '<span class="text-slate-400 text-xs">-</span>';
+                const mapelBadges = taughtM.map(mId => `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-md mr-1">${getMapelName(mId)}</span>`).join('') || '<span class="text-slate-400 text-xs">-</span>';
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 border-b';
+                tr.innerHTML = `
+                    <td class="p-3.5 font-bold">${g.nama}</td>
+                    <td class="p-3.5 font-mono text-xs font-semibold text-brand-700">${g.username || g.nama.toUpperCase()}</td>
+                    <td class="p-3.5 font-mono text-xs font-bold text-amber-700">${g.password}</td>
+                    <td class="p-3.5">${kelasBadges}</td>
+                    <td class="p-3.5">${mapelBadges}</td>
+                    <td class="p-3.5 text-center flex items-center justify-center gap-2">
+                        <button onclick="openModalEditGuru('${g.id}')" class="text-blue-500 hover:text-blue-700"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteGuru('${g.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterGuruTable() {
+            const query = document.getElementById('search-guru').value.toLowerCase();
+            const filtered = appState.guru.filter(g => g.nama.toLowerCase().includes(query) || (g.username || '').toLowerCase().includes(query));
+            loadGuruTable(filtered);
         }
 
         function loadMapelTable() {
@@ -2066,7 +2356,17 @@
             const tbody = document.getElementById('table-soal-body'); if (!tbody) return; tbody.innerHTML = '';
             const kelas = document.getElementById('filter-soal-kelas').value;
             const mapel = document.getElementById('filter-soal-mapel').value;
-            appState.soal.filter(s => (!kelas || s.idKelas === kelas) && (!mapel || s.idMapel === mapel)).forEach((s, idx) => {
+
+            const isGuru = currentUser && currentUser.role === 'guru';
+            const taughtK = isGuru ? (currentUser.taughtKelas || []) : [];
+            const taughtM = isGuru ? (currentUser.taughtMapel || []) : [];
+
+            appState.soal.filter(s => {
+                if (isGuru) {
+                    if (!taughtK.includes(s.idKelas) || !taughtM.includes(s.idMapel)) return false;
+                }
+                return (!kelas || s.idKelas === kelas) && (!mapel || s.idMapel === mapel);
+            }).forEach((s, idx) => {
                 const hasImg = s.gambarSoal || s.gambarOpsiA || s.gambarOpsiB || s.gambarOpsiC || s.gambarOpsiD || s.gambarOpsiE;
                 const imgTag = hasImg ? `<span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-1.5 py-0.5 rounded ml-1" title="Memiliki Gambar"><i class="fa-solid fa-image"></i> Gambar</span>` : '';
                 
@@ -2255,13 +2555,20 @@
             tbody.innerHTML = '';
             const kelasId = document.getElementById('filter-mon-kelas').value;
 
-            appState.siswa.filter(s => !kelasId || s.idKelas === kelasId).forEach(s => {
-                const isSubmitted = appState.hasil.some(h => String(h.idSiswa) === String(s.id));
+            const isGuru = currentUser && currentUser.role === 'guru';
+            const taughtK = isGuru ? (currentUser.taughtKelas || []) : [];
+            const taughtM = isGuru ? (currentUser.taughtMapel || []) : [];
+
+            appState.siswa.filter(s => {
+                if (isGuru && !taughtK.includes(s.idKelas)) return false;
+                return !kelasId || s.idKelas === kelasId;
+            }).forEach(s => {
+                const isSubmitted = appState.hasil.some(h => String(h.idSiswa) === String(s.id) && (!isGuru || taughtM.includes(h.idMapel)));
                 const statusBadge = isSubmitted 
                     ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-check-circle mr-1"></i> Selesai (Submit)</span>'
                     : '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-clock mr-1"></i> Belum / Aktif</span>';
                 
-                const studentResult = appState.hasil.find(h => String(h.idSiswa) === String(s.id));
+                const studentResult = appState.hasil.find(h => String(h.idSiswa) === String(s.id) && (!isGuru || taughtM.includes(h.idMapel)));
                 const scoreText = studentResult ? `<span class="font-extrabold text-brand-700 text-base">${studentResult.nilai}</span>` : '<span class="text-slate-400 text-xs">-</span>';
                 const progressText = isSubmitted ? '100% (Selesai)' : 'Aktif / Standby';
 
@@ -2296,7 +2603,17 @@
             const tbody = document.getElementById('table-hasil-body'); if (!tbody) return; tbody.innerHTML = '';
             const kelas = document.getElementById('filter-hasil-kelas').value;
             const mapel = document.getElementById('filter-hasil-mapel').value;
-            appState.hasil.filter(h => (!kelas || h.idKelas === kelas) && (!mapel || h.idMapel === mapel)).forEach(h => {
+
+            const isGuru = currentUser && currentUser.role === 'guru';
+            const taughtK = isGuru ? (currentUser.taughtKelas || []) : [];
+            const taughtM = isGuru ? (currentUser.taughtMapel || []) : [];
+
+            appState.hasil.filter(h => {
+                if (isGuru) {
+                    if (!taughtK.includes(h.idKelas) || !taughtM.includes(h.idMapel)) return false;
+                }
+                return (!kelas || h.idKelas === kelas) && (!mapel || h.idMapel === mapel);
+            }).forEach(h => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
                 tr.innerHTML = `<td class="p-3.5 font-bold">${h.namaSiswa}</td><td class="p-3.5">${getKelasName(h.idKelas)}</td><td class="p-3.5">${getMapelName(h.idMapel)}</td><td class="p-3.5 text-xs"><span class="text-emerald-600 font-bold">${h.benar} B</span> / <span class="text-red-600 font-bold">${h.salah} S</span></td><td class="p-3.5 font-extrabold text-base text-brand-700">${h.nilai}</td><td class="p-3.5 text-xs text-slate-500">${h.submitTime || '-'}</td>`;
