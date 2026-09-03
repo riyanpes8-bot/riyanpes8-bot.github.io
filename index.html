@@ -965,12 +965,12 @@
         // KONFIGURASI APLIKASI
         // UBAH IS_PREVIEW KE false JIKA AKAN DI-DEPLOY KE BLOGGER TERHUBUNG BACKEND GAS
         const IS_PREVIEW = false; // Default true untuk Canvas Preview
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbw1LG5xyCS2-IYIiQFZbv0Va1aNNsGby_XpW1HEXYaqHb3vJMaQ25HW3Z2yvzsGY-y0/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxRU4KutefqdgAokPEntVOfYUj2RmgCclUddBRPPKyAdEQHVa0IA_EitV_POh_5NMAj/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
             settings: {
-                schoolName: "",
+                schoolName: "SMA NEGERI 1 UNGGULAN",
                 appSubTitle: "UJIAN SEMESTER GANJIL",
                 tahunPelajaran: "2026/2027",
                 semester: "Ganjil",
@@ -1180,138 +1180,165 @@
             }
 
             showToast('Username atau Password tidak cocok!', 'error');
+    }
+
+    // Helper untuk mengecek status aktif token dengan konversi tipe data presisi
+    function isTokenActive() {
+        const val = appState.settings.tokenActive;
+        return val !== false && val !== 'false' && val !== '0' && val !== null && val !== undefined;
+    }
+
+    function updateTokenUI() {
+        const active = isTokenActive();
+        const badge = document.getElementById('token-status-badge');
+        const btnText = document.getElementById('btn-toggle-token-text');
+        const tokenContainer = document.getElementById('token-input-container');
+        const tokenDisabledNotice = document.getElementById('token-disabled-notice');
+        
+        if (badge) {
+            badge.innerText = active ? 'AKTIF' : 'NON-AKTIF';
+            badge.className = active ? 'bg-emerald-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full' : 'bg-red-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full';
+        }
+        if (btnText) {
+            btnText.innerText = active ? 'Matikan Token' : 'Aktifkan Token';
+        }
+        if (tokenContainer && tokenDisabledNotice) {
+            if (active) {
+                tokenContainer.classList.remove('hidden');
+                tokenDisabledNotice.classList.add('hidden');
+            } else {
+                tokenContainer.classList.add('hidden');
+                tokenDisabledNotice.classList.remove('hidden');
+            }
+        }
+    }
+
+    function toggleTokenStatus() {
+        const active = isTokenActive();
+        appState.settings.tokenActive = !active;
+        localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+        updateTokenUI();
+        showToast(appState.settings.tokenActive ? 'Token Ujian Diaktifkan' : 'Token Ujian Dimatikan', appState.settings.tokenActive ? 'success' : 'info');
+        if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
+    }
+
+    function startTokenTimerEngine() {
+        if (tokenCountdownTimer) clearInterval(tokenCountdownTimer);
+        if (!appState.settings.currentToken) {
+            appState.settings.currentToken = "EXM123";
+        }
+        tokenCountdownTimer = setInterval(() => {
+            if (isTokenActive()) {
+                tokenSecondsLeft--;
+                if (tokenSecondsLeft <= 0) {
+                    tokenSecondsLeft = 300;
+                    appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
+                    localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+                    if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
+                }
+                const timerEl = document.getElementById('token-seconds');
+                if (timerEl) timerEl.innerText = tokenSecondsLeft;
+                const dispEl = document.getElementById('admin-token-display');
+                if (dispEl) dispEl.innerText = appState.settings.currentToken;
+            }
+        }, 1000);
+    }
+
+    function forceRegenerateToken() {
+        tokenSecondsLeft = 300;
+        appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
+        localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+        updateTokenUI();
+        showToast('Token Ujian Berhasil Di-refresh!', 'success');
+        if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
+    }
+
+    async function processStudentVerify() {
+        // Sinkronisasi data pengaturan / token terbaru dari backend / LocalStorage sebelum verifikasi
+        if (!IS_PREVIEW) {
+            try {
+                const url = `${GAS_URL}?action=getInitialData&ta=${encodeURIComponent(appState.settings.tahunPelajaran)}&sem=${encodeURIComponent(appState.settings.semester)}`;
+                const response = await fetch(url);
+                const result = await response.json();
+                if (result.status === 'success' && result.settings) {
+                    appState.settings = Object.assign(appState.settings, result.settings);
+                    localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+                }
+            } catch(e) {
+                console.error("Gagal sinkronisasi pengaturan:", e);
+            }
+        } else {
+            const cachedSettings = localStorage.getItem('cbt_settings');
+            if (cachedSettings) {
+                try {
+                    const parsed = JSON.parse(cachedSettings);
+                    if (parsed.currentToken) appState.settings.currentToken = parsed.currentToken;
+                    if (parsed.tokenActive !== undefined) appState.settings.tokenActive = parsed.tokenActive;
+                } catch(e) {}
+            }
         }
 
-        function updateTokenUI() {
-            const isTokenActive = appState.settings.tokenActive !== false;
-            const badge = document.getElementById('token-status-badge');
-            const btnText = document.getElementById('btn-toggle-token-text');
-            const tokenContainer = document.getElementById('token-input-container');
-            const tokenDisabledNotice = document.getElementById('token-disabled-notice');
+        // Perbarui antarmuka UI Token sesuai status teranyar
+        updateTokenUI();
+
+        // 1. Validasi Keberadaan Soal Ujian
+        const questions = appState.soal.filter(q => q.idKelas === currentUser.studentData.idKelas);
+        if (questions.length === 0) {
+            showToast('Belum ada soal ujian untuk kelas Anda!', 'error');
+            return;
+        }
+
+        const currentMapelId = questions[0].idMapel;
+
+        // 2. Cek apakah siswa sudah mengerjakan mapel ini
+        const hasDone = appState.hasil.some(h => String(h.idSiswa) === String(currentUser.studentData.id) && String(h.idMapel) === String(currentMapelId));
+        if (hasDone) {
+            showToast('Anda sudah mengerjakan mata pelajaran ini dan tidak dapat mengerjakan ulang!', 'error');
+            return;
+        }
+
+        // 3. Validasi Waktu / Jadwal Ujian TERLEBIH DAHULU (Sebelum Pengecekan Token)
+        const activeJadwal = appState.jadwal.find(j => String(j.idKelas) === String(currentUser.studentData.idKelas) && String(j.idMapel) === String(currentMapelId));
+        if (activeJadwal) {
+            const now = new Date();
             
-            if (badge) {
-                badge.innerText = isTokenActive ? 'AKTIF' : 'NON-AKTIF';
-                badge.className = isTokenActive ? 'bg-emerald-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full' : 'bg-red-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full';
-            }
-            if (btnText) {
-                btnText.innerText = isTokenActive ? 'Matikan Token' : 'Aktifkan Token';
-            }
-            if (tokenContainer && tokenDisabledNotice) {
-                if (isTokenActive) {
-                    tokenContainer.classList.remove('hidden');
-                    tokenDisabledNotice.classList.add('hidden');
-                } else {
-                    tokenContainer.classList.add('hidden');
-                    tokenDisabledNotice.classList.remove('hidden');
-                }
-            }
-        }
+            let tglMulaiStr = activeJadwal.tanggal ? (activeJadwal.tanggal.includes('T') ? activeJadwal.tanggal.split('T')[0] : activeJadwal.tanggal) : '';
+            let tglSelesaiStr = activeJadwal.tanggalSelesai ? (activeJadwal.tanggalSelesai.includes('T') ? activeJadwal.tanggalSelesai.split('T')[0] : activeJadwal.tanggalSelesai) : tglMulaiStr;
+            
+            let jamMulaiStr = activeJadwal.jamMulai || "00:00";
+            if (jamMulaiStr.includes('T')) jamMulaiStr = jamMulaiStr.substring(11, 16);
 
-        function toggleTokenStatus() {
-            appState.settings.tokenActive = !(appState.settings.tokenActive !== false);
-            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
-            updateTokenUI();
-            showToast(appState.settings.tokenActive ? 'Token Ujian Diaktifkan' : 'Token Ujian Dimatikan', appState.settings.tokenActive ? 'success' : 'info');
-            if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
-        }
-
-        function startTokenTimerEngine() {
-            if (tokenCountdownTimer) clearInterval(tokenCountdownTimer);
-            if (!appState.settings.currentToken) {
-                appState.settings.currentToken = "EXM123";
-            }
-            tokenCountdownTimer = setInterval(() => {
-                if (appState.settings.tokenActive !== false) {
-                    tokenSecondsLeft--;
-                    if (tokenSecondsLeft <= 0) {
-                        tokenSecondsLeft = 300;
-                        appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
-                        localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
-                        if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
-                    }
-                    const timerEl = document.getElementById('token-seconds');
-                    if (timerEl) timerEl.innerText = tokenSecondsLeft;
-                    const dispEl = document.getElementById('admin-token-display');
-                    if (dispEl) dispEl.innerText = appState.settings.currentToken;
-                }
-            }, 1000);
-        }
-
-        function forceRegenerateToken() {
-            tokenSecondsLeft = 300;
-            appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
-            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
-            updateTokenUI();
-            showToast('Token Ujian Berhasil Di-refresh!', 'success');
-            if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
-        }
-
-        function processStudentVerify() {
-            // 1. Validasi Keberadaan Soal Ujian
-            const questions = appState.soal.filter(q => q.idKelas === currentUser.studentData.idKelas);
-            if (questions.length === 0) {
-                showToast('Belum ada soal ujian untuk kelas Anda!', 'error');
-                return;
-            }
-
-            const currentMapelId = questions[0].idMapel;
-
-            // 2. Cek apakah siswa sudah mengerjakan mapel ini
-            const hasDone = appState.hasil.some(h => String(h.idSiswa) === String(currentUser.studentData.id) && String(h.idMapel) === String(currentMapelId));
-            if (hasDone) {
-                showToast('Anda sudah mengerjakan mata pelajaran ini dan tidak dapat mengerjakan ulang!', 'error');
-                return;
-            }
-
-            // 3. Validasi Waktu / Jadwal Ujian TERLEBIH DAHULU (Sebelum Pengecekan Token)
-            const activeJadwal = appState.jadwal.find(j => String(j.idKelas) === String(currentUser.studentData.idKelas) && String(j.idMapel) === String(currentMapelId));
-            if (activeJadwal) {
-                const now = new Date();
-                
-                let tglMulaiStr = activeJadwal.tanggal ? (activeJadwal.tanggal.includes('T') ? activeJadwal.tanggal.split('T')[0] : activeJadwal.tanggal) : '';
-                let tglSelesaiStr = activeJadwal.tanggalSelesai ? (activeJadwal.tanggalSelesai.includes('T') ? activeJadwal.tanggalSelesai.split('T')[0] : activeJadwal.tanggalSelesai) : tglMulaiStr;
-                
-                let jamMulaiStr = activeJadwal.jamMulai || "00:00";
-                if (jamMulaiStr.includes('T')) jamMulaiStr = jamMulaiStr.substring(11, 16);
-
-                if (tglMulaiStr) {
-                    const startDateTime = new Date(`${tglMulaiStr}T${jamMulaiStr}:00`);
-                    if (now < startDateTime) {
-                        showToast('Waktu pengerjaan belum dimulai!', 'error');
-                        return;
-                    }
-                }
-
-                if (tglSelesaiStr) {
-                    const endDateTime = new Date(`${tglSelesaiStr}T23:59:59`);
-                    if (now > endDateTime) {
-                        showToast('Waktu pengerjaan telah berakhir!', 'error');
-                        return;
-                    }
-                }
-            }
-
-            // 4. Validasi Token Ujian (Hanya jika waktu ujian telah valid & dimulai)
-            if (appState.settings.tokenActive !== false) {
-                const cachedSettings = localStorage.getItem('cbt_settings');
-                if (cachedSettings) {
-                    try {
-                        const parsed = JSON.parse(cachedSettings);
-                        if (parsed.currentToken) appState.settings.currentToken = parsed.currentToken;
-                    } catch(e) {}
-                }
-                const inputToken = document.getElementById('verify-token').value.trim().toUpperCase();
-                const currentToken = (appState.settings.currentToken || '').trim().toUpperCase();
-                if (!inputToken || inputToken !== currentToken) {
-                    showToast('Token Ujian Salah!', 'error');
+            if (tglMulaiStr) {
+                const startDateTime = new Date(`${tglMulaiStr}T${jamMulaiStr}:00`);
+                if (now < startDateTime) {
+                    showToast('Waktu pengerjaan belum dimulai!', 'error');
                     return;
                 }
             }
 
-            initStudentExam(questions);
+            if (tglSelesaiStr) {
+                const endDateTime = new Date(`${tglSelesaiStr}T23:59:59`);
+                if (now > endDateTime) {
+                    showToast('Waktu pengerjaan telah berakhir!', 'error');
+                    return;
+                }
+            }
         }
 
-        function handleSoalImageUpload(event, previewImgId, dataInputId) {
+        // 4. Validasi Token Ujian (Hanya jika token diaktifkan)
+        if (isTokenActive()) {
+            const inputToken = document.getElementById('verify-token').value.trim().toUpperCase();
+            const currentToken = (appState.settings.currentToken || '').trim().toUpperCase();
+            if (!inputToken || inputToken !== currentToken) {
+                showToast('Token Ujian Salah!', 'error');
+                return;
+            }
+        }
+
+        initStudentExam(questions);
+    }
+
+    function handleSoalImageUpload(event, previewImgId, dataInputId) {
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
