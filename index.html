@@ -255,7 +255,7 @@
                         <i class="fa-solid fa-id-card text-yellow-400 text-xl"></i>
                     </div>
                     <h2 class="text-xl font-bold">Verifikasi Identitas Ujian</h2>
-                    <p class="text-xs text-brand-200">Konfirmasi data lengkap siswa sebelum membuka lembar ujian</p>
+                    <p class="text-xs text-brand-200">Konfirmasi data lengkap siswa & pilih mata pelajaran ujian</p>
                 </div>
                 <form id="form-verify-student" onsubmit="event.preventDefault(); processStudentVerify();" class="p-6 space-y-4">
                     <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-800 flex items-center gap-3">
@@ -279,6 +279,14 @@
                             <input type="date" id="verify-dob" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
                         </div>
                     </div>
+
+                    <!-- CONTAINER PILIHAN MATA PELAJARAN AKTIF -->
+                    <div class="space-y-1.5 border-t border-b border-slate-100 py-3">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Pilih Mata Pelajaran Ujian Aktif <span class="text-red-500">*</span></label>
+                        <div id="verify-mapel-options" class="space-y-2"></div>
+                        <input type="hidden" id="selected-verify-mapel-id" value="">
+                    </div>
+
                     <div id="token-input-container">
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Token Ujian (6 Digit)</label>
                         <input type="text" id="verify-token" maxlength="6" placeholder="EXM123" class="w-full px-4 py-2.5 bg-yellow-50 border-2 border-yellow-400 rounded-xl text-center font-mono text-lg font-bold tracking-widest uppercase">
@@ -318,9 +326,6 @@
                                 <div id="exam-timer-clock" class="font-mono text-lg font-bold tracking-wider text-yellow-300">00:00:00</div>
                             </div>
                         </div>
-                        <button onclick="confirmSubmitExam()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-all shadow-md">
-                            <i class="fa-solid fa-paper-plane"></i> <span class="hidden sm:inline">Selesai Ujian</span>
-                        </button>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -346,9 +351,15 @@
                                 <input type="checkbox" id="chk-doubt" onchange="toggleDoubtAnswer()" class="w-4 h-4 text-amber-600 rounded focus:ring-amber-500">
                                 <span><i class="fa-solid fa-bookmark text-amber-500 mr-1"></i> Ragu-Ragu</span>
                             </label>
-                            <button onclick="navigateQuestion(1)" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-2 rounded-xl text-sm transition-all flex items-center gap-2 shadow-md">
-                                <span>Berikutnya</span> <i class="fa-solid fa-chevron-right"></i>
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <button onclick="navigateQuestion(1)" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-2 rounded-xl text-sm transition-all flex items-center gap-2 shadow-md">
+                                    <span>Berikutnya</span> <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                                <!-- TOMBOL SELESAI UJIAN / KIRIM JAWABAN BERADA DI SEBELAH TOMBOL BERIKUTNYA -->
+                                <button onclick="confirmSubmitExam()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2 rounded-xl text-sm flex items-center gap-2 transition-all shadow-md">
+                                    <i class="fa-solid fa-paper-plane"></i> <span>Kirim Jawaban</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
@@ -961,16 +972,63 @@
         </div>
     </div>
 
+    <!-- MODAL HASIL UJIAN SISWA (TAMPILAN NILAI BESAR & KATA MUTIARA) -->
+    <div id="modal-exam-result" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 text-center space-y-6 my-auto transform transition-all animate-bounce-short">
+            <div id="result-icon-box" class="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-3xl shadow-inner">
+                <i id="result-icon" class="fa-solid fa-trophy"></i>
+            </div>
+            
+            <div class="space-y-1">
+                <span id="result-badge" class="px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider border"></span>
+                <h3 class="text-slate-600 font-bold text-sm tracking-wide mt-2">NILAI AKHIR UJIAN ANDA</h3>
+            </div>
+
+            <!-- TAMPILAN NILAI SANGAT BESAR DI TENGAH LAYAR -->
+            <div class="py-2">
+                <div id="result-score-display" class="font-black text-8xl tracking-tight drop-shadow-sm font-mono">0</div>
+            </div>
+
+            <!-- KATA-KATA MUTIARA MOTIVASI DINAMIS -->
+            <div class="bg-slate-50 border border-slate-200/80 p-5 rounded-2xl relative shadow-inner">
+                <i class="fa-solid fa-quote-left text-slate-300 text-2xl absolute top-3 left-3"></i>
+                <p id="result-quote-text" class="text-slate-700 font-medium italic text-sm leading-relaxed px-4 pt-1"></p>
+                <i class="fa-solid fa-quote-right text-slate-300 text-2xl absolute bottom-3 right-3"></i>
+            </div>
+
+            <!-- RINCIAN JAWABAN -->
+            <div class="grid grid-cols-3 gap-3 pt-2">
+                <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-2xl text-center">
+                    <span class="text-[10px] font-bold text-emerald-600 uppercase block">Benar</span>
+                    <span id="result-correct-count" class="text-lg font-extrabold text-emerald-800">0</span>
+                </div>
+                <div class="bg-red-50 border border-red-200 p-3 rounded-2xl text-center">
+                    <span class="text-[10px] font-bold text-red-600 uppercase block">Salah</span>
+                    <span id="result-wrong-count" class="text-lg font-extrabold text-red-800">0</span>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 p-3 rounded-2xl text-center">
+                    <span class="text-[10px] font-bold text-blue-600 uppercase block">Total Soal</span>
+                    <span id="result-total-count" class="text-lg font-extrabold text-blue-800">0</span>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button type="button" onclick="closeExamResultModal()" class="w-full bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg transition-all text-sm tracking-wide flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span>Selesai & Keluar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // KONFIGURASI APLIKASI
-        // UBAH IS_PREVIEW KE false JIKA AKAN DI-DEPLOY KE BLOGGER TERHUBUNG BACKEND GAS
-        const IS_PREVIEW = false; // Default true untuk Canvas Preview
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbxRU4KutefqdgAokPEntVOfYUj2RmgCclUddBRPPKyAdEQHVa0IA_EitV_POh_5NMAj/exec";
+        const IS_PREVIEW = false; // Set default true untuk Canvas Preview
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbyREKe9khiM3k8wX1bR48iEIsSsJTlGEhmhhjXEW_H8hu13WsXA9a9YAI_a7Gx7SUQE/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
             settings: {
-                schoolName: "SMA NEGERI 1 UNGGULAN",
+                schoolName: "",
                 appSubTitle: "UJIAN SEMESTER GANJIL",
                 tahunPelajaran: "2026/2027",
                 semester: "Ganjil",
@@ -1116,12 +1174,20 @@
             // Autentikasi Guru (Berdasarkan data Guru di appState)
             const matchedGuru = appState.guru.find(g => (g.username || g.nama || '').toLowerCase() === userVal.toLowerCase() && g.password === passVal);
             if (matchedGuru || (userVal.toLowerCase() === 'guru' && passVal === 'guru123')) {
-                const gData = matchedGuru || { id: "G1", nama: "Guru Pengampu", taughtKelas: ["K1"], taughtMapel: ["M1"] };
+                const gData = matchedGuru || { id: "G1", nama: "Guru Pengampu", taughtKelas: [], taughtMapel: [] };
+                
+                // Normalisasi array kelas & mapel yang diampu secara presisi tanpa menyisakan whitespace
+                const rawK = gData.taughtKelas;
+                const taughtK = Array.isArray(rawK) ? rawK : (typeof rawK === 'string' && rawK.trim() !== '' ? rawK.split(',').map(s => s.trim()) : []);
+                
+                const rawM = gData.taughtMapel;
+                const taughtM = Array.isArray(rawM) ? rawM : (typeof rawM === 'string' && rawM.trim() !== '' ? rawM.split(',').map(s => s.trim()) : []);
+
                 currentUser = { 
                     username: gData.nama, 
                     role: 'guru', 
-                    taughtKelas: gData.taughtKelas || ["K1"], 
-                    taughtMapel: gData.taughtMapel || ["M1"] 
+                    taughtKelas: taughtK, 
+                    taughtMapel: taughtM 
                 };
                 showToast('Login Guru Berhasil!', 'success');
                 initAdminDashboard();
@@ -1140,6 +1206,7 @@
                 document.getElementById('verify-fullname').value = dummyStudent.nama;
                 document.getElementById('verify-pob').value = dummyStudent.pob || '';
                 document.getElementById('verify-dob').value = dummyStudent.dob || '';
+                renderAvailableExamSubjects();
                 updateTokenUI();
                 showView('view-student-verify');
                 return;
@@ -1159,6 +1226,7 @@
                         document.getElementById('verify-fullname').value = res.studentData.nama;
                         document.getElementById('verify-pob').value = res.studentData.pob || '';
                         document.getElementById('verify-dob').value = res.studentData.dob || '';
+                        renderAvailableExamSubjects();
                         updateTokenUI();
                         showView('view-student-verify');
                     }
@@ -1174,6 +1242,7 @@
                 document.getElementById('verify-fullname').value = matchedSiswa.nama;
                 document.getElementById('verify-pob').value = matchedSiswa.pob || '';
                 document.getElementById('verify-dob').value = matchedSiswa.dob || '';
+                renderAvailableExamSubjects();
                 updateTokenUI();
                 showView('view-student-verify');
                 return;
@@ -1253,6 +1322,101 @@
         if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
     }
 
+    // MEMUAT & MENAMPILKAN MATA PELAJARAN AKTIF DI HALAMAN VERIFIKASI SISWA
+    function renderAvailableExamSubjects() {
+        const container = document.getElementById('verify-mapel-options');
+        const hiddenInput = document.getElementById('selected-verify-mapel-id');
+        if (!container || !hiddenInput || !currentUser || !currentUser.studentData) return;
+
+        container.innerHTML = '';
+        hiddenInput.value = '';
+
+        const studentKelas = currentUser.studentData.idKelas;
+        const studentId = currentUser.studentData.id;
+        const now = new Date();
+
+        // Cari jadwal ujian aktif untuk kelas siswa
+        const activeSubjects = appState.jadwal.filter(j => {
+            if (String(j.idKelas) !== String(studentKelas)) return false;
+
+            // 1. Cek apakah sudah dikerjakan (hilang dari daftar jika sudah dikerjakan)
+            const hasDone = appState.hasil.some(h => String(h.idSiswa) === String(studentId) && String(h.idMapel) === String(j.idMapel));
+            if (hasDone) return false;
+
+            // 2. Cek waktu pengerjaan (hilang dari daftar jika belum mulai atau sudah lewat/berakhir)
+            let tglMulaiStr = j.tanggal ? (j.tanggal.includes('T') ? j.tanggal.split('T')[0] : j.tanggal) : '';
+            let tglSelesaiStr = j.tanggalSelesai ? (j.tanggalSelesai.includes('T') ? j.tanggalSelesai.split('T')[0] : j.tanggalSelesai) : tglMulaiStr;
+            let jamMulaiStr = j.jamMulai || "00:00";
+            if (jamMulaiStr.includes('T')) jamMulaiStr = jamMulaiStr.substring(11, 16);
+
+            if (tglMulaiStr) {
+                const startDateTime = new Date(`${tglMulaiStr}T${jamMulaiStr}:00`);
+                if (now < startDateTime) return false; // Belum dimulai
+            }
+
+            if (tglSelesaiStr) {
+                const endDateTime = new Date(`${tglSelesaiStr}T23:59:59`);
+                if (now > endDateTime) return false; // Sudah berakhir
+            }
+
+            // 3. Pastikan butir soal untuk mapel ini tersedia
+            const hasQuestions = appState.soal.some(q => String(q.idKelas) === String(studentKelas) && String(q.idMapel) === String(j.idMapel));
+            return hasQuestions;
+        });
+
+        if (activeSubjects.length === 0) {
+            container.innerHTML = `
+                <div class="p-3.5 bg-slate-100 border border-slate-200 rounded-xl text-xs text-slate-500 text-center font-medium">
+                    <i class="fa-solid fa-calendar-xmark text-slate-400 mr-1.5 text-sm"></i>
+                    Tidak ada mata pelajaran ujian yang sedang aktif / tersedia untuk kelas Anda saat ini.
+                </div>
+            `;
+            return;
+        }
+
+        activeSubjects.forEach((j, index) => {
+            const mapelName = getMapelName(j.idMapel);
+            const card = document.createElement('div');
+            card.className = `p-3.5 border-2 rounded-xl cursor-pointer flex items-center justify-between transition-all bg-slate-50 border-slate-200 hover:border-brand-500 verify-mapel-card`;
+            card.onclick = () => selectExamMapel(j.idMapel, card);
+
+            card.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-book"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-slate-800 text-sm">${mapelName}</div>
+                        <div class="text-[11px] text-slate-500 font-medium">Durasi: ${j.durasi || 60} Menit</div>
+                    </div>
+                </div>
+                <div class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center check-dot">
+                    <div class="w-2.5 h-2.5 rounded-full bg-brand-600 hidden"></div>
+                </div>
+            `;
+            container.appendChild(card);
+
+            // Auto-select jika hanya ada 1 mapel aktif
+            if (activeSubjects.length === 1) {
+                selectExamMapel(j.idMapel, card);
+            }
+        });
+    }
+
+    function selectExamMapel(mapelId, cardEl) {
+        document.getElementById('selected-verify-mapel-id').value = mapelId;
+        document.querySelectorAll('.verify-mapel-card').forEach(c => {
+            c.classList.remove('border-brand-600', 'bg-brand-50/80');
+            c.classList.add('border-slate-200', 'bg-slate-50');
+            const dot = c.querySelector('.check-dot div');
+            if (dot) dot.classList.add('hidden');
+        });
+        cardEl.classList.remove('border-slate-200', 'bg-slate-50');
+        cardEl.classList.add('border-brand-600', 'bg-brand-50/80');
+        const dot = cardEl.querySelector('.check-dot div');
+        if (dot) dot.classList.remove('hidden');
+    }
+
     async function processStudentVerify() {
         // Sinkronisasi data pengaturan / token terbaru dari backend / LocalStorage sebelum verifikasi
         if (!IS_PREVIEW) {
@@ -1281,24 +1445,29 @@
         // Perbarui antarmuka UI Token sesuai status teranyar
         updateTokenUI();
 
-        // 1. Validasi Keberadaan Soal Ujian
-        const questions = appState.soal.filter(q => q.idKelas === currentUser.studentData.idKelas);
-        if (questions.length === 0) {
-            showToast('Belum ada soal ujian untuk kelas Anda!', 'error');
+        // 1. Validasi Pemilihan Mata Pelajaran
+        const selectedMapelId = document.getElementById('selected-verify-mapel-id').value;
+        if (!selectedMapelId) {
+            showToast('Harap pilih mata pelajaran ujian yang akan dikerjakan terlebih dahulu!', 'error');
             return;
         }
 
-        const currentMapelId = questions[0].idMapel;
+        // 2. Ambil Butir Soal untuk Mapel yang Dipilih
+        const questions = appState.soal.filter(q => String(q.idKelas) === String(currentUser.studentData.idKelas) && String(q.idMapel) === String(selectedMapelId));
+        if (questions.length === 0) {
+            showToast('Belum ada butir soal untuk mata pelajaran ini!', 'error');
+            return;
+        }
 
-        // 2. Cek apakah siswa sudah mengerjakan mapel ini
-        const hasDone = appState.hasil.some(h => String(h.idSiswa) === String(currentUser.studentData.id) && String(h.idMapel) === String(currentMapelId));
+        // 3. Cek apakah siswa sudah pernah mengerjakan mapel ini
+        const hasDone = appState.hasil.some(h => String(h.idSiswa) === String(currentUser.studentData.id) && String(h.idMapel) === String(selectedMapelId));
         if (hasDone) {
             showToast('Anda sudah mengerjakan mata pelajaran ini dan tidak dapat mengerjakan ulang!', 'error');
             return;
         }
 
-        // 3. Validasi Waktu / Jadwal Ujian TERLEBIH DAHULU (Sebelum Pengecekan Token)
-        const activeJadwal = appState.jadwal.find(j => String(j.idKelas) === String(currentUser.studentData.idKelas) && String(j.idMapel) === String(currentMapelId));
+        // 4. Validasi Waktu / Jadwal Ujian
+        const activeJadwal = appState.jadwal.find(j => String(j.idKelas) === String(currentUser.studentData.idKelas) && String(j.idMapel) === String(selectedMapelId));
         if (activeJadwal) {
             const now = new Date();
             
@@ -1325,7 +1494,7 @@
             }
         }
 
-        // 4. Validasi Token Ujian (Hanya jika token diaktifkan)
+        // 5. Validasi Token Ujian (Hanya jika token diaktifkan)
         if (isTokenActive()) {
             const inputToken = document.getElementById('verify-token').value.trim().toUpperCase();
             const currentToken = (appState.settings.currentToken || '').trim().toUpperCase();
@@ -1734,8 +1903,8 @@
 
         function populateSelectOptions() {
             const isGuru = currentUser && currentUser.role === 'guru';
-            const taughtK = isGuru ? (currentUser.taughtKelas || []) : [];
-            const taughtM = isGuru ? (currentUser.taughtMapel || []) : [];
+            const taughtK = isGuru ? (currentUser.taughtKelas || []).map(String) : [];
+            const taughtM = isGuru ? (currentUser.taughtMapel || []).map(String) : [];
 
             ['filter-siswa-kelas', 'm-siswa-kelas', 'filter-kartu-kelas', 'filter-soal-kelas', 'm-soal-kelas', 'm-jadwal-kelas', 'filter-mon-kelas', 'filter-hasil-kelas'].forEach(id => {
                 const el = document.getElementById(id);
@@ -1744,7 +1913,8 @@
                 el.innerHTML = id.startsWith('filter') ? '<option value="">Semua Kelas</option>' : '<option value="">-- Pilih Kelas --</option>';
                 
                 appState.kelas.forEach(k => { 
-                    if (!isGuru || taughtK.includes(k.id)) {
+                    // Hanya tampilkan kelas jika Guru secara spesifik memilih kelas tersebut
+                    if (!isGuru || taughtK.includes(String(k.id))) {
                         el.innerHTML += `<option value="${k.id}">${k.nama}</option>`; 
                     }
                 });
@@ -1758,17 +1928,88 @@
                 el.innerHTML = id.startsWith('filter') ? '<option value="">Semua Mapel</option>' : '<option value="">-- Pilih Mapel --</option>';
                 
                 appState.mapel.forEach(m => { 
-                    if (!isGuru || taughtM.includes(m.id)) {
+                    if (!isGuru || taughtM.includes(String(m.id))) {
                         el.innerHTML += `<option value="${m.id}">${m.nama}</option>`; 
                     }
                 });
                 el.value = cur;
             });
         }
+        function getScoreMotivation(score) {
+            if (score >= 85) {
+                return {
+                    badge: "SANGAT LUAR BIASA",
+                    badgeClass: "bg-emerald-100 text-emerald-800 border-emerald-300",
+                    scoreColor: "text-emerald-600",
+                    iconClass: "fa-trophy text-amber-500",
+                    bgIconBox: "bg-amber-100 text-amber-600",
+                    quote: "“Prestasi luar biasa bukanlah kebetulan, melainkan hasil dari kerja keras, ketekunan, belajar, dan pengorbanan. Pertahankan kehebatanmu!”"
+                };
+            } else if (score >= 70) {
+                return {
+                    badge: "HASIL BAGUS",
+                    badgeClass: "bg-blue-100 text-blue-800 border-blue-300",
+                    scoreColor: "text-brand-600",
+                    iconClass: "fa-star text-brand-600",
+                    bgIconBox: "bg-blue-100 text-blue-600",
+                    quote: "“Pencapaian yang sangat baik! Tetap konsisten dan tingkatkan semangat belajarmu untuk menggapai prestasi tertinggi.”"
+                };
+            } else {
+                return {
+                    badge: "PERLU TINGKATKAN BELAJAR",
+                    badgeClass: "bg-amber-100 text-amber-800 border-amber-300",
+                    scoreColor: "text-amber-600",
+                    iconClass: "fa-seedling text-emerald-600",
+                    bgIconBox: "bg-amber-100 text-amber-600",
+                    quote: "“Kegagalan adalah satu-satunya kesempatan untuk memulai lagi dengan lebih bijaksana. Evaluasi kekuranganmu dan bangkitlah lebih kuat!”"
+                };
+            }
+        }
 
-        // --- MANAJEMEN DATA GURU ---
-        function handleGuruNameInput(val) {
-            document.getElementById('m-guru-username').value = val.trim().toUpperCase();
+        async function submitExamAnswers() {
+            if (currentExamState.timerInterval) clearInterval(currentExamState.timerInterval);
+            let benar = 0, salah = 0;
+            currentExamState.questions.forEach(q => {
+                if (currentExamState.answers[q.id] === q.kunci) benar++; else salah++;
+            });
+            const totalSoal = currentExamState.questions.length;
+            const nilai = Math.round((benar / totalSoal) * 100);
+
+            const resultObj = {
+                idSiswa: currentUser.studentData.id,
+                namaSiswa: currentUser.studentData.nama,
+                idKelas: currentUser.studentData.idKelas,
+                idMapel: currentExamState.questions[0].idMapel,
+                benar, salah, nilai
+            };
+
+            appState.hasil.push(resultObj);
+            apiCall('submitExam', resultObj);
+
+            // Perbarui Elemen Modal Tampilan Nilai
+            const motivation = getScoreMotivation(nilai);
+            document.getElementById('result-badge').innerText = motivation.badge;
+            document.getElementById('result-badge').className = `px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider border ${motivation.badgeClass}`;
+            
+            const scoreDisplay = document.getElementById('result-score-display');
+            scoreDisplay.innerText = nilai;
+            scoreDisplay.className = `font-black text-8xl tracking-tight drop-shadow-sm font-mono ${motivation.scoreColor}`;
+
+            document.getElementById('result-icon-box').className = `w-20 h-20 rounded-full mx-auto flex items-center justify-center text-3xl shadow-inner ${motivation.bgIconBox}`;
+            document.getElementById('result-icon').className = `fa-solid ${motivation.iconClass}`;
+
+            document.getElementById('result-quote-text').innerText = motivation.quote;
+            document.getElementById('result-correct-count').innerText = benar;
+            document.getElementById('result-wrong-count').innerText = salah;
+            document.getElementById('result-total-count').innerText = totalSoal;
+
+            // Tampilkan Modal Hasil Ujian
+            document.getElementById('modal-exam-result').classList.remove('hidden');
+        }
+
+        function closeExamResultModal() {
+            document.getElementById('modal-exam-result').classList.add('hidden');
+            handleLogout();
         }
 
         function renderGuruCheckboxes(selectedKelas = [], selectedMapel = []) {
