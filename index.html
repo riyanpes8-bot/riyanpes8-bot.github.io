@@ -136,29 +136,127 @@
                 max-width: 100% !important;
             }
         }
-        /* Judul PKBM pada halaman login */
-.login-school-title {
+        /* =========================================
+   HEADER LOGIN - PKBM SUMBER ILMU
+   ========================================= */
+
+.login-header-content {
+    position: relative;
     width: 100%;
-    text-align: center;
-    font-size: 1.75rem;
-    line-height: 1.2;
+    max-width: 900px;
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    padding: 0 80px;
+    box-sizing: border-box;
 }
 
-/* Tampilan HP */
+/* Logo */
+.login-logo {
+    position: absolute;
+    left: 25px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    padding: 6px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.20);
+    filter: drop-shadow(0 4px 5px rgba(0,0,0,0.15));
+}
+
+/* Blok teks benar-benar di tengah */
+.login-title-wrapper {
+    width: 100%;
+    text-align: center;
+}
+
+/* Nama PKBM */
+.login-school-title {
+    display: block;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+    font-size: 30px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: white;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Assessment Sumatif */
+.login-subtitle {
+    display: block;
+    width: 100%;
+    margin: 6px 0 0 0;
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: 500;
+    letter-spacing: 3px;
+    color: #dbeafe;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* =========================================
+   TAMPILAN HP
+   ========================================= */
 @media (max-width: 639px) {
+
+    .login-header-content {
+        min-height: 78px;
+        padding: 0 45px 0 75px;
+    }
+
+    .login-logo {
+        left: 8px;
+        width: 52px;
+        height: 52px;
+        padding: 5px;
+        border-radius: 13px;
+    }
+
+    .login-title-wrapper {
+        width: 100%;
+        text-align: center;
+    }
+
     .login-school-title {
-        font-size: 0.9rem;
-        line-height: 1.25;
+        font-size: clamp(11px, 3.4vw, 15px);
+        line-height: 1.2;
         letter-spacing: 0;
         white-space: nowrap;
-        text-align: center;
+    }
+
+    .login-subtitle {
+        margin-top: 5px;
+        font-size: clamp(7px, 2.1vw, 10px);
+        line-height: 1.2;
+        letter-spacing: 1.2px;
+        white-space: nowrap;
     }
 }
 
-/* Tampilan laptop/desktop */
+
+/* =========================================
+   LAPTOP / PC
+   ========================================= */
 @media (min-width: 640px) {
-    .login-school-title {
-        font-size: 1.875rem;
+
+    .login-header-content {
+        min-height: 90px;
+        padding-left: 90px;
+        padding-right: 90px;
+    }
+
+    .login-title-wrapper {
         text-align: center;
     }
 }
@@ -230,16 +328,27 @@
             <!-- VIEW 1: LOGIN VIEW -->
             <section id="view-login" class="min-h-screen sm:min-h-[85vh] flex flex-col justify-start sm:justify-center items-center relative">
                 <div class="w-full puspendik-bg h-64 sm:h-72 flex flex-col items-center justify-start pt-8 sm:pt-10 text-white text-center shadow-lg">
-                    <div class="flex items-center justify-center gap-3 px-3 w-full max-w-4xl mx-auto">
-                        <img id="login-logo-display" src="" onerror="handleImageError(this)" class="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-md bg-white/10 p-1.5 rounded-2xl border border-white/20" alt="Logo Lembaga">
-                        <div class="min-w-0 flex-1 flex justify-center">
-                            <h2 id="login-school-name"
-                                class="login-school-title text-center font-extrabold tracking-normal leading-tight text-white drop-shadow uppercase whitespace-nowrap">
-                            </h2>
-                            <p id="login-app-subtitle" class="text-sm sm:text-base text-blue-100 font-medium tracking-widest mt-1 uppercase">
-                            </p>
-                        </div>
-                    </div>
+                    <div class="login-header-content">
+
+    <!-- LOGO -->
+    <img id="login-logo-display"
+         src=""
+         onerror="handleImageError(this)"
+         class="login-logo"
+         alt="Logo Lembaga">
+
+    <!-- TEKS TENGAH -->
+    <div class="login-title-wrapper">
+        <h2 id="login-school-name"
+            class="login-school-title">
+        </h2>
+
+        <p id="login-app-subtitle"
+           class="login-subtitle">
+        </p>
+    </div>
+
+</div>
                 </div>
                 <div class="w-full max-w-md px-4 -mt-24 sm:-mt-28 mb-8 z-10">
                     <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 p-8 space-y-6">
@@ -1060,7 +1169,7 @@
     <script>
         // KONFIGURASI APLIKASI
         const IS_PREVIEW = false; // Ubah ke false untuk mengaktifkan koneksi live ke Google Sheets
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbzJhUM_rHJ7d11ViPHDn5K6NRHp_uuGLbEBS8T90eEshz-_uZhJnrHZj0VTPksex-6W/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxMww_2ZfFmelLksEulMXpBWCtHe6OW6xfNs6OC0DL3X3sXoq5WDB6FVptoRkQq_0OZ/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
