@@ -136,6 +136,32 @@
                 max-width: 100% !important;
             }
         }
+        /* Judul PKBM pada halaman login */
+.login-school-title {
+    width: 100%;
+    text-align: center;
+    font-size: 1.75rem;
+    line-height: 1.2;
+}
+
+/* Tampilan HP */
+@media (max-width: 639px) {
+    .login-school-title {
+        font-size: 0.9rem;
+        line-height: 1.25;
+        letter-spacing: 0;
+        white-space: nowrap;
+        text-align: center;
+    }
+}
+
+/* Tampilan laptop/desktop */
+@media (min-width: 640px) {
+    .login-school-title {
+        font-size: 1.875rem;
+        text-align: center;
+    }
+}
     </style>
 </head>
 <body>
@@ -204,11 +230,11 @@
             <!-- VIEW 1: LOGIN VIEW -->
             <section id="view-login" class="min-h-screen sm:min-h-[85vh] flex flex-col justify-start sm:justify-center items-center relative">
                 <div class="w-full puspendik-bg h-64 sm:h-72 flex flex-col items-center justify-start pt-8 sm:pt-10 text-white text-center shadow-lg">
-                    <div class="flex items-center justify-center gap-3 px-3 w-full">
+                    <div class="flex items-center justify-center gap-3 px-3 w-full max-w-4xl mx-auto">
                         <img id="login-logo-display" src="" onerror="handleImageError(this)" class="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-md bg-white/10 p-1.5 rounded-2xl border border-white/20" alt="Logo Lembaga">
-                        <div class="text-left min-w-0 flex-1">
+                        <div class="min-w-0 flex-1 flex justify-center">
                             <h2 id="login-school-name"
-                                class="text-sm sm:text-3xl font-extrabold tracking-normal sm:tracking-wide leading-tight text-white drop-shadow uppercase whitespace-nowrap">
+                                class="login-school-title text-center font-extrabold tracking-normal leading-tight text-white drop-shadow uppercase whitespace-nowrap">
                             </h2>
                             <p id="login-app-subtitle" class="text-sm sm:text-base text-blue-100 font-medium tracking-widest mt-1 uppercase">
                             </p>
@@ -1034,7 +1060,7 @@
     <script>
         // KONFIGURASI APLIKASI
         const IS_PREVIEW = false; // Ubah ke false untuk mengaktifkan koneksi live ke Google Sheets
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyR1MeZZN8qW-iBC4uXqUT9KhMhC0DlB4uMLxp8Fkn436qrHV6P7992jVR50yyHL2bB/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzJhUM_rHJ7d11ViPHDn5K6NRHp_uuGLbEBS8T90eEshz-_uZhJnrHZj0VTPksex-6W/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
