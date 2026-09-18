@@ -262,6 +262,37 @@
         text-align: center;
     }
 }
+
+/* =====================================================
+   HEADER ROLE SISWA - MODERN & RESPONSIVE
+   ===================================================== */
+
+.student-header {
+    width: 100%;
+    min-height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 28px;
+    box-sizing: border-box;
+}
+
+/* lanjutkan CSS lainnya di sini */
+
+
+/* =====================================================
+   HP
+   ===================================================== */
+
+@media (max-width: 640px) {
+    .student-header {
+        min-height: auto;
+        padding: 10px 12px;
+    }
+
+    /* ... */
+}
     </style>
 </head>
 <body>
@@ -1171,7 +1202,7 @@
     <script>
         // KONFIGURASI APLIKASI
         const IS_PREVIEW = false; // Ubah ke false untuk mengaktifkan koneksi live ke Google Sheets
-        const GAS_URL = "https://script.google.com/macros/s/AKfycby6sNS-v2i3WqUhCgPPTEdazOHhHcl6L_42XTf1vXhq_QDKxR-9FXxqAHzFQfNJCgpX/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbw5Anb3fRcw0y-TneV6nLnenMk5cd_Cte5IpAvltVl5IglW864JlojSAOjVP1QFQlGG/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
