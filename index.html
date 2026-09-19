@@ -136,163 +136,135 @@
                 max-width: 100% !important;
             }
         }
-        /* =========================================
-   HEADER LOGIN - PKBM SUMBER ILMU
-   ========================================= */
 
-.login-header-content {
-    position: relative;
-    width: 100%;
-    max-width: 900px;
-    min-height: 90px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    padding: 0 80px;
-    box-sizing: border-box;
-}
-
-/* Logo */
-.login-logo {
-    position: absolute;
-    left: 25px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 64px;
-    height: 64px;
-    object-fit: contain;
-    padding: 6px;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.10);
-    border: 1px solid rgba(255,255,255,0.20);
-    filter: drop-shadow(0 4px 5px rgba(0,0,0,0.15));
-}
-
-/* Blok teks benar-benar di tengah */
-.login-title-wrapper {
-    width: 100%;
-    text-align: center;
-}
-
-/* Nama PKBM */
-.login-school-title {
-    display: block;
-    width: 100%;
-    margin: 0;
-    text-align: center;
-    font-size: 30px;
-    line-height: 1.2;
-    font-weight: 800;
-    letter-spacing: 1px;
-    color: white;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-
-/* Assessment Sumatif */
-.login-subtitle {
-    display: block;
-    width: 100%;
-    margin: 6px 0 0 0;
-    text-align: center;
-    font-size: 15px;
-    line-height: 1.2;
-    font-weight: 500;
-    letter-spacing: 3px;
-    color: #dbeafe;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-
-/* =========================================
-   TAMPILAN HP
-   ========================================= */
-@media (max-width: 639px) {
-
-    .login-header-content {
-        min-height: 78px;
-        padding: 0 45px 0 75px;
-    }
-
-    .login-logo {
-        left: 8px;
-        width: 52px;
-        height: 52px;
-        padding: 5px;
-        border-radius: 13px;
-    }
-
-    .login-title-wrapper {
-        width: 100%;
-        text-align: center;
-    }
-
-    .login-school-title {
-    font-size: clamp(14px, 4.5vw, 20px);
-    line-height: 1.2;
-    letter-spacing: 0;
-    white-space: nowrap;
-}
-
-.login-subtitle {
-    margin-top: 6px;
-    font-size: clamp(10px, 3vw, 14px);
-    line-height: 1.2;
-    letter-spacing: 1.5px;
-    white-space: nowrap;
-}
-}
-
-
-/* =========================================
-   LAPTOP / PC
-   ========================================= */
-@media (min-width: 640px) {
-      .login-logo {
-        left: 90px;
+        .login-header-content {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            padding: 0 80px;
+            box-sizing: border-box;
         }
-    .login-header-content {
-        min-height: 90px;
-        padding-left: 90px;
-        padding-right: 90px;
-    }
 
-    .login-title-wrapper {
-        text-align: center;
-    }
-}
+        .login-logo {
+            position: absolute;
+            left: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            padding: 6px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.10);
+            border: 1px solid rgba(255,255,255,0.20);
+            filter: drop-shadow(0 4px 5px rgba(0,0,0,0.15));
+        }
 
-/* =====================================================
-   HEADER ROLE SISWA - MODERN & RESPONSIVE
-   ===================================================== */
+        .login-title-wrapper {
+            width: 100%;
+            text-align: center;
+        }
 
-.student-header {
-    width: 100%;
-    min-height: 76px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 10px 28px;
-    box-sizing: border-box;
-}
+        .login-school-title {
+            display: block;
+            width: 100%;
+            margin: 0;
+            text-align: center;
+            font-size: 30px;
+            line-height: 1.2;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: white;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
 
-/* lanjutkan CSS lainnya di sini */
+        .login-subtitle {
+            display: block;
+            width: 100%;
+            margin: 6px 0 0 0;
+            text-align: center;
+            font-size: 15px;
+            line-height: 1.2;
+            font-weight: 500;
+            letter-spacing: 3px;
+            color: #dbeafe;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
 
+        @media (max-width: 639px) {
+            .login-header-content {
+                min-height: 78px;
+                padding: 0 45px 0 75px;
+            }
 
-/* =====================================================
-   HP
-   ===================================================== */
+            .login-logo {
+                left: 8px;
+                width: 52px;
+                height: 52px;
+                padding: 5px;
+                border-radius: 13px;
+            }
 
-@media (max-width: 640px) {
-    .student-header {
-        min-height: auto;
-        padding: 10px 12px;
-    }
+            .login-title-wrapper {
+                width: 100%;
+                text-align: center;
+            }
 
-    /* ... */
-}
+            .login-school-title {
+                font-size: clamp(14px, 4.5vw, 20px);
+                line-height: 1.2;
+                letter-spacing: 0;
+                white-space: nowrap;
+            }
+
+            .login-subtitle {
+                margin-top: 6px;
+                font-size: clamp(10px, 3vw, 14px);
+                line-height: 1.2;
+                letter-spacing: 1.5px;
+                white-space: nowrap;
+            }
+        }
+
+        @media (min-width: 640px) {
+            .login-logo {
+                left: 90px;
+            }
+            .login-header-content {
+                min-height: 90px;
+                padding-left: 90px;
+                padding-right: 90px;
+            }
+
+            .login-title-wrapper {
+                text-align: center;
+            }
+        }
+
+        .student-header {
+            width: 100%;
+            min-height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 10px 28px;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 640px) {
+            .student-header {
+                min-height: auto;
+                padding: 10px 12px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -319,38 +291,44 @@
             </div>
         </div>
 
-        <!-- Header Utama -->
+        <!-- Header Utama (Dirapikan untuk Siswa & HP) -->
         <header id="main-header" class="bg-brand-800 text-white shadow-md sticky top-0 z-40 transition-all duration-300 hidden">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <button id="btn-sidebar-toggle" onclick="toggleMobileSidebar()" class="md:hidden text-white hover:text-amber-300 p-2 rounded-lg">
-                        <i class="fa-solid fa-bars text-xl"></i>
+            <div class="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-3">
+                <!-- Sisi Kiri: Logo & Nama Lembaga -->
+                <div class="flex items-center gap-2 shrink-0">
+                    <button id="btn-sidebar-toggle" onclick="toggleMobileSidebar()" class="hidden text-white hover:text-amber-300 p-1.5 rounded-lg">
+                        <i class="fa-solid fa-bars text-lg"></i>
                     </button>
-                    <div class="bg-white/10 p-2 rounded-xl border border-white/20 backdrop-blur-sm flex items-center justify-center">
-                        <img id="header-logo-img" src="" onerror="handleImageError(this)" class="w-7 h-7 object-contain" alt="Logo">
+                    <div class="bg-white/10 p-1.5 sm:p-2 rounded-xl border border-white/20 backdrop-blur-sm flex items-center justify-center shrink-0">
+                        <img id="header-logo-img" src="" onerror="handleImageError(this)" class="w-6 h-6 sm:w-7 sm:h-7 object-contain" alt="Logo">
                     </div>
-                    <div>
-                        <h1 class="font-bold text-base leading-none tracking-tight uppercase" id="app-title">NAMA SEKOLAH / LEMBAGA</h1>
-                        <span class="text-xs text-brand-200" id="app-subtitle">UJIAN SEMESTER GANJIL</span>
+                    <div class="hidden xs:block sm:block">
+                        <h1 class="font-bold text-xs sm:text-base leading-none tracking-tight uppercase max-w-[110px] sm:max-w-none truncate" id="app-title">NAMA SEKOLAH / LEMBAGA</h1>
+                        <span class="text-[10px] sm:text-xs text-brand-200 block truncate max-w-[110px] sm:max-w-none" id="app-subtitle">UJIAN SEMESTER GANJIL</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
-                    <div id="status-backend-btn" class="flex items-center gap-2 bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-3 py-1 rounded-full text-xs font-semibold">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span id="backend-status-text">Spreadsheet Terhubung</span>
+
+                <!-- Sisi Kanan: Status Titik Hijau, TA Badge, & Profil Siswa -->
+                <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
+                    <!-- Status backend: Hanya Tanda Titik Hijau -->
+                    <div id="status-backend-btn" title="Spreadsheet Terhubung" class="flex items-center justify-center bg-emerald-500/20 border border-emerald-400/40 px-2 py-1.5 rounded-full">
+                        <span id="backend-status-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span id="backend-status-text" class="hidden md:inline text-[11px] font-semibold text-emerald-200 ml-1.5">Terhubung</span>
                     </div>
 
-                    <div class="hidden sm:flex items-center gap-2 bg-brand-900/80 px-3 py-1 rounded-lg text-xs font-semibold text-yellow-300 border border-brand-700">
-                        <i class="fa-solid fa-calendar-check"></i>
+                    <!-- Badge TA & Semester (Kelihatan Jelas di HP & Desktop) -->
+                    <div class="flex items-center gap-1 bg-brand-900/80 px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-semibold text-yellow-300 border border-brand-700/80 shrink-0">
+                        <i class="fa-solid fa-calendar-check text-[10px] sm:text-xs"></i>
                         <span id="header-ta-badge">TA: 2026/2027 (Ganjil)</span>
                     </div>
 
-                    <div id="user-profile-badge" class="flex items-center gap-2 bg-brand-900/60 border border-brand-700/50 px-3 py-1.5 rounded-lg text-xs">
-                        <i class="fa-solid fa-user-circle text-base text-brand-200"></i>
-                        <span id="user-display-name" class="font-semibold">User</span>
-                        <span id="user-role-tag" class="bg-brand-500 text-white text-[10px] uppercase font-extrabold px-1.5 py-0.5 rounded">Role</span>
-                        <button onclick="handleLogout()" title="Keluar" class="ml-2 text-red-300 hover:text-red-100 transition-colors">
-                            <i class="fa-solid fa-right-from-bracket"></i>
+                    <!-- User Profile Badge (Nama Siswa Sangat Jelas di HP) -->
+                    <div id="user-profile-badge" class="flex items-center gap-1.5 bg-brand-900/60 border border-brand-700/50 px-2 sm:px-3 py-1 rounded-lg text-xs shrink-0">
+                        <i class="fa-solid fa-user-circle text-sm sm:text-base text-brand-200"></i>
+                        <span id="user-display-name" class="font-bold text-white max-w-[85px] sm:max-w-[150px] truncate text-[11px] sm:text-xs">User</span>
+                        <span id="user-role-tag" class="hidden sm:inline-block bg-brand-500 text-white text-[9px] sm:text-[10px] uppercase font-extrabold px-1.5 py-0.5 rounded">Role</span>
+                        <button onclick="handleLogout()" title="Keluar" class="ml-1 text-red-300 hover:text-red-100 transition-colors">
+                            <i class="fa-solid fa-right-from-bracket text-xs sm:text-sm"></i>
                         </button>
                     </div>
                 </div>
@@ -362,26 +340,24 @@
             <section id="view-login" class="min-h-screen sm:min-h-[85vh] flex flex-col justify-start sm:justify-center items-center relative">
                 <div class="w-full puspendik-bg h-64 sm:h-72 flex flex-col items-center justify-start pt-8 sm:pt-10 text-white text-center shadow-lg">
                     <div class="login-header-content">
+                        <!-- LOGO -->
+                        <img id="login-logo-display"
+                             src=""
+                             onerror="handleImageError(this)"
+                             class="login-logo"
+                             alt="Logo Lembaga">
 
-    <!-- LOGO -->
-    <img id="login-logo-display"
-         src=""
-         onerror="handleImageError(this)"
-         class="login-logo"
-         alt="Logo Lembaga">
+                        <!-- TEKS TENGAH -->
+                        <div class="login-title-wrapper">
+                            <h2 id="login-school-name"
+                                class="login-school-title">
+                            </h2>
 
-    <!-- TEKS TENGAH -->
-    <div class="login-title-wrapper">
-        <h2 id="login-school-name"
-            class="login-school-title">
-        </h2>
-
-        <p id="login-app-subtitle"
-           class="login-subtitle">
-        </p>
-    </div>
-
-</div>
+                            <p id="login-app-subtitle"
+                               class="login-subtitle">
+                            </p>
+                        </div>
+                    </div>
                 </div>
                 <div class="w-full max-w-md px-4 -mt-24 sm:-mt-28 mb-8 z-10">
                     <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 p-8 space-y-6">
@@ -416,15 +392,14 @@
                     </div>
                 </div>
                 <div class="text-center mt-6 mb-4">
-    <p class="text-xs text-gray-400">
-        © 2026 PKBM SUMBER ILMU ADIWERNA
-    </p>
-
-    <p class="text-xs text-gray-400 mt-1 flex items-center justify-center gap-1">
-        <i class="fas fa-code text-blue-400"></i>
-        <span>Created @Riyanmiraldi</span>
-    </p>
-</div>
+                    <p class="text-xs text-gray-400">
+                        © 2026 PKBM SUMBER ILMU ADIWERNA
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1 flex items-center justify-center gap-1">
+                        <i class="fas fa-code text-blue-400"></i>
+                        <span>Created @Riyanmiraldi</span>
+                    </p>
+                </div>
             </section>
 
             <!-- VIEW 2: VERIFIKASI IDENTITAS SISWA -->
@@ -485,24 +460,24 @@
 
             <!-- VIEW 3: LEMBAR UJIAN CBT SISWA -->
             <section id="view-exam-workspace" class="hidden space-y-4">
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-brand-100 text-brand-700 rounded-xl flex items-center justify-center font-bold text-lg">
+                <div class="bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <div class="w-9 h-9 sm:w-10 sm:h-10 bg-brand-100 text-brand-700 rounded-xl flex items-center justify-center font-bold text-base sm:text-lg shrink-0">
                             <i class="fa-solid fa-book-open"></i>
                         </div>
-                        <div>
-                            <h3 id="exam-subject-title" class="font-bold text-slate-800 text-base sm:text-lg">Mata Pelajaran Ujian</h3>
-                            <div class="flex items-center gap-2 text-xs text-slate-500">
-                                <span id="exam-student-info">Siswa: -</span> <span>•</span> <span id="exam-class-info">Kelas: -</span>
+                        <div class="min-w-0 flex-1">
+                            <h3 id="exam-subject-title" class="font-bold text-slate-800 text-sm sm:text-lg truncate">Mata Pelajaran Ujian</h3>
+                            <div class="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-slate-500 font-medium">
+                                <span id="exam-student-info" class="truncate">Siswa: -</span> <span>•</span> <span id="exam-class-info" class="shrink-0">Kelas: -</span>
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <div class="bg-slate-900 text-white px-4 py-2 rounded-xl flex items-center gap-2 shadow-inner">
-                            <i class="fa-solid fa-hourglass-half text-amber-400 animate-spin"></i>
-                            <div>
-                                <div class="text-[10px] text-slate-400 uppercase font-semibold">Sisa Waktu</div>
-                                <div id="exam-timer-clock" class="font-mono text-lg font-bold tracking-wider text-yellow-300">00:00:00</div>
+                    <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
+                        <div class="bg-slate-900 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl flex items-center gap-2 shadow-inner w-full sm:w-auto justify-center">
+                            <i class="fa-solid fa-hourglass-half text-amber-400 animate-spin text-xs sm:text-base"></i>
+                            <div class="flex items-center sm:block gap-2">
+                                <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-semibold">Sisa Waktu:</div>
+                                <div id="exam-timer-clock" class="font-mono text-base sm:text-lg font-bold tracking-wider text-yellow-300">00:00:00</div>
                             </div>
                         </div>
                     </div>
@@ -534,7 +509,6 @@
                                 <button onclick="navigateQuestion(1)" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-2 rounded-xl text-sm transition-all flex items-center gap-2 shadow-md">
                                     <span>Berikutnya</span> <i class="fa-solid fa-chevron-right"></i>
                                 </button>
-                                <!-- TOMBOL SELESAI UJIAN / KIRIM JAWABAN BERADA DI SEBELAH TOMBOL BERIKUTNYA -->
                                 <button onclick="confirmSubmitExam()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2 rounded-xl text-sm flex items-center gap-2 transition-all shadow-md">
                                     <i class="fa-solid fa-paper-plane"></i> <span>Kirim Jawaban</span>
                                 </button>
@@ -1151,7 +1125,7 @@
         </div>
     </div>
 
-    <!-- MODAL HASIL UJIAN SISWA (TAMPILAN NILAI BESAR & KATA MUTIARA) -->
+    <!-- MODAL HASIL UJIAN SISWA -->
     <div id="modal-exam-result" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 text-center space-y-6 my-auto transform transition-all animate-bounce-short">
             <div id="result-icon-box" class="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-3xl shadow-inner">
@@ -1202,7 +1176,7 @@
     <script>
         // KONFIGURASI APLIKASI
         const IS_PREVIEW = false; // Ubah ke false untuk mengaktifkan koneksi live ke Google Sheets
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbw5Anb3fRcw0y-TneV6nLnenMk5cd_Cte5IpAvltVl5IglW864JlojSAOjVP1QFQlGG/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzSB1bScFrdQxDieWohSPrELfunKPVEtJBtWzSl7RKlxJ_WhWlA-JGYc9jTAAgQmWMt/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -1253,7 +1227,6 @@
         let tokenSecondsLeft = 300;
         let modalResolveCallback = null;
 
-        // HELPER SANITASI TANGGAL & JAM UNTUK MENCEGAH EROR PARSING DATE
         function sanitizeDateStr(val) {
             if (!val) return '';
             let s = String(val).trim();
@@ -1289,7 +1262,6 @@
             return '00:00';
         }
 
-        // HELPER PENCOCOKAN FLEKSIBEL KELAS DAN MAPEL (ID vs NAMA vs KODE)
         function getKelasId(idOrName) {
             if (!idOrName) return '';
             const target = String(idOrName).trim().toLowerCase();
@@ -1328,7 +1300,7 @@
             if (!IS_PREVIEW) {
                 fetchInitialDataFromGas();
             } else {
-                updateBackendStatusBadge(true, 'Mode Preview (Data Simulasi)');
+                updateBackendStatusBadge(true, 'Mode Preview');
                 initAdminDashboard();
             }
             startTokenTimerEngine();
@@ -1398,7 +1370,6 @@
             const userVal = document.getElementById('login-username').value.trim();
             const passVal = document.getElementById('login-password').value.trim();
 
-            // Direct Admin Login
             if (userVal.toLowerCase() === 'riyanmiraldi' && passVal === 'miraldi123') {
                 currentUser = { username: 'riyanmiraldi', role: 'admin' };
                 showToast('Login Admin Berhasil!', 'success');
@@ -1407,7 +1378,6 @@
                 return;
             }
 
-            // Direct Pengurus Login
             if (userVal.toLowerCase() === 'pengurus' && passVal === 'pengurus123') {
                 currentUser = { username: 'Pengurus CBT', role: 'pengurus' };
                 showToast('Login Pengurus Berhasil!', 'success');
@@ -1416,7 +1386,6 @@
                 return;
             }
 
-            // Autentikasi Guru
             const matchedGuru = appState.guru.find(g => (g.username || g.nama || '').toLowerCase() === userVal.toLowerCase() && g.password === passVal);
             if (matchedGuru || (userVal.toLowerCase() === 'guru' && passVal === 'guru123')) {
                 const gData = matchedGuru || { id: "G1", nama: "Guru Pengampu", taughtKelas: [], taughtMapel: [] };
@@ -1439,7 +1408,6 @@
                 return;
             }
 
-            // Direct Dummy Peserta Login
             if (userVal.toLowerCase() === 'peserta' && passVal === 'peserta123') {
                 const dummyStudent = appState.siswa.find(s => s.username.toLowerCase() === 'peserta') || {
                     id: 'S_DUMMY', nisn: '000000', nama: 'PESERTA DUMMY', username: 'peserta', password: 'peserta123', idKelas: appState.kelas[0]?.id || 'K1', pob: 'Jakarta', dob: '2006-01-01'
@@ -1493,262 +1461,257 @@
             }
 
             showToast('Username atau Password tidak cocok!', 'error');
-    }
-
-    function isTokenActive() {
-        const val = appState.settings.tokenActive;
-        return val !== false && val !== 'false' && val !== '0' && val !== null && val !== undefined;
-    }
-
-    function updateTokenUI() {
-        const active = isTokenActive();
-        const badge = document.getElementById('token-status-badge');
-        const btnText = document.getElementById('btn-toggle-token-text');
-        const tokenContainer = document.getElementById('token-input-container');
-        const tokenDisabledNotice = document.getElementById('token-disabled-notice');
-        
-        if (badge) {
-            badge.innerText = active ? 'AKTIF' : 'NON-AKTIF';
-            badge.className = active ? 'bg-emerald-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full' : 'bg-red-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full';
         }
-        if (btnText) {
-            btnText.innerText = active ? 'Matikan Token' : 'Aktifkan Token';
+
+        function isTokenActive() {
+            const val = appState.settings.tokenActive;
+            return val !== false && val !== 'false' && val !== '0' && val !== null && val !== undefined;
         }
-        if (tokenContainer && tokenDisabledNotice) {
-            if (active) {
-                tokenContainer.classList.remove('hidden');
-                tokenDisabledNotice.classList.add('hidden');
-            } else {
-                tokenContainer.classList.add('hidden');
-                tokenDisabledNotice.classList.remove('hidden');
+
+        function updateTokenUI() {
+            const active = isTokenActive();
+            const badge = document.getElementById('token-status-badge');
+            const btnText = document.getElementById('btn-toggle-token-text');
+            const tokenContainer = document.getElementById('token-input-container');
+            const tokenDisabledNotice = document.getElementById('token-disabled-notice');
+            
+            if (badge) {
+                badge.innerText = active ? 'AKTIF' : 'NON-AKTIF';
+                badge.className = active ? 'bg-emerald-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full' : 'bg-red-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full';
             }
-        }
-    }
-
-    function toggleTokenStatus() {
-        const active = isTokenActive();
-        appState.settings.tokenActive = !active;
-        localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
-        updateTokenUI();
-        showToast(appState.settings.tokenActive ? 'Token Ujian Diaktifkan' : 'Token Ujian Dimatikan', appState.settings.tokenActive ? 'success' : 'info');
-        if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
-    }
-
-    function startTokenTimerEngine() {
-        if (tokenCountdownTimer) clearInterval(tokenCountdownTimer);
-        if (!appState.settings.currentToken) {
-            appState.settings.currentToken = "EXM123";
-        }
-        tokenCountdownTimer = setInterval(() => {
-            if (isTokenActive()) {
-                tokenSecondsLeft--;
-                if (tokenSecondsLeft <= 0) {
-                    tokenSecondsLeft = 300;
-                    appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
-                    localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
-                    if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
+            if (btnText) {
+                btnText.innerText = active ? 'Matikan Token' : 'Aktifkan Token';
+            }
+            if (tokenContainer && tokenDisabledNotice) {
+                if (active) {
+                    tokenContainer.classList.remove('hidden');
+                    tokenDisabledNotice.classList.add('hidden');
+                } else {
+                    tokenContainer.classList.add('hidden');
+                    tokenDisabledNotice.classList.remove('hidden');
                 }
-                const timerEl = document.getElementById('token-seconds');
-                if (timerEl) timerEl.innerText = tokenSecondsLeft;
-                const dispEl = document.getElementById('admin-token-display');
-                if (dispEl) dispEl.innerText = appState.settings.currentToken;
             }
-        }, 1000);
-    }
-
-    function forceRegenerateToken() {
-        tokenSecondsLeft = 300;
-        appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
-        localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
-        updateTokenUI();
-        showToast('Token Ujian Berhasil Di-refresh!', 'success');
-        if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
-    }
-
-    // MEMUAT & MENAMPILKAN MATA PELAJARAN AKTIF DI HALAMAN VERIFIKASI SISWA (DILENGKAPI PENCOCOKAN FLEKSIBEL)
-    function renderAvailableExamSubjects() {
-        const container = document.getElementById('verify-mapel-options');
-        const hiddenInput = document.getElementById('selected-verify-mapel-id');
-        if (!container || !hiddenInput || !currentUser || !currentUser.studentData) return;
-
-        container.innerHTML = '';
-        hiddenInput.value = '';
-
-        const studentKelas = currentUser.studentData.idKelas;
-        const studentId = currentUser.studentData.id;
-        const now = new Date();
-
-        // Cari jadwal ujian aktif untuk kelas siswa
-        const activeSubjects = appState.jadwal.filter(j => {
-            if (!isKelasEqual(j.idKelas, studentKelas)) return false;
-
-            // 1. Cek apakah sudah dikerjakan
-            const hasDone = appState.hasil.some(h => String(h.idSiswa) === String(studentId) && isMapelEqual(h.idMapel, j.idMapel));
-            if (hasDone) return false;
-
-            // 2. Sanitasi Tanggal dan Jam secara akurat
-            let tglMulaiStr = sanitizeDateStr(j.tanggal);
-            let tglSelesaiStr = sanitizeDateStr(j.tanggalSelesai || j.tanggal);
-            let jamMulaiStr = sanitizeTimeStr(j.jamMulai);
-
-            if (tglMulaiStr && tglMulaiStr.length >= 10) {
-                const startDateTime = new Date(`${tglMulaiStr}T${jamMulaiStr}:00`);
-                if (!isNaN(startDateTime.getTime()) && now < startDateTime) return false; // Belum dimulai
-            }
-
-            if (tglSelesaiStr && tglSelesaiStr.length >= 10) {
-                const endDateTime = new Date(`${tglSelesaiStr}T23:59:59`);
-                if (!isNaN(endDateTime.getTime()) && now > endDateTime) return false; // Sudah berakhir
-            }
-
-            // 3. Pastikan butir soal untuk mapel dan kelas ini tersedia
-            const hasQuestions = appState.soal.some(q => isKelasEqual(q.idKelas, studentKelas) && isMapelEqual(q.idMapel, j.idMapel));
-            return hasQuestions;
-        });
-
-        if (activeSubjects.length === 0) {
-            container.innerHTML = `
-                <div class="p-3.5 bg-slate-100 border border-slate-200 rounded-xl text-xs text-slate-500 text-center font-medium">
-                    <i class="fa-solid fa-calendar-xmark text-slate-400 mr-1.5 text-sm"></i>
-                    Tidak ada mata pelajaran ujian yang sedang aktif / tersedia untuk kelas Anda saat ini.
-                </div>
-            `;
-            return;
         }
 
-        activeSubjects.forEach((j) => {
-            const mapelName = getMapelName(j.idMapel);
-            const card = document.createElement('div');
-            card.className = `p-3.5 border-2 rounded-xl cursor-pointer flex items-center justify-between transition-all bg-slate-50 border-slate-200 hover:border-brand-500 verify-mapel-card`;
-            card.onclick = () => selectExamMapel(j.idMapel, card);
+        function toggleTokenStatus() {
+            const active = isTokenActive();
+            appState.settings.tokenActive = !active;
+            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+            updateTokenUI();
+            showToast(appState.settings.tokenActive ? 'Token Ujian Diaktifkan' : 'Token Ujian Dimatikan', appState.settings.tokenActive ? 'success' : 'info');
+            if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
+        }
 
-            card.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-xs">
-                        <i class="fa-solid fa-book"></i>
-                    </div>
-                    <div>
-                        <div class="font-bold text-slate-800 text-sm">${mapelName}</div>
-                        <div class="text-[11px] text-slate-500 font-medium">Durasi: ${j.durasi || 60} Menit</div>
-                    </div>
-                </div>
-                <div class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center check-dot">
-                    <div class="w-2.5 h-2.5 rounded-full bg-brand-600 hidden"></div>
-                </div>
-            `;
-            container.appendChild(card);
-
-            if (activeSubjects.length === 1) {
-                selectExamMapel(j.idMapel, card);
+        function startTokenTimerEngine() {
+            if (tokenCountdownTimer) clearInterval(tokenCountdownTimer);
+            if (!appState.settings.currentToken) {
+                appState.settings.currentToken = "EXM123";
             }
-        });
-    }
-
-    function selectExamMapel(mapelId, cardEl) {
-        document.getElementById('selected-verify-mapel-id').value = mapelId;
-        document.querySelectorAll('.verify-mapel-card').forEach(c => {
-            c.classList.remove('border-brand-600', 'bg-brand-50/80');
-            c.classList.add('border-slate-200', 'bg-slate-50');
-            const dot = c.querySelector('.check-dot div');
-            if (dot) dot.classList.add('hidden');
-        });
-        cardEl.classList.remove('border-slate-200', 'bg-slate-50');
-        cardEl.classList.add('border-brand-600', 'bg-brand-50/80');
-        const dot = cardEl.querySelector('.check-dot div');
-        if (dot) dot.classList.remove('hidden');
-    }
-
-    async function processStudentVerify() {
-        if (!IS_PREVIEW) {
-            try {
-                const url = `${GAS_URL}?action=getInitialData&ta=${encodeURIComponent(appState.settings.tahunPelajaran)}&sem=${encodeURIComponent(appState.settings.semester)}`;
-                const response = await fetch(url);
-                const result = await response.json();
-                if (result.status === 'success' && result.settings) {
-                    appState.settings = Object.assign(appState.settings, result.settings);
-                    localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+            tokenCountdownTimer = setInterval(() => {
+                if (isTokenActive()) {
+                    tokenSecondsLeft--;
+                    if (tokenSecondsLeft <= 0) {
+                        tokenSecondsLeft = 300;
+                        appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
+                        localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+                        if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
+                    }
+                    const timerEl = document.getElementById('token-seconds');
+                    if (timerEl) timerEl.innerText = tokenSecondsLeft;
+                    const dispEl = document.getElementById('admin-token-display');
+                    if (dispEl) dispEl.innerText = appState.settings.currentToken;
                 }
-            } catch(e) {
-                console.error("Gagal sinkronisasi pengaturan:", e);
-            }
-        } else {
-            const cachedSettings = localStorage.getItem('cbt_settings');
-            if (cachedSettings) {
-                try {
-                    const parsed = JSON.parse(cachedSettings);
-                    if (parsed.currentToken) appState.settings.currentToken = parsed.currentToken;
-                    if (parsed.tokenActive !== undefined) appState.settings.tokenActive = parsed.tokenActive;
-                } catch(e) {}
-            }
+            }, 1000);
         }
 
-        updateTokenUI();
-
-        const selectedMapelId = document.getElementById('selected-verify-mapel-id').value;
-        if (!selectedMapelId) {
-            showToast('Harap pilih mata pelajaran ujian yang akan dikerjakan terlebih dahulu!', 'error');
-            return;
+        function forceRegenerateToken() {
+            tokenSecondsLeft = 300;
+            appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
+            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+            updateTokenUI();
+            showToast('Token Ujian Berhasil Di-refresh!', 'success');
+            if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
         }
 
-        const questions = appState.soal.filter(q => isKelasEqual(q.idKelas, currentUser.studentData.idKelas) && isMapelEqual(q.idMapel, selectedMapelId));
-        if (questions.length === 0) {
-            showToast('Belum ada butir soal untuk mata pelajaran ini!', 'error');
-            return;
-        }
+        function renderAvailableExamSubjects() {
+            const container = document.getElementById('verify-mapel-options');
+            const hiddenInput = document.getElementById('selected-verify-mapel-id');
+            if (!container || !hiddenInput || !currentUser || !currentUser.studentData) return;
 
-        const hasDone = appState.hasil.some(h => String(h.idSiswa) === String(currentUser.studentData.id) && isMapelEqual(h.idMapel, selectedMapelId));
-        if (hasDone) {
-            showToast('Anda sudah mengerjakan mata pelajaran ini dan tidak dapat mengerjakan ulang!', 'error');
-            return;
-        }
+            container.innerHTML = '';
+            hiddenInput.value = '';
 
-        const activeJadwal = appState.jadwal.find(j => isKelasEqual(j.idKelas, currentUser.studentData.idKelas) && isMapelEqual(j.idMapel, selectedMapelId));
-        if (activeJadwal) {
+            const studentKelas = currentUser.studentData.idKelas;
+            const studentId = currentUser.studentData.id;
             const now = new Date();
-            let tglMulaiStr = sanitizeDateStr(activeJadwal.tanggal);
-            let tglSelesaiStr = sanitizeDateStr(activeJadwal.tanggalSelesai || activeJadwal.tanggal);
-            let jamMulaiStr = sanitizeTimeStr(activeJadwal.jamMulai);
 
-            if (tglMulaiStr && tglMulaiStr.length >= 10) {
-                const startDateTime = new Date(`${tglMulaiStr}T${jamMulaiStr}:00`);
-                if (!isNaN(startDateTime.getTime()) && now < startDateTime) {
-                    showToast('Waktu pengerjaan belum dimulai!', 'error');
-                    return;
+            const activeSubjects = appState.jadwal.filter(j => {
+                if (!isKelasEqual(j.idKelas, studentKelas)) return false;
+
+                const hasDone = appState.hasil.some(h => String(h.idSiswa) === String(studentId) && isMapelEqual(h.idMapel, j.idMapel));
+                if (hasDone) return false;
+
+                let tglMulaiStr = sanitizeDateStr(j.tanggal);
+                let tglSelesaiStr = sanitizeDateStr(j.tanggalSelesai || j.tanggal);
+                let jamMulaiStr = sanitizeTimeStr(j.jamMulai);
+
+                if (tglMulaiStr && tglMulaiStr.length >= 10) {
+                    const startDateTime = new Date(`${tglMulaiStr}T${jamMulaiStr}:00`);
+                    if (!isNaN(startDateTime.getTime()) && now < startDateTime) return false;
                 }
-            }
 
-            if (tglSelesaiStr && tglSelesaiStr.length >= 10) {
-                const endDateTime = new Date(`${tglSelesaiStr}T23:59:59`);
-                if (!isNaN(endDateTime.getTime()) && now > endDateTime) {
-                    showToast('Waktu pengerjaan telah berakhir!', 'error');
-                    return;
+                if (tglSelesaiStr && tglSelesaiStr.length >= 10) {
+                    const endDateTime = new Date(`${tglSelesaiStr}T23:59:59`);
+                    if (!isNaN(endDateTime.getTime()) && now > endDateTime) return false;
                 }
-            }
-        }
 
-        if (isTokenActive()) {
-            const inputToken = document.getElementById('verify-token').value.trim().toUpperCase();
-            const currentToken = (appState.settings.currentToken || '').trim().toUpperCase();
-            if (!inputToken || inputToken !== currentToken) {
-                showToast('Token Ujian Salah!', 'error');
+                const hasQuestions = appState.soal.some(q => isKelasEqual(q.idKelas, studentKelas) && isMapelEqual(q.idMapel, j.idMapel));
+                return hasQuestions;
+            });
+
+            if (activeSubjects.length === 0) {
+                container.innerHTML = `
+                    <div class="p-3.5 bg-slate-100 border border-slate-200 rounded-xl text-xs text-slate-500 text-center font-medium">
+                        <i class="fa-solid fa-calendar-xmark text-slate-400 mr-1.5 text-sm"></i>
+                        Tidak ada mata pelajaran ujian yang sedang aktif / tersedia untuk kelas Anda saat ini.
+                    </div>
+                `;
                 return;
             }
+
+            activeSubjects.forEach((j) => {
+                const mapelName = getMapelName(j.idMapel);
+                const card = document.createElement('div');
+                card.className = `p-3.5 border-2 rounded-xl cursor-pointer flex items-center justify-between transition-all bg-slate-50 border-slate-200 hover:border-brand-500 verify-mapel-card`;
+                card.onclick = () => selectExamMapel(j.idMapel, card);
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-book"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-slate-800 text-sm">${mapelName}</div>
+                            <div class="text-[11px] text-slate-500 font-medium">Durasi: ${j.durasi || 60} Menit</div>
+                        </div>
+                    </div>
+                    <div class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center check-dot">
+                        <div class="w-2.5 h-2.5 rounded-full bg-brand-600 hidden"></div>
+                    </div>
+                `;
+                container.appendChild(card);
+
+                if (activeSubjects.length === 1) {
+                    selectExamMapel(j.idMapel, card);
+                }
+            });
         }
 
-        const shuffledQuestions = shuffleArray(questions);
-        initStudentExam(shuffledQuestions);
-    }
-
-    function shuffleArray(array) {
-        const arr = [...array];
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
+        function selectExamMapel(mapelId, cardEl) {
+            document.getElementById('selected-verify-mapel-id').value = mapelId;
+            document.querySelectorAll('.verify-mapel-card').forEach(c => {
+                c.classList.remove('border-brand-600', 'bg-brand-50/80');
+                c.classList.add('border-slate-200', 'bg-slate-50');
+                const dot = c.querySelector('.check-dot div');
+                if (dot) dot.classList.add('hidden');
+            });
+            cardEl.classList.remove('border-slate-200', 'bg-slate-50');
+            cardEl.classList.add('border-brand-600', 'bg-brand-50/80');
+            const dot = cardEl.querySelector('.check-dot div');
+            if (dot) dot.classList.remove('hidden');
         }
-        return arr;
-    }
 
-    function handleSoalImageUpload(event, previewImgId, dataInputId) {
+        async function processStudentVerify() {
+            if (!IS_PREVIEW) {
+                try {
+                    const url = `${GAS_URL}?action=getInitialData&ta=${encodeURIComponent(appState.settings.tahunPelajaran)}&sem=${encodeURIComponent(appState.settings.semester)}`;
+                    const response = await fetch(url);
+                    const result = await response.json();
+                    if (result.status === 'success' && result.settings) {
+                        appState.settings = Object.assign(appState.settings, result.settings);
+                        localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+                    }
+                } catch(e) {
+                    console.error("Gagal sinkronisasi pengaturan:", e);
+                }
+            } else {
+                const cachedSettings = localStorage.getItem('cbt_settings');
+                if (cachedSettings) {
+                    try {
+                        const parsed = JSON.parse(cachedSettings);
+                        if (parsed.currentToken) appState.settings.currentToken = parsed.currentToken;
+                        if (parsed.tokenActive !== undefined) appState.settings.tokenActive = parsed.tokenActive;
+                    } catch(e) {}
+                }
+            }
+
+            updateTokenUI();
+
+            const selectedMapelId = document.getElementById('selected-verify-mapel-id').value;
+            if (!selectedMapelId) {
+                showToast('Harap pilih mata pelajaran ujian yang akan dikerjakan terlebih dahulu!', 'error');
+                return;
+            }
+
+            const questions = appState.soal.filter(q => isKelasEqual(q.idKelas, currentUser.studentData.idKelas) && isMapelEqual(q.idMapel, selectedMapelId));
+            if (questions.length === 0) {
+                showToast('Belum ada butir soal untuk mata pelajaran ini!', 'error');
+                return;
+            }
+
+            const hasDone = appState.hasil.some(h => String(h.idSiswa) === String(currentUser.studentData.id) && isMapelEqual(h.idMapel, selectedMapelId));
+            if (hasDone) {
+                showToast('Anda sudah mengerjakan mata pelajaran ini dan tidak dapat mengerjakan ulang!', 'error');
+                return;
+            }
+
+            const activeJadwal = appState.jadwal.find(j => isKelasEqual(j.idKelas, currentUser.studentData.idKelas) && isMapelEqual(j.idMapel, selectedMapelId));
+            if (activeJadwal) {
+                const now = new Date();
+                let tglMulaiStr = sanitizeDateStr(activeJadwal.tanggal);
+                let tglSelesaiStr = sanitizeDateStr(activeJadwal.tanggalSelesai || activeJadwal.tanggal);
+                let jamMulaiStr = sanitizeTimeStr(activeJadwal.jamMulai);
+
+                if (tglMulaiStr && tglMulaiStr.length >= 10) {
+                    const startDateTime = new Date(`${tglMulaiStr}T${jamMulaiStr}:00`);
+                    if (!isNaN(startDateTime.getTime()) && now < startDateTime) {
+                        showToast('Waktu pengerjaan belum dimulai!', 'error');
+                        return;
+                    }
+                }
+
+                if (tglSelesaiStr && tglSelesaiStr.length >= 10) {
+                    const endDateTime = new Date(`${tglSelesaiStr}T23:59:59`);
+                    if (!isNaN(endDateTime.getTime()) && now > endDateTime) {
+                        showToast('Waktu pengerjaan telah berakhir!', 'error');
+                        return;
+                    }
+                }
+            }
+
+            if (isTokenActive()) {
+                const inputToken = document.getElementById('verify-token').value.trim().toUpperCase();
+                const currentToken = (appState.settings.currentToken || '').trim().toUpperCase();
+                if (!inputToken || inputToken !== currentToken) {
+                    showToast('Token Ujian Salah!', 'error');
+                    return;
+                }
+            }
+
+            const shuffledQuestions = shuffleArray(questions);
+            initStudentExam(shuffledQuestions);
+        }
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function handleSoalImageUpload(event, previewImgId, dataInputId) {
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
@@ -1887,14 +1850,19 @@
 
         function updateBackendStatusBadge(isConnected, text = '') {
             const badge = document.getElementById('status-backend-btn');
+            const dot = document.getElementById('backend-status-dot');
             const txt = document.getElementById('backend-status-text');
-            if (!badge || !txt) return;
+            if (!badge) return;
             if (isConnected) {
-                badge.className = 'flex items-center gap-2 bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-3 py-1 rounded-full text-xs font-semibold';
-                txt.innerText = text || 'Spreadsheet Terhubung';
+                badge.className = 'flex items-center justify-center bg-emerald-500/20 border border-emerald-400/40 px-2 py-1.5 rounded-full';
+                if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse';
+                if (txt) txt.innerText = text || 'Terhubung';
+                badge.title = 'Spreadsheet Terhubung';
             } else {
-                badge.className = 'flex items-center gap-2 bg-amber-500/20 text-amber-400/30 px-3 py-1 rounded-full text-xs font-semibold';
-                txt.innerText = text || 'Menghubungkan...';
+                badge.className = 'flex items-center justify-center bg-amber-500/20 border border-amber-400/40 px-2 py-1.5 rounded-full';
+                if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping';
+                if (txt) txt.innerText = text || 'Menghubungkan...';
+                badge.title = text || 'Menghubungkan...';
             }
         }
 
@@ -2027,6 +1995,15 @@
             document.getElementById(viewId).classList.remove('hidden');
             const header = document.getElementById('main-header');
             if (viewId === 'view-login') header.classList.add('hidden'); else header.classList.remove('hidden');
+
+            const btnToggle = document.getElementById('btn-sidebar-toggle');
+            if (btnToggle) {
+                if (viewId === 'view-admin-dashboard') {
+                    btnToggle.classList.remove('hidden');
+                } else {
+                    btnToggle.classList.add('hidden');
+                }
+            }
 
             const badge = document.getElementById('user-profile-badge');
             if (currentUser) {
