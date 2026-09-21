@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exambrowser CBT - Real-time</title>
+    <title>Exambrowser CBT Puspendik - Real-time Spreadsheet Integrated</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Library SheetJS untuk Import & Export File Excel (.xlsx / .xls / .csv) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -758,7 +758,7 @@
                                 <div class="overflow-x-auto">
                                     <table class="w-full text-left text-sm">
                                         <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[11px] border-b">
-                                            <tr><th class="p-3.5">NISN</th><th class="p-3.5">Nama Siswa</th><th class="p-3.5">Kelas</th><th class="p-3.5">Mapel Dikerjakan</th><th class="p-3.5">Status Sesi</th><th class="p-3.5 text-center">Aksi Kontrol</th></tr>
+                                            <tr><th class="p-3.5">NISN</th><th class="p-3.5">Nama Siswa</th><th class="p-3.5">Kelas</th><th class="p-3.5">Mapel Dikerjakan</th><th class="p-3.5">Status Sesi</th><th class="p-3.5 text-center">Pelanggaran</th><th class="p-3.5 text-center">Aksi Kontrol</th></tr>
                                         </thead>
                                         <tbody id="table-monitoring-body" class="divide-y divide-slate-100"></tbody>
                                     </table>
@@ -1230,7 +1230,7 @@
     <script>
         // KONFIGURASI APLIKASI
         const IS_PREVIEW = false; // Set false untuk live GAS
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbzGJq2huvCmfOx_qMGWuqvv5nrdFMHXLtwsecLJIql5b2SNZl2wM-vzm9ZQqWfkeViU/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwkZjavZVmuQ-v9yIzuU6Vw__2GP1kvtIBTqVYdNEA8353H7r2k6mvhshwRKZuWsWM/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -1417,14 +1417,27 @@
         // Fungsi Helper Khusus untuk Membaca Jumlah Pelanggaran secara Akurat
         function getViolationCount(h) {
             if (!h) return 0;
-            const keys = ['violations', 'pelanggaran', 'Pelanggaran', 'Violation', 'VIOLATIONS', 'PELANGGARAN'];
+            const keys = ['violations', 'pelanggaran', 'Pelanggaran', 'Violation', 'VIOLATIONS', 'PELANGGARAN', 'violasi', 'Violasi', 'kecurangan', 'Kecurangan'];
             for (let k of keys) {
                 if (h[k] !== undefined && h[k] !== null && h[k] !== '') {
                     const parsed = parseInt(h[k], 10);
-                    if (!isNaN(parsed) && parsed > 0) return parsed;
+                    if (!isNaN(parsed)) return parsed;
                 }
             }
             return 0;
+        }
+
+        function isStudentResult(h, s) {
+            if (!h || !s) return false;
+            const hSiswaId = String(h.idSiswa || h.id_siswa || h.ID_Siswa || h.nisn || h.NISN || '').trim().toLowerCase();
+            const sId = String(s.id || '').trim().toLowerCase();
+            const sNisn = String(s.nisn || '').trim().toLowerCase();
+            const sNama = String(s.nama || '').trim().toLowerCase();
+            const hNama = String(h.namaSiswa || h.nama || h.Nama || h.Nama_Siswa || '').trim().toLowerCase();
+
+            if (hSiswaId && (hSiswaId === sId || hSiswaId === sNisn)) return true;
+            if (hNama && sNama && hNama === sNama) return true;
+            return false;
         }
 
         window.onload = function() {
@@ -3173,9 +3186,14 @@
                 return !kelasId || isKelasEqual(s.idKelas, kelasId);
             }).forEach(s => {
                 // Ambil daftar hasil pengerjaan siswa ini
-                const studentResults = appState.hasil.filter(h => String(h.idSiswa) === String(s.id) && (!isGuru || taughtM.some(m => isMapelEqual(m, h.idMapel))));
+                const studentResults = appState.hasil.filter(h => isStudentResult(h, s) && (!isGuru || taughtM.some(m => isMapelEqual(m, h.idMapel))));
                 const completedCount = studentResults.length;
                 
+                let totalViolations = 0;
+                studentResults.forEach(h => {
+                    totalViolations += getViolationCount(h);
+                });
+
                 let mapelBadges = '-';
                 if (completedCount > 0) {
                     mapelBadges = studentResults.map(h => `<span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded mr-1">${getMapelName(h.idMapel)}</span>`).join('');
@@ -3185,6 +3203,10 @@
                     ? `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 w-fit"><i class="fa-solid fa-check-circle text-emerald-600"></i> ${completedCount} Ujian Selesai</span>`
                     : '<span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 w-fit"><i class="fa-solid fa-clock text-slate-400"></i> Belum Mengikuti</span>';
 
+                const vBadge = totalViolations > 0 
+                    ? `<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 justify-center w-fit mx-auto animate-pulse"><i class="fa-solid fa-triangle-exclamation text-red-600"></i> ${totalViolations}x Terdeteksi</span>`
+                    : `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 justify-center w-fit mx-auto"><i class="fa-solid fa-shield-check text-emerald-600"></i> Bersih</span>`;
+
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
                 tr.innerHTML = `
@@ -3193,6 +3215,7 @@
                     <td class="p-3.5">${getKelasName(s.idKelas)}</td>
                     <td class="p-3.5">${mapelBadges}</td>
                     <td class="p-3.5">${statusBadge}</td>
+                    <td class="p-3.5 text-center">${vBadge}</td>
                     <td class="p-3.5 text-center flex items-center justify-center gap-2">
                         <button onclick="openStudentDetailModal('${s.id}')" class="px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
                             <i class="fa-solid fa-file-invoice"></i> Detail
@@ -3210,7 +3233,7 @@
             document.getElementById('det-student-name').innerText = student.nama;
             document.getElementById('det-student-meta').innerText = `NISN: ${student.nisn} | Kelas: ${getKelasName(student.idKelas)}`;
 
-            const studentResults = appState.hasil.filter(h => String(h.idSiswa) === String(studentId));
+            const studentResults = appState.hasil.filter(h => isStudentResult(h, student));
             const tbody = document.getElementById('det-table-body');
             tbody.innerHTML = '';
 
