@@ -1230,7 +1230,7 @@
     <script>
         // KONFIGURASI APLIKASI
         const IS_PREVIEW = false; // Set false untuk live GAS
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwo7v_qevVcZB4wan1u_KoAOF24B0jRP-kxUU45d6TJVnqZzDS-wom7ZC3FCnT-FcJh/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzGJq2huvCmfOx_qMGWuqvv5nrdFMHXLtwsecLJIql5b2SNZl2wM-vzm9ZQqWfkeViU/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -1287,6 +1287,7 @@
         let tokenCountdownTimer = null;
         let tokenSecondsLeft = 300;
         let modalResolveCallback = null;
+        let lastViolationTime = 0;
 
         function setupAntiCheatEngine() {
             // 1. Mencegah Klik Kanan
@@ -1328,6 +1329,11 @@
         function triggerAntiCheatViolation(reason) {
             if (!currentExamState.isExamActive) return;
             
+            // Cegah pemicuan ganda bersamaan dari visibilitychange dan blur
+            const now = Date.now();
+            if (now - lastViolationTime < 800) return;
+            lastViolationTime = now;
+
             currentExamState.violations++;
             const countNum = document.getElementById('violation-count-num');
             if (countNum) countNum.innerText = currentExamState.violations;
@@ -2312,7 +2318,9 @@
                 idKelas: currentUser.studentData.idKelas,
                 idMapel: currentExamState.questions[0].idMapel,
                 benar, salah, nilai,
-                violations: currentExamState.violations || 0
+                violations: currentExamState.violations || 0,
+                pelanggaran: currentExamState.violations || 0,
+                submitTime: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
             };
 
             appState.hasil.push(resultObj);
@@ -3206,7 +3214,7 @@
             } else {
                 studentResults.forEach(h => {
                     const score = parseInt(h.nilai) || 0;
-                    const vCount = parseInt(h.violations) || 0;
+                    const vCount = parseInt(h.violations ?? h.pelanggaran ?? h.Pelanggaran ?? 0) || 0;
                     totalNilai += score;
                     totalViolations += vCount;
 
@@ -3260,7 +3268,7 @@
                 }
                 return (!kelas || isKelasEqual(h.idKelas, kelas)) && (!mapel || isMapelEqual(h.idMapel, mapel));
             }).forEach(h => {
-                const vCount = parseInt(h.violations) || 0;
+                const vCount = parseInt(h.violations ?? h.pelanggaran ?? h.Pelanggaran ?? 0) || 0;
                 const vBadge = vCount > 0 
                     ? `<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">${vCount}x Melanggar</span>`
                     : `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0 (Bersih)</span>`;
