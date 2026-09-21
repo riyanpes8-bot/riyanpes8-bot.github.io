@@ -758,7 +758,7 @@
                                 <div class="overflow-x-auto">
                                     <table class="w-full text-left text-sm">
                                         <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[11px] border-b">
-                                            <tr><th class="p-3.5">NISN</th><th class="p-3.5">Nama Siswa</th><th class="p-3.5">Kelas</th><th class="p-3.5">Mapel Dikerjakan</th><th class="p-3.5">Status Sesi</th><th class="p-3.5 text-center">Pelanggaran</th><th class="p-3.5 text-center">Aksi Kontrol</th></tr>
+                                            <tr><th class="p-3.5">NISN</th><th class="p-3.5">Nama Siswa</th><th class="p-3.5">Kelas</th><th class="p-3.5">Mapel Dikerjakan</th><th class="p-3.5">Status Sesi</th><th class="p-3.5 text-center">Aksi Kontrol</th></tr>
                                         </thead>
                                         <tbody id="table-monitoring-body" class="divide-y divide-slate-100"></tbody>
                                     </table>
@@ -1230,21 +1230,770 @@
     <script>
         // KONFIGURASI APLIKASI
         const IS_PREVIEW = false; // Set false untuk live GAS
-        // PASANG URL WEB APP HASIL DEPLOY APPS SCRIPT ANDA DI BAWAH INI
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbxt-qUhBVQRGKno59fIK0ICPoJvtE4gAfBi3sbV2ev88WTneIvGppQJSSyPQvgIgFgr/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbz8wIuXiiw2d1Bbx-F5mQKUTK4T-w2HY0III7YY1atyv4jKs-pM2tDSutquzhd_tQ0/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
+
+        let appState = {
+            settings: {
+                schoolName: "",
+                appSubTitle: "UJIAN SEMESTER GANJIL",
+                tahunPelajaran: "2026/2027",
+                semester: "Ganjil",
+                kopUrl: "https://placehold.co/600x80/1e40af/ffffff?text=KOP+NAMA+SEKOLAH+%2F+LEMBAGA",
+                logoUrl: DEFAULT_LOGO,
+                ttdUrl: "https://placehold.co/120x60/transparent/1e3a8a?text=TTD+Kepsek",
+                kepsekName: "Drs. H. Riyan Miraldi, M.Pd",
+                tokenActive: true,
+                currentToken: "EXM123"
+            },
+            kelas: [
+                { id: "K1", nama: "X-IPA 1" },
+                { id: "K2", nama: "XI-IPA 1" }
+            ],
+            mapel: [
+                { id: "M1", kode: "MAT", nama: "MATEMATIKA" },
+                { id: "M2", kode: "BIN", nama: "BAHASA INDONESIA" }
+            ],
+            guru: [
+                { id: "G1", nama: "Budi Santoso, S.Pd", username: "BUDI SANTOSO, S.PD", password: "guru123", taughtKelas: ["K1"], taughtMapel: ["M1"] }
+            ],
+            siswa: [
+                { id: "S1", nisn: "00123456", nama: "AHMAD FADLI", username: "AHMAD FADLI", password: "Pass8x2", idKelas: "K1", pob: "Jakarta", dob: "2006-05-12" },
+                { id: "S2", nisn: "00123457", nama: "SITI AMINAH", username: "SITI AMINAH", password: "Pass9x3", idKelas: "K1", pob: "Bandung", dob: "2006-08-15" },
+                { id: "S3", nisn: "00123458", nama: "PESERTA DUMMY", username: "peserta", password: "peserta123", idKelas: "K1", pob: "Jakarta", dob: "2006-01-01" }
+            ],
+            soal: [
+                { id: "Q1", idKelas: "K1", idMapel: "M1", pertanyaan: "Berapakah hasil dari 15 x 12?", opsiA: "160", opsiB: "180", opsiC: "200", opsiD: "210", opsiE: "220", kunci: "B", bobot: 50 },
+                { id: "Q2", idKelas: "K1", idMapel: "M1", pertanyaan: "Akar kuadrat dari 144 adalah?", opsiA: "10", opsiB: "11", opsiC: "12", opsiD: "13", opsiE: "14", kunci: "C", bobot: 50 }
+            ],
+            jadwal: [
+                { id: "J1", idKelas: "K1", idMapel: "M1", tanggal: "2026-01-01", tanggalSelesai: "2026-12-31", jamMulai: "00:00", durasi: 60 }
+            ],
+            hasil: []
+        };
+
+        let currentUser = null;
+        let currentExamState = { 
+            questions: [], 
+            answers: {}, 
+            doubts: {}, 
+            currentIndex: 0, 
+            timerInterval: null, 
+            secondsLeft: 3600, 
+            fontSizeDelta: 0,
+            violations: 0,
+            isExamActive: false
+        };
+        let tokenCountdownTimer = null;
+        let tokenSecondsLeft = 300;
+        let modalResolveCallback = null;
+
+        function setupAntiCheatEngine() {
+            // 1. Mencegah Klik Kanan
+            document.addEventListener('contextmenu', function(e) {
+                if (currentExamState.isExamActive) {
+                    e.preventDefault();
+                    triggerAntiCheatViolation("Penggunaan Klik Kanan dilarang selama sesi ujian!");
+                }
+            });
+
+            // 2. Mencegah Shortcut Keyboard (Copy, Paste, DevTools, Print)
+            document.addEventListener('keydown', function(e) {
+                if (!currentExamState.isExamActive) return;
+
+                if (
+                    (e.ctrlKey && (e.key === 'c' || e.key === 'C' || e.key === 'v' || e.key === 'V' || e.key === 'u' || e.key === 'U' || e.key === 'p' || e.key === 'P' || e.key === 'a' || e.key === 'A')) ||
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
+                    e.key === 'F12'
+                ) {
+                    e.preventDefault();
+                    triggerAntiCheatViolation("Penggunaan tombol kombinasi shortcut dilarang!");
+                }
+            });
+
+            // 3. Deteksi Switch Tab / Minimize Browser
+            document.addEventListener('visibilitychange', function() {
+                if (currentExamState.isExamActive && document.hidden) {
+                    triggerAntiCheatViolation("Terdeteksi berpindah tab atau meninggalkan jendela browser!");
+                }
+            });
+
+            window.addEventListener('blur', function() {
+                if (currentExamState.isExamActive) {
+                    triggerAntiCheatViolation("Terdeteksi kehilangan fokus pada layar ujian!");
+                }
+            });
+        }
+
+        function triggerAntiCheatViolation(reason) {
+            if (!currentExamState.isExamActive) return;
+            
+            currentExamState.violations++;
+            const countNum = document.getElementById('violation-count-num');
+            if (countNum) countNum.innerText = currentExamState.violations;
+
+            document.getElementById('anti-cheat-msg').innerText = reason;
+            document.getElementById('anti-cheat-count-text').innerText = `${currentExamState.violations} / 3`;
+            document.getElementById('anti-cheat-modal').classList.remove('hidden');
+
+            if (currentExamState.violations >= 3) {
+                showToast("Batas maksimal pelanggaran dicapai! Ujian akan dikirim otomatis.", "error");
+                setTimeout(() => {
+                    closeAntiCheatModal();
+                    submitExamAnswers();
+                }, 2000);
+            }
+        }
+
+        function closeAntiCheatModal() {
+            document.getElementById('anti-cheat-modal').classList.add('hidden');
+        }
+
+        function sanitizeDateStr(val) {
+            if (!val) return '';
+            let s = String(val).trim();
+            if (s.includes('T')) s = s.split('T')[0];
+            if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0, 10);
+            const d = new Date(val);
+            if (!isNaN(d.getTime())) {
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                return `${yyyy}-${mm}-${dd}`;
+            }
+            return s;
+        }
+
+        function sanitizeTimeStr(val) {
+            if (!val) return '00:00';
+            let s = String(val).trim();
+            if (s.includes('T')) {
+                const parts = s.split('T')[1];
+                if (parts) return parts.substring(0, 5);
+            }
+            if (/^\d{1,2}:\d{2}/.test(s)) {
+                const p = s.split(':');
+                return `${p[0].padStart(2, '0')}:${p[1].substring(0, 2)}`;
+            }
+            const d = new Date(val);
+            if (!isNaN(d.getTime())) {
+                const hh = String(d.getHours()).padStart(2, '0');
+                const mm = String(d.getMinutes()).padStart(2, '0');
+                return `${hh}:${mm}`;
+            }
+            return '00:00';
+        }
+
+        function getKelasId(idOrName) {
+            if (!idOrName) return '';
+            const target = String(idOrName).trim().toLowerCase();
+            const k = appState.kelas.find(i => String(i.id).trim().toLowerCase() === target || String(i.nama).trim().toLowerCase() === target);
+            return k ? String(k.id).trim().toLowerCase() : target;
+        }
+
+        function isKelasEqual(a, b) {
+            if (!a || !b) return false;
+            return getKelasId(a) === getKelasId(b);
+        }
+
+        function getMapelId(idOrName) {
+            if (!idOrName) return '';
+            const target = String(idOrName).trim().toLowerCase();
+            const m = appState.mapel.find(i => String(i.id).trim().toLowerCase() === target || String(i.nama).trim().toLowerCase() === target || String(i.kode).trim().toLowerCase() === target);
+            return m ? String(m.id).trim().toLowerCase() : target;
+        }
+
+        function isMapelEqual(a, b) {
+            if (!a || !b) return false;
+            return getMapelId(a) === getMapelId(b);
+        }
+
+        window.onload = function() {
+            const cachedSettings = localStorage.getItem('cbt_settings');
+            if (cachedSettings) {
+                try {
+                    appState.settings = Object.assign(appState.settings, JSON.parse(cachedSettings));
+                } catch(e) {}
+            }
+
+            syncBrandingUI();
+            updateTokenUI();
+            setupAntiCheatEngine();
+            
+            if (!IS_PREVIEW) {
+                fetchInitialDataFromGas();
+            } else {
+                updateBackendStatusBadge(true, 'Mode Preview');
+                initAdminDashboard();
+            }
+            startTokenTimerEngine();
+            showView('view-login');
+        };
+
+        function handleImageError(img) {
+            img.onerror = null;
+            img.src = DEFAULT_LOGO;
+        }
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            let bg = type === 'success' ? 'bg-emerald-600' : (type === 'error' ? 'bg-red-600' : 'bg-brand-600');
+            toast.className = `${bg} text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2 pointer-events-auto transition-all transform duration-300 translate-x-full`;
+            toast.innerHTML = `<i class="fa-solid fa-${type === 'success' ? 'check-circle' : (type === 'error' ? 'circle-exclamation' : 'info-circle')}"></i> <span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function showCustomModal(title, msg, isConfirm = false, iconClass = 'fa-info') {
+            return new Promise((resolve) => {
+                modalResolveCallback = resolve;
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-message').innerText = msg;
+                document.getElementById('modal-icon').innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
+                const cancelBtn = document.getElementById('modal-btn-cancel');
+                if (isConfirm) cancelBtn.classList.remove('hidden'); else cancelBtn.classList.add('hidden');
+                document.getElementById('custom-modal').classList.remove('hidden');
+            });
+        }
+
+        function closeCustomModal(result) {
+            document.getElementById('custom-modal').classList.add('hidden');
+            if (modalResolveCallback) {
+                modalResolveCallback(result);
+                modalResolveCallback = null;
+            }
+        }
+
+        function togglePasswordVisibility(id) {
+            const input = document.getElementById(id);
+            const icon = document.getElementById(id + '-eye');
+            if (input) {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    if (icon) icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    if (icon) icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            }
+        }
+
+        function handleGuruNameInput(val) {
+            const el = document.getElementById('m-guru-username');
+            if (el) el.value = val.toUpperCase();
+        }
+
+        async function processLogin() {
+            const userVal = document.getElementById('login-username').value.trim();
+            const passVal = document.getElementById('login-password').value.trim();
+
+            if (userVal.toLowerCase() === 'riyanmiraldi' && passVal === 'miraldi123') {
+                currentUser = { username: 'riyanmiraldi', role: 'admin' };
+                showToast('Login Admin Berhasil!', 'success');
+                initAdminDashboard();
+                showView('view-admin-dashboard');
+                return;
+            }
+
+            if (userVal.toLowerCase() === 'pengurus' && passVal === 'pengurus123') {
+                currentUser = { username: 'Pengurus CBT', role: 'pengurus' };
+                showToast('Login Pengurus Berhasil!', 'success');
+                initAdminDashboard();
+                showView('view-admin-dashboard');
+                return;
+            }
+
+            const matchedGuru = appState.guru.find(g => (g.username || g.nama || '').toLowerCase() === userVal.toLowerCase() && g.password === passVal);
+            if (matchedGuru || (userVal.toLowerCase() === 'guru' && passVal === 'guru123')) {
+                const gData = matchedGuru || { id: "G1", nama: "Guru Pengampu", taughtKelas: [], taughtMapel: [] };
+                
+                const rawK = gData.taughtKelas;
+                const taughtK = Array.isArray(rawK) ? rawK : (typeof rawK === 'string' && rawK.trim() !== '' ? rawK.split(',').map(s => s.trim()) : []);
+                
+                const rawM = gData.taughtMapel;
+                const taughtM = Array.isArray(rawM) ? rawM : (typeof rawM === 'string' && rawM.trim() !== '' ? rawM.split(',').map(s => s.trim()) : []);
+
+                currentUser = { 
+                    username: gData.nama, 
+                    role: 'guru', 
+                    taughtKelas: taughtK, 
+                    taughtMapel: taughtM 
+                };
+                showToast('Login Guru Berhasil!', 'success');
+                initAdminDashboard();
+                showView('view-admin-dashboard');
+                return;
+            }
+
+            if (userVal.toLowerCase() === 'peserta' && passVal === 'peserta123') {
+                const dummyStudent = appState.siswa.find(s => s.username.toLowerCase() === 'peserta') || {
+                    id: 'S_DUMMY', nisn: '000000', nama: 'PESERTA DUMMY', username: 'peserta', password: 'peserta123', idKelas: appState.kelas[0]?.id || 'K1', pob: 'Jakarta', dob: '2006-01-01'
+                };
+                currentUser = { username: dummyStudent.nama, role: 'siswa', studentData: dummyStudent };
+                showToast('Login Peserta Berhasil!', 'success');
+                document.getElementById('verify-logged-user').innerText = dummyStudent.nama + " (" + getKelasName(dummyStudent.idKelas) + ")";
+                document.getElementById('verify-fullname').value = dummyStudent.nama;
+                document.getElementById('verify-pob').value = dummyStudent.pob || '';
+                document.getElementById('verify-dob').value = sanitizeDateStr(dummyStudent.dob);
+                renderAvailableExamSubjects();
+                updateTokenUI();
+                showView('view-student-verify');
+                return;
+            }
+
+            if (!IS_PREVIEW) {
+                const res = await apiCall('login', { username: userVal, password: passVal, ta: appState.settings.tahunPelajaran });
+                if (res.status === 'success') {
+                    if (res.role === 'admin' || res.role === 'pengurus' || res.role === 'guru') {
+                        currentUser = res;
+                        showToast(`Login ${res.role.toUpperCase()} Berhasil!`, 'success');
+                        initAdminDashboard();
+                        showView('view-admin-dashboard');
+                    } else {
+                        currentUser = { username: res.username, role: 'siswa', studentData: res.studentData };
+                        document.getElementById('verify-logged-user').innerText = res.studentData.nama + " (" + getKelasName(res.studentData.idKelas) + ")";
+                        document.getElementById('verify-fullname').value = res.studentData.nama;
+                        document.getElementById('verify-pob').value = res.studentData.pob || '';
+                        document.getElementById('verify-dob').value = sanitizeDateStr(res.studentData.dob);
+                        renderAvailableExamSubjects();
+                        updateTokenUI();
+                        showView('view-student-verify');
+                    }
+                    return;
+                }
+            }
+
+            const matchedSiswa = appState.siswa.find(s => s.username.toUpperCase() === userVal.toUpperCase() && s.password === passVal);
+            if (matchedSiswa) {
+                currentUser = { username: matchedSiswa.nama, role: 'siswa', studentData: matchedSiswa };
+                showToast('Login Berhasil!', 'success');
+                document.getElementById('verify-logged-user').innerText = matchedSiswa.nama + " (" + getKelasName(matchedSiswa.idKelas) + ")";
+                document.getElementById('verify-fullname').value = matchedSiswa.nama;
+                document.getElementById('verify-pob').value = matchedSiswa.pob || '';
+                document.getElementById('verify-dob').value = sanitizeDateStr(matchedSiswa.dob);
+                renderAvailableExamSubjects();
+                updateTokenUI();
+                showView('view-student-verify');
+                return;
+            }
+
+            showToast('Username atau Password tidak cocok!', 'error');
+        }
+
+        function isTokenActive() {
+            const val = appState.settings.tokenActive;
+            return val !== false && val !== 'false' && val !== '0' && val !== null && val !== undefined;
+        }
+
+        function updateTokenUI() {
+            const active = isTokenActive();
+            const badge = document.getElementById('token-status-badge');
+            const btnText = document.getElementById('btn-toggle-token-text');
+            const tokenContainer = document.getElementById('token-input-container');
+            const tokenDisabledNotice = document.getElementById('token-disabled-notice');
+            
+            if (badge) {
+                badge.innerText = active ? 'AKTIF' : 'NON-AKTIF';
+                badge.className = active ? 'bg-emerald-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full' : 'bg-red-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full';
+            }
+            if (btnText) {
+                btnText.innerText = active ? 'Matikan Token' : 'Aktifkan Token';
+            }
+            if (tokenContainer && tokenDisabledNotice) {
+                if (active) {
+                    tokenContainer.classList.remove('hidden');
+                    tokenDisabledNotice.classList.add('hidden');
+                } else {
+                    tokenContainer.classList.add('hidden');
+                    tokenDisabledNotice.classList.remove('hidden');
+                }
+            }
+        }
+
+        function toggleTokenStatus() {
+            const active = isTokenActive();
+            appState.settings.tokenActive = !active;
+            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+            updateTokenUI();
+            showToast(appState.settings.tokenActive ? 'Token Ujian Diaktifkan' : 'Token Ujian Dimatikan', appState.settings.tokenActive ? 'success' : 'info');
+            if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
+        }
+
+        function startTokenTimerEngine() {
+            if (tokenCountdownTimer) clearInterval(tokenCountdownTimer);
+            if (!appState.settings.currentToken) {
+                appState.settings.currentToken = "EXM123";
+            }
+            tokenCountdownTimer = setInterval(() => {
+                if (isTokenActive()) {
+                    tokenSecondsLeft--;
+                    if (tokenSecondsLeft <= 0) {
+                        tokenSecondsLeft = 300;
+                        appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
+                        localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+                        if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
+                    }
+                    const timerEl = document.getElementById('token-seconds');
+                    if (timerEl) timerEl.innerText = tokenSecondsLeft;
+                    const dispEl = document.getElementById('admin-token-display');
+                    if (dispEl) dispEl.innerText = appState.settings.currentToken;
+                }
+            }, 1000);
+        }
+
+        function forceRegenerateToken() {
+            tokenSecondsLeft = 300;
+            appState.settings.currentToken = 'EXM' + Math.floor(100 + Math.random() * 900);
+            localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+            updateTokenUI();
+            showToast('Token Ujian Berhasil Di-refresh!', 'success');
+            if (!IS_PREVIEW) apiCall('saveSettings', { settings: appState.settings });
+        }
+
+        function renderAvailableExamSubjects() {
+            const container = document.getElementById('verify-mapel-options');
+            const hiddenInput = document.getElementById('selected-verify-mapel-id');
+            if (!container || !hiddenInput || !currentUser || !currentUser.studentData) return;
+
+            container.innerHTML = '';
+            hiddenInput.value = '';
+
+            const studentKelas = currentUser.studentData.idKelas;
+            const studentId = currentUser.studentData.id;
+            const now = new Date();
+
+            const activeSubjects = appState.jadwal.filter(j => {
+                if (!isKelasEqual(j.idKelas, studentKelas)) return false;
+
+                const hasDone = appState.hasil.some(h => String(h.idSiswa) === String(studentId) && isMapelEqual(h.idMapel, j.idMapel));
+                if (hasDone) return false;
+
+                let tglMulaiStr = sanitizeDateStr(j.tanggal);
+                let tglSelesaiStr = sanitizeDateStr(j.tanggalSelesai || j.tanggal);
+                let jamMulaiStr = sanitizeTimeStr(j.jamMulai);
+
+                if (tglMulaiStr && tglMulaiStr.length >= 10) {
+                    const startDateTime = new Date(`${tglMulaiStr}T${jamMulaiStr}:00`);
+                    if (!isNaN(startDateTime.getTime()) && now < startDateTime) return false;
+                }
+
+                if (tglSelesaiStr && tglSelesaiStr.length >= 10) {
+                    const endDateTime = new Date(`${tglSelesaiStr}T23:59:59`);
+                    if (!isNaN(endDateTime.getTime()) && now > endDateTime) return false;
+                }
+
+                const hasQuestions = appState.soal.some(q => isKelasEqual(q.idKelas, studentKelas) && isMapelEqual(q.idMapel, j.idMapel));
+                return hasQuestions;
+            });
+
+            if (activeSubjects.length === 0) {
+                container.innerHTML = `
+                    <div class="p-3.5 bg-slate-100 border border-slate-200 rounded-xl text-xs text-slate-500 text-center font-medium">
+                        <i class="fa-solid fa-calendar-xmark text-slate-400 mr-1.5 text-sm"></i>
+                        Tidak ada mata pelajaran ujian yang sedang aktif / tersedia untuk kelas Anda saat ini.
+                    </div>
+                `;
+                return;
+            }
+
+            activeSubjects.forEach((j) => {
+                const mapelName = getMapelName(j.idMapel);
+                const card = document.createElement('div');
+                card.className = `p-3.5 border-2 rounded-xl cursor-pointer flex items-center justify-between transition-all bg-slate-50 border-slate-200 hover:border-brand-500 verify-mapel-card`;
+                card.onclick = () => selectExamMapel(j.idMapel, card);
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-book"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-slate-800 text-sm">${mapelName}</div>
+                            <div class="text-[11px] text-slate-500 font-medium">Durasi: ${j.durasi || 60} Menit</div>
+                        </div>
+                    </div>
+                    <div class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center check-dot">
+                        <div class="w-2.5 h-2.5 rounded-full bg-brand-600 hidden"></div>
+                    </div>
+                `;
+                container.appendChild(card);
+
+                if (activeSubjects.length === 1) {
+                    selectExamMapel(j.idMapel, card);
+                }
+            });
+        }
+
+        function selectExamMapel(mapelId, cardEl) {
+            document.getElementById('selected-verify-mapel-id').value = mapelId;
+            document.querySelectorAll('.verify-mapel-card').forEach(c => {
+                c.classList.remove('border-brand-600', 'bg-brand-50/80');
+                c.classList.add('border-slate-200', 'bg-slate-50');
+                const dot = c.querySelector('.check-dot div');
+                if (dot) dot.classList.add('hidden');
+            });
+            cardEl.classList.remove('border-slate-200', 'bg-slate-50');
+            cardEl.classList.add('border-brand-600', 'bg-brand-50/80');
+            const dot = cardEl.querySelector('.check-dot div');
+            if (dot) dot.classList.remove('hidden');
+        }
+
+        async function processStudentVerify() {
+            if (!IS_PREVIEW) {
+                try {
+                    const url = `${GAS_URL}?action=getInitialData&ta=${encodeURIComponent(appState.settings.tahunPelajaran)}&sem=${encodeURIComponent(appState.settings.semester)}`;
+                    const response = await fetch(url);
+                    const result = await response.json();
+                    if (result.status === 'success' && result.settings) {
+                        appState.settings = Object.assign(appState.settings, result.settings);
+                        localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
+                    }
+                } catch(e) {
+                    console.error("Gagal sinkronisasi pengaturan:", e);
+                }
+            } else {
+                const cachedSettings = localStorage.getItem('cbt_settings');
+                if (cachedSettings) {
+                    try {
+                        const parsed = JSON.parse(cachedSettings);
+                        if (parsed.currentToken) appState.settings.currentToken = parsed.currentToken;
+                        if (parsed.tokenActive !== undefined) appState.settings.tokenActive = parsed.tokenActive;
+                    } catch(e) {}
+                }
+            }
+
+            updateTokenUI();
+
+            const selectedMapelId = document.getElementById('selected-verify-mapel-id').value;
+            if (!selectedMapelId) {
+                showToast('Harap pilih mata pelajaran ujian yang akan dikerjakan terlebih dahulu!', 'error');
+                return;
+            }
+
+            const questions = appState.soal.filter(q => isKelasEqual(q.idKelas, currentUser.studentData.idKelas) && isMapelEqual(q.idMapel, selectedMapelId));
+            if (questions.length === 0) {
+                showToast('Belum ada butir soal untuk mata pelajaran ini!', 'error');
+                return;
+            }
+
+            const hasDone = appState.hasil.some(h => String(h.idSiswa) === String(currentUser.studentData.id) && isMapelEqual(h.idMapel, selectedMapelId));
+            if (hasDone) {
+                showToast('Anda sudah mengerjakan mata pelajaran ini dan tidak dapat mengerjakan ulang!', 'error');
+                return;
+            }
+
+            const activeJadwal = appState.jadwal.find(j => isKelasEqual(j.idKelas, currentUser.studentData.idKelas) && isMapelEqual(j.idMapel, selectedMapelId));
+            if (activeJadwal) {
+                const now = new Date();
+                let tglMulaiStr = sanitizeDateStr(activeJadwal.tanggal);
+                let tglSelesaiStr = sanitizeDateStr(activeJadwal.tanggalSelesai || activeJadwal.tanggal);
+                let jamMulaiStr = sanitizeTimeStr(activeJadwal.jamMulai);
+
+                if (tglMulaiStr && tglMulaiStr.length >= 10) {
+                    const startDateTime = new Date(`${tglMulaiStr}T${jamMulaiStr}:00`);
+                    if (!isNaN(startDateTime.getTime()) && now < startDateTime) {
+                        showToast('Waktu pengerjaan belum dimulai!', 'error');
+                        return;
+                    }
+                }
+
+                if (tglSelesaiStr && tglSelesaiStr.length >= 10) {
+                    const endDateTime = new Date(`${tglSelesaiStr}T23:59:59`);
+                    if (!isNaN(endDateTime.getTime()) && now > endDateTime) {
+                        showToast('Waktu pengerjaan telah berakhir!', 'error');
+                        return;
+                    }
+                }
+            }
+
+            if (isTokenActive()) {
+                const inputToken = document.getElementById('verify-token').value.trim().toUpperCase();
+                const currentToken = (appState.settings.currentToken || '').trim().toUpperCase();
+                if (!inputToken || inputToken !== currentToken) {
+                    showToast('Token Ujian Salah!', 'error');
+                    return;
+                }
+            }
+
+            const shuffledQuestions = shuffleArray(questions);
+            initStudentExam(shuffledQuestions);
+        }
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function handleSoalImageUpload(event, previewImgId, dataInputId) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                document.getElementById(dataInputId).value = base64Data;
+                const previewImg = document.getElementById(previewImgId);
+                previewImg.src = base64Data;
+                const wrapper = previewImg.parentElement;
+                if (wrapper) wrapper.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearSoalImage(previewImgId, dataInputId, fileInputId, wrapperId) {
+            document.getElementById(dataInputId).value = '';
+            document.getElementById(fileInputId).value = '';
+            const previewImg = document.getElementById(previewImgId);
+            previewImg.src = '';
+            if (wrapperId) document.getElementById(wrapperId).classList.add('hidden');
+        }
+
+        function initStudentExam(questions) {
+            currentExamState.questions = questions;
+            currentExamState.answers = {};
+            currentExamState.doubts = {};
+            currentExamState.currentIndex = 0;
+            currentExamState.secondsLeft = 3600;
+            currentExamState.fontSizeDelta = 0;
+            currentExamState.violations = 0;
+            currentExamState.isExamActive = true;
+
+            document.getElementById('exam-subject-title').innerText = getMapelName(questions[0].idMapel);
+            document.getElementById('exam-student-info').innerText = "Siswa: " + currentUser.studentData.nama;
+            document.getElementById('exam-class-info').innerText = "Kelas: " + getKelasName(currentUser.studentData.idKelas);
+
+            document.getElementById('violation-count-num').innerText = "0";
+            document.getElementById('exam-violation-badge').classList.remove('hidden');
+            document.getElementById('exam-violation-badge').classList.add('flex');
+
+            showView('view-exam-workspace');
+            renderQuestion();
+            renderQuestionGrid();
+            startExamClock();
+        }
+
+        function adjustFontSize(delta) {
+            currentExamState.fontSizeDelta = Math.max(-2, Math.min(4, currentExamState.fontSizeDelta + delta));
+            const baseSize = 16 + currentExamState.fontSizeDelta * 2;
+            document.getElementById('question-text-box').style.fontSize = baseSize + 'px';
+        }
+
+        function renderQuestion() {
+            const q = currentExamState.questions[currentExamState.currentIndex];
+            document.getElementById('current-question-num').innerText = currentExamState.currentIndex + 1;
+            
+            const qBox = document.getElementById('question-text-box');
+            qBox.innerHTML = `<div>${q.pertanyaan}</div>`;
+            if (q.gambarSoal) {
+                qBox.innerHTML += `<div class="mt-3"><img src="${q.gambarSoal}" class="max-h-72 rounded-xl border border-slate-200 bg-slate-50 p-1 object-contain"></div>`;
+            }
+
+            const optsBox = document.getElementById('options-container');
+            optsBox.innerHTML = '';
+            ['A', 'B', 'C', 'D', 'E'].forEach(k => {
+                const optText = q['opsi' + k];
+                const optImg = q['gambarOpsi' + k];
+                if (!optText && !optImg) return;
+                const isChecked = currentExamState.answers[q.id] === k;
+                const optEl = document.createElement('div');
+                optEl.className = `p-3.5 border-2 rounded-xl cursor-pointer flex items-start gap-3 transition-all ${isChecked ? 'border-brand-600 bg-brand-50/80 font-semibold' : 'border-slate-200 bg-slate-50'}`;
+                optEl.onclick = () => { currentExamState.answers[q.id] = k; renderQuestion(); renderQuestionGrid(); };
+                
+                let imgHtml = optImg ? `<div class="mt-2"><img src="${optImg}" class="max-h-36 rounded-lg border bg-white p-1 object-contain"></div>` : '';
+                optEl.innerHTML = `
+                    <div class="w-7 h-7 rounded-lg border-2 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 ${isChecked ? 'bg-brand-600 border-brand-600 text-white' : 'bg-white text-slate-700'}">${k}</div>
+                    <div class="text-sm flex-1">
+                        <div>${optText || ''}</div>
+                        ${imgHtml}
+                    </div>
+                `;
+                optsBox.appendChild(optEl);
+            });
+            document.getElementById('chk-doubt').checked = !!currentExamState.doubts[q.id];
+        }
+
+        function toggleDoubtAnswer() {
+            const q = currentExamState.questions[currentExamState.currentIndex];
+            currentExamState.doubts[q.id] = document.getElementById('chk-doubt').checked;
+            renderQuestionGrid();
+        }
+
+        function navigateQuestion(dir) {
+            const newIndex = currentExamState.currentIndex + dir;
+            if (newIndex >= 0 && newIndex < currentExamState.questions.length) {
+                currentExamState.currentIndex = newIndex;
+                renderQuestion();
+            }
+        }
+
+        function renderQuestionGrid() {
+            const grid = document.getElementById('question-grid');
+            grid.innerHTML = '';
+            let answered = 0;
+            currentExamState.questions.forEach((q, idx) => {
+                const hasAns = !!currentExamState.answers[q.id];
+                const isDoubt = !!currentExamState.doubts[q.id];
+                if (hasAns) answered++;
+                let bg = 'bg-slate-100 border-slate-300 text-slate-700';
+                if (isDoubt) bg = 'bg-amber-400 border-amber-500 font-bold';
+                else if (hasAns) bg = 'bg-emerald-500 border-emerald-600 text-white font-bold';
+
+                const btn = document.createElement('button');
+                btn.className = `h-10 rounded-xl border text-xs flex items-center justify-center ${bg}`;
+                btn.innerText = idx + 1;
+                btn.onclick = () => { currentExamState.currentIndex = idx; renderQuestion(); };
+                grid.appendChild(btn);
+            });
+            document.getElementById('answered-count-badge').innerText = `${answered}/${currentExamState.questions.length} Jawab`;
+        }
+
+        function startExamClock() {
+            if (currentExamState.timerInterval) clearInterval(currentExamState.timerInterval);
+            currentExamState.timerInterval = setInterval(() => {
+                currentExamState.secondsLeft--;
+                if (currentExamState.secondsLeft <= 0) {
+                    clearInterval(currentExamState.timerInterval);
+                    submitExamAnswers();
+                } else {
+                    const h = String(Math.floor(currentExamState.secondsLeft / 3600)).padStart(2, '0');
+                    const m = String(Math.floor((currentExamState.secondsLeft % 3600) / 60)).padStart(2, '0');
+                    const s = String(currentExamState.secondsLeft % 60).padStart(2, '0');
+                    document.getElementById('exam-timer-clock').innerText = `${h}:${m}:${s}`;
+                }
+            }, 1000);
+        }
+
+        async function confirmSubmitExam() { 
+            const isConfirmed = await showCustomModal("Konfirmasi Akhiri Ujian", "Apakah Anda yakin ingin menyelesaikan ujian dan mengirim seluruh lembar jawaban?", true, "fa-circle-question");
+            if (isConfirmed) submitExamAnswers(); 
+        }
+
+        function updateBackendStatusBadge(isConnected, text = '') {
+            const badge = document.getElementById('status-backend-btn');
+            if (!badge) return;
+            if (isConnected) {
+                badge.className = 'flex items-center justify-center bg-emerald-500/20 border border-emerald-400/40 px-2 py-1.5 rounded-full';
+                badge.title = 'Spreadsheet Terhubung';
+            } else {
+                badge.className = 'flex items-center justify-center bg-amber-500/20 border border-amber-400/40 px-2 py-1.5 rounded-full';
+                badge.title = text || 'Menghubungkan...';
+            }
+        }
 
         async function apiCall(action, payload = {}) {
             if (IS_PREVIEW) {
                 console.log("Mock API Call:", action, payload);
                 return { status: 'success', message: 'Mock execution success' };
             }
-
-            if (!GAS_URL || GAS_URL.includes("PASANG_URL_WEB_APP")) {
-                showToast('Gagal: GAS_URL belum diganti dengan URL Web App Apps Script!', 'error');
-                return { status: 'error', message: 'GAS_URL is default placeholder' };
-            }
-
             try {
                 payload.action = action;
                 payload.ta = appState.settings.tahunPelajaran;
@@ -1301,7 +2050,7 @@
             const st = appState.settings;
             const schoolNameEl = document.getElementById('login-school-name');
             const appSubtitleEl = document.getElementById('login-app-subtitle');
-            if (schoolNameEl) schoolNameEl.innerText = st.schoolName || 'NAMA SEKOLAH / LEMBAGA';
+            if (schoolNameEl) schoolNameEl.innerText = st.schoolName || '';
             if (appSubtitleEl) appSubtitleEl.innerText = st.appSubTitle || 'UJIAN SEMESTER GANJIL';
             
             const logoUrl = st.logoUrl || DEFAULT_LOGO;
@@ -1563,10 +2312,7 @@
                 idKelas: currentUser.studentData.idKelas,
                 idMapel: currentExamState.questions[0].idMapel,
                 benar, salah, nilai,
-                violations: currentExamState.violations || 0,
-                pelanggaran: currentExamState.violations || 0,
-                Pelanggaran: currentExamState.violations || 0,
-                submitTime: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                violations: currentExamState.violations || 0
             };
 
             appState.hasil.push(resultObj);
@@ -2405,14 +3151,9 @@
                 return !kelasId || isKelasEqual(s.idKelas, kelasId);
             }).forEach(s => {
                 // Ambil daftar hasil pengerjaan siswa ini
-                const studentResults = appState.hasil.filter(h => isStudentResult(h, s) && (!isGuru || taughtM.some(m => isMapelEqual(m, h.idMapel))));
+                const studentResults = appState.hasil.filter(h => String(h.idSiswa) === String(s.id) && (!isGuru || taughtM.some(m => isMapelEqual(m, h.idMapel))));
                 const completedCount = studentResults.length;
                 
-                let totalViolations = 0;
-                studentResults.forEach(h => {
-                    totalViolations += getViolationCount(h);
-                });
-
                 let mapelBadges = '-';
                 if (completedCount > 0) {
                     mapelBadges = studentResults.map(h => `<span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded mr-1">${getMapelName(h.idMapel)}</span>`).join('');
@@ -2422,10 +3163,6 @@
                     ? `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 w-fit"><i class="fa-solid fa-check-circle text-emerald-600"></i> ${completedCount} Ujian Selesai</span>`
                     : '<span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 w-fit"><i class="fa-solid fa-clock text-slate-400"></i> Belum Mengikuti</span>';
 
-                const vBadge = totalViolations > 0 
-                    ? `<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 justify-center w-fit mx-auto animate-pulse"><i class="fa-solid fa-triangle-exclamation text-red-600"></i> ${totalViolations}x Terdeteksi</span>`
-                    : `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 justify-center w-fit mx-auto"><i class="fa-solid fa-shield-check text-emerald-600"></i> Bersih</span>`;
-
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
                 tr.innerHTML = `
@@ -2434,7 +3171,6 @@
                     <td class="p-3.5">${getKelasName(s.idKelas)}</td>
                     <td class="p-3.5">${mapelBadges}</td>
                     <td class="p-3.5">${statusBadge}</td>
-                    <td class="p-3.5 text-center">${vBadge}</td>
                     <td class="p-3.5 text-center flex items-center justify-center gap-2">
                         <button onclick="openStudentDetailModal('${s.id}')" class="px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
                             <i class="fa-solid fa-file-invoice"></i> Detail
@@ -2452,7 +3188,7 @@
             document.getElementById('det-student-name').innerText = student.nama;
             document.getElementById('det-student-meta').innerText = `NISN: ${student.nisn} | Kelas: ${getKelasName(student.idKelas)}`;
 
-            const studentResults = appState.hasil.filter(h => isStudentResult(h, student));
+            const studentResults = appState.hasil.filter(h => String(h.idSiswa) === String(studentId));
             const tbody = document.getElementById('det-table-body');
             tbody.innerHTML = '';
 
@@ -2470,7 +3206,7 @@
             } else {
                 studentResults.forEach(h => {
                     const score = parseInt(h.nilai) || 0;
-                    const vCount = getViolationCount(h);
+                    const vCount = parseInt(h.violations) || 0;
                     totalNilai += score;
                     totalViolations += vCount;
 
@@ -2524,10 +3260,10 @@
                 }
                 return (!kelas || isKelasEqual(h.idKelas, kelas)) && (!mapel || isMapelEqual(h.idMapel, mapel));
             }).forEach(h => {
-                const vCount = getViolationCount(h);
+                const vCount = parseInt(h.violations) || 0;
                 const vBadge = vCount > 0 
-                    ? `<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ${vCount}x Melanggar</span>`
-                    : `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-shield-check mr-1"></i> Bersih</span>`;
+                    ? `<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">${vCount}x Melanggar</span>`
+                    : `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0 (Bersih)</span>`;
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
