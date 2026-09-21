@@ -1414,6 +1414,19 @@
             return getMapelId(a) === getMapelId(b);
         }
 
+        // Fungsi Helper Khusus untuk Membaca Jumlah Pelanggaran secara Akurat
+        function getViolationCount(h) {
+            if (!h) return 0;
+            const keys = ['violations', 'pelanggaran', 'Pelanggaran', 'Violation', 'VIOLATIONS', 'PELANGGARAN'];
+            for (let k of keys) {
+                if (h[k] !== undefined && h[k] !== null && h[k] !== '') {
+                    const parsed = parseInt(h[k], 10);
+                    if (!isNaN(parsed) && parsed > 0) return parsed;
+                }
+            }
+            return 0;
+        }
+
         window.onload = function() {
             const cachedSettings = localStorage.getItem('cbt_settings');
             if (cachedSettings) {
@@ -2320,6 +2333,7 @@
                 benar, salah, nilai,
                 violations: currentExamState.violations || 0,
                 pelanggaran: currentExamState.violations || 0,
+                Pelanggaran: currentExamState.violations || 0,
                 submitTime: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
             };
 
@@ -3214,7 +3228,7 @@
             } else {
                 studentResults.forEach(h => {
                     const score = parseInt(h.nilai) || 0;
-                    const vCount = parseInt(h.violations ?? h.pelanggaran ?? h.Pelanggaran ?? 0) || 0;
+                    const vCount = getViolationCount(h);
                     totalNilai += score;
                     totalViolations += vCount;
 
@@ -3268,10 +3282,10 @@
                 }
                 return (!kelas || isKelasEqual(h.idKelas, kelas)) && (!mapel || isMapelEqual(h.idMapel, mapel));
             }).forEach(h => {
-                const vCount = parseInt(h.violations ?? h.pelanggaran ?? h.Pelanggaran ?? 0) || 0;
+                const vCount = getViolationCount(h);
                 const vBadge = vCount > 0 
-                    ? `<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">${vCount}x Melanggar</span>`
-                    : `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0 (Bersih)</span>`;
+                    ? `<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ${vCount}x Melanggar</span>`
+                    : `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-shield-check mr-1"></i> Bersih</span>`;
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
