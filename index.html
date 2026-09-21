@@ -40,7 +40,16 @@
             overflow-x: hidden !important;
             background-color: #f1f5f9;
             font-family: 'Inter', sans-serif;
+            user-select: none; /* Mencegah seleksi teks global untuk anti-copy */
+            -webkit-user-select: none;
         }
+
+        /* Izinkan seleksi teks hanya di input field */
+        input, textarea {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+        }
+
         .puspendik-bg {
             background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
             position: relative;
@@ -70,11 +79,13 @@
             right: -180px;
             border-radius: 40px;
         }
+
         #navbar-iframe, .navbar, .header-outer, .nav-outer, .sidebar-wrapper,
         .footer-outer, .post-footer, .comments, .blog-pager, .post-title,
         .post-header, .widget, #header, #footer, #sidebar {
             display: none !important;
         }
+
         .post, .post-body, .entry-content, .main-inner, .content-outer {
             margin: 0 !important;
             padding: 0 !important;
@@ -83,6 +94,7 @@
             border: none !important;
             background: transparent !important;
         }
+
         @media print {
             @page {
                 size: A4 portrait;
@@ -212,11 +224,6 @@
                 border-radius: 13px;
             }
 
-            .login-title-wrapper {
-                width: 100%;
-                text-align: center;
-            }
-
             .login-school-title {
                 font-size: clamp(14px, 4.5vw, 20px);
                 line-height: 1.2;
@@ -241,28 +248,6 @@
                 min-height: 90px;
                 padding-left: 90px;
                 padding-right: 90px;
-            }
-
-            .login-title-wrapper {
-                text-align: center;
-            }
-        }
-
-        .student-header {
-            width: 100%;
-            min-height: 76px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            padding: 10px 28px;
-            box-sizing: border-box;
-        }
-
-        @media (max-width: 640px) {
-            .student-header {
-                min-height: auto;
-                padding: 10px 12px;
             }
         }
     </style>
@@ -291,7 +276,30 @@
             </div>
         </div>
 
-        <!-- Header Utama (Dirapikan untuk Siswa & HP) -->
+        <!-- MODAL ANTI KECURANGAN WARNING -->
+        <div id="anti-cheat-modal" class="fixed inset-0 bg-red-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 animate-fade-in">
+            <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border-2 border-red-500 text-center space-y-4">
+                <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-3xl animate-bounce">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 class="font-black text-red-700 text-xl tracking-tight uppercase">Peringatan Kecurangan!</h3>
+                <p id="anti-cheat-msg" class="text-xs text-slate-600 leading-relaxed font-semibold">
+                    Anda terdeteksi meninggalkan halaman/tab ujian. Aktivitas ini dicatat sebagai pelanggaran.
+                </p>
+                <div class="bg-red-50 p-3 rounded-2xl border border-red-200">
+                    <span class="text-[11px] text-red-600 font-bold uppercase block">Total Pelanggaran:</span>
+                    <span id="anti-cheat-count-text" class="text-2xl font-black text-red-700">1 / 3</span>
+                </div>
+                <p class="text-[11px] text-slate-500 font-medium italic">
+                    Catatan: Jika pelanggaran mencapai 3 kali, lembar ujian akan dikunci dan dikirim secara otomatis.
+                </p>
+                <button type="button" onclick="closeAntiCheatModal()" class="w-full bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold py-3 px-6 rounded-2xl shadow-lg transition-all text-xs tracking-wide">
+                    Saya Mengerti & Kembali Ujian
+                </button>
+            </div>
+        </div>
+
+        <!-- Header Utama -->
         <header id="main-header" class="bg-brand-800 text-white shadow-md sticky top-0 z-40 transition-all duration-300 hidden">
             <div class="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-3">
                 <!-- Sisi Kiri: Logo & Nama Lembaga -->
@@ -308,21 +316,26 @@
                     </div>
                 </div>
 
-                <!-- Sisi Kanan: Status Titik Hijau, TA Badge, & Profil Siswa -->
+                <!-- Sisi Kanan: Status Titik Hijau, TA Badge, Profil & Status Anti-Kecurangan -->
                 <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
-                    <!-- Status backend: Hanya Tanda Titik Hijau -->
+                    <!-- Status Titik Hijau Spreadsheet Terhubung -->
                     <div id="status-backend-btn" title="Spreadsheet Terhubung" class="flex items-center justify-center bg-emerald-500/20 border border-emerald-400/40 px-2 py-1.5 rounded-full">
                         <span id="backend-status-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span id="backend-status-text" class="hidden md:inline text-[11px] font-semibold text-emerald-200 ml-1.5">Terhubung</span>
                     </div>
 
-                    <!-- Badge TA & Semester (Kelihatan Jelas di HP & Desktop) -->
+                    <!-- Badge Pelanggaran Anti Kecurangan (Hanya Muncul saat Ujian Aktif) -->
+                    <div id="exam-violation-badge" class="hidden items-center gap-1 bg-red-600/90 text-white px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-extrabold border border-red-400 animate-pulse">
+                        <i class="fa-solid fa-shield-halved text-yellow-300"></i>
+                        <span>Pelanggaran: <span id="violation-count-num">0</span>/3</span>
+                    </div>
+
+                    <!-- Badge TA & Semester -->
                     <div class="flex items-center gap-1 bg-brand-900/80 px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-semibold text-yellow-300 border border-brand-700/80 shrink-0">
                         <i class="fa-solid fa-calendar-check text-[10px] sm:text-xs"></i>
                         <span id="header-ta-badge">TA: 2026/2027 (Ganjil)</span>
                     </div>
 
-                    <!-- User Profile Badge (Nama Siswa Sangat Jelas di HP) -->
+                    <!-- Profil User -->
                     <div id="user-profile-badge" class="flex items-center gap-1.5 bg-brand-900/60 border border-brand-700/50 px-2 sm:px-3 py-1 rounded-lg text-xs shrink-0">
                         <i class="fa-solid fa-user-circle text-sm sm:text-base text-brand-200"></i>
                         <span id="user-display-name" class="font-bold text-white max-w-[85px] sm:max-w-[150px] truncate text-[11px] sm:text-xs">User</span>
@@ -336,26 +349,13 @@
         </header>
 
         <main class="flex-1 max-w-7xl w-full mx-auto p-0 sm:p-4 lg:p-6">
-            <!-- VIEW 1: LOGIN VIEW -->
             <section id="view-login" class="min-h-screen sm:min-h-[85vh] flex flex-col justify-start sm:justify-center items-center relative">
                 <div class="w-full puspendik-bg h-64 sm:h-72 flex flex-col items-center justify-start pt-8 sm:pt-10 text-white text-center shadow-lg">
                     <div class="login-header-content">
-                        <!-- LOGO -->
-                        <img id="login-logo-display"
-                             src=""
-                             onerror="handleImageError(this)"
-                             class="login-logo"
-                             alt="Logo Lembaga">
-
-                        <!-- TEKS TENGAH -->
+                        <img id="login-logo-display" src="" onerror="handleImageError(this)" class="login-logo" alt="Logo Lembaga">
                         <div class="login-title-wrapper">
-                            <h2 id="login-school-name"
-                                class="login-school-title">
-                            </h2>
-
-                            <p id="login-app-subtitle"
-                               class="login-subtitle">
-                            </p>
+                            <h2 id="login-school-name" class="login-school-title"></h2>
+                            <p id="login-app-subtitle" class="login-subtitle"></p>
                         </div>
                     </div>
                 </div>
@@ -392,9 +392,7 @@
                     </div>
                 </div>
                 <div class="text-center mt-6 mb-4">
-                    <p class="text-xs text-gray-400">
-                        © 2026 PKBM SUMBER ILMU ADIWERNA
-                    </p>
+                    <p class="text-xs text-gray-400">© 2026 PKBM SUMBER ILMU ADIWERNA</p>
                     <p class="text-xs text-gray-400 mt-1 flex items-center justify-center gap-1">
                         <i class="fas fa-code text-blue-400"></i>
                         <span>Created @Riyanmiraldi</span>
@@ -402,7 +400,6 @@
                 </div>
             </section>
 
-            <!-- VIEW 2: VERIFIKASI IDENTITAS SISWA -->
             <section id="view-student-verify" class="hidden max-w-lg mx-auto bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden my-6">
                 <div class="bg-brand-900 p-6 text-white text-center">
                     <div class="w-12 h-12 bg-brand-700/50 rounded-full flex items-center justify-center mx-auto mb-2 border border-brand-500">
@@ -434,7 +431,6 @@
                         </div>
                     </div>
 
-                    <!-- CONTAINER PILIHAN MATA PELAJARAN AKTIF -->
                     <div class="space-y-1.5 border-t border-b border-slate-100 py-3">
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Pilih Mata Pelajaran Ujian Aktif <span class="text-red-500">*</span></label>
                         <div id="verify-mapel-options" class="space-y-2"></div>
@@ -458,7 +454,6 @@
                 </form>
             </section>
 
-            <!-- VIEW 3: LEMBAR UJIAN CBT SISWA -->
             <section id="view-exam-workspace" class="hidden space-y-4">
                 <div class="bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div class="flex items-center gap-3 w-full sm:w-auto">
@@ -482,6 +477,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div class="lg:col-span-3 bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col justify-between min-h-[450px]">
                         <div>
@@ -525,7 +521,6 @@
                 </div>
             </section>
 
-            <!-- VIEW 4: ADMIN DASHBOARD CONTROL HUB -->
             <section id="view-admin-dashboard" class="hidden">
                 <div class="flex flex-col md:flex-row gap-6">
                     <aside id="admin-sidebar" class="w-full md:w-64 bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col gap-1 shrink-0">
@@ -584,7 +579,7 @@
                                     <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-square-check"></i></div>
                                 </div>
                             </div>
-                            <!-- KARTU TOKEN GENERATOR (Hanya untuk Admin) -->
+                            <!-- KARTU TOKEN GENERATOR -->
                             <div id="overview-token-container" class="bg-gradient-to-r from-slate-900 to-brand-900 text-white rounded-2xl p-6 shadow-lg flex flex-wrap items-center justify-between gap-6">
                                 <div>
                                     <div class="flex items-center gap-2">
@@ -752,7 +747,7 @@
                             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
                                 <div>
                                     <h3 class="font-bold text-slate-800 text-base">Monitoring Ujian Realtime</h3>
-                                    <p class="text-xs text-slate-500">Pantau aktivitas ujian siswa, progres jawab, dan status pengerjaan secara langsung.</p>
+                                    <p class="text-xs text-slate-500">Pantau aktivitas ujian siswa, riwayat mata pelajaran yang dikerjakan, dan log kecurangan secara langsung.</p>
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <select id="filter-mon-kelas" onchange="loadMonitoringTable()" class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm"></select>
@@ -763,7 +758,7 @@
                                 <div class="overflow-x-auto">
                                     <table class="w-full text-left text-sm">
                                         <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[11px] border-b">
-                                            <tr><th class="p-3.5">NISN</th><th class="p-3.5">Nama Siswa</th><th class="p-3.5">Kelas</th><th class="p-3.5">Status Sesi</th><th class="p-3.5">Progres Jawab</th><th class="p-3.5">Nilai Sementara</th><th class="p-3.5 text-center">Aksi Kontrol</th></tr>
+                                            <tr><th class="p-3.5">NISN</th><th class="p-3.5">Nama Siswa</th><th class="p-3.5">Kelas</th><th class="p-3.5">Mapel Dikerjakan</th><th class="p-3.5">Status Sesi</th><th class="p-3.5 text-center">Aksi Kontrol</th></tr>
                                         </thead>
                                         <tbody id="table-monitoring-body" class="divide-y divide-slate-100"></tbody>
                                     </table>
@@ -783,7 +778,7 @@
                             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                                 <table class="w-full text-left text-sm">
                                     <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[11px] border-b">
-                                        <tr><th class="p-3.5">Nama Siswa</th><th class="p-3.5">Kelas</th><th class="p-3.5">Mapel</th><th class="p-3.5">Benar/Salah</th><th class="p-3.5">Nilai</th><th class="p-3.5">Submit Time</th></tr>
+                                        <tr><th class="p-3.5">Nama Siswa</th><th class="p-3.5">Kelas</th><th class="p-3.5">Mapel</th><th class="p-3.5">Benar/Salah</th><th class="p-3.5">Nilai</th><th class="p-3.5">Pelanggaran</th><th class="p-3.5">Submit Time</th></tr>
                                     </thead>
                                     <tbody id="table-hasil-body" class="divide-y divide-slate-100"></tbody>
                                 </table>
@@ -921,6 +916,68 @@
                     <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold shadow-md">Simpan</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL DETAIL SISWA DI MONITORING REALTIME -->
+    <div id="modal-student-detail" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-5 my-8 border border-slate-100">
+            <div class="flex items-center justify-between border-b pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-lg">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                    <div>
+                        <h3 id="det-student-name" class="font-extrabold text-slate-800 text-base sm:text-lg">Nama Siswa</h3>
+                        <p id="det-student-meta" class="text-xs text-slate-500 font-medium">NISN: - | Kelas: -</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-student-detail')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- RINGKASAN AKTIVITAS SISWA -->
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-blue-50 border border-blue-200 p-3 rounded-2xl text-center">
+                    <span class="text-[10px] font-bold text-blue-600 uppercase block">Mapel Dikerjakan</span>
+                    <span id="det-mapel-count" class="text-lg font-black text-blue-800">0</span>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-2xl text-center">
+                    <span class="text-[10px] font-bold text-emerald-600 uppercase block">Rata-Rata Nilai</span>
+                    <span id="det-avg-score" class="text-lg font-black text-emerald-800">0</span>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 p-3 rounded-2xl text-center">
+                    <span class="text-[10px] font-bold text-amber-600 uppercase block">Total Pelanggaran</span>
+                    <span id="det-total-violations" class="text-lg font-black text-amber-800">0</span>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <h4 class="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-list-check text-brand-600"></i> Riwayat Ujian Mata Pelajaran Dikerjakan
+                </h4>
+                <div class="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden max-h-60 overflow-y-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-200/80 text-slate-700 font-bold uppercase text-[10px] border-b">
+                            <tr>
+                                <th class="p-2.5">Mata Pelajaran</th>
+                                <th class="p-2.5">Waktu Submit</th>
+                                <th class="p-2.5 text-center">B / S</th>
+                                <th class="p-2.5 text-center">Nilai</th>
+                                <th class="p-2.5 text-center">Kecurangan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="det-table-body" class="divide-y divide-slate-200"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+                <button type="button" onclick="closeModal('modal-student-detail')" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md">
+                    Tutup Detail
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1137,19 +1194,16 @@
                 <h3 class="text-slate-600 font-bold text-sm tracking-wide mt-2">NILAI AKHIR UJIAN ANDA</h3>
             </div>
 
-            <!-- TAMPILAN NILAI SANGAT BESAR DI TENGAH LAYAR -->
             <div class="py-2">
                 <div id="result-score-display" class="font-black text-8xl tracking-tight drop-shadow-sm font-mono">0</div>
             </div>
 
-            <!-- KATA-KATA MUTIARA MOTIVASI DINAMIS -->
             <div class="bg-slate-50 border border-slate-200/80 p-5 rounded-2xl relative shadow-inner">
                 <i class="fa-solid fa-quote-left text-slate-300 text-2xl absolute top-3 left-3"></i>
                 <p id="result-quote-text" class="text-slate-700 font-medium italic text-sm leading-relaxed px-4 pt-1"></p>
                 <i class="fa-solid fa-quote-right text-slate-300 text-2xl absolute bottom-3 right-3"></i>
             </div>
 
-            <!-- RINCIAN JAWABAN -->
             <div class="grid grid-cols-3 gap-3 pt-2">
                 <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-2xl text-center">
                     <span class="text-[10px] font-bold text-emerald-600 uppercase block">Benar</span>
@@ -1175,8 +1229,8 @@
 
     <script>
         // KONFIGURASI APLIKASI
-        const IS_PREVIEW = false; // Ubah ke false untuk mengaktifkan koneksi live ke Google Sheets
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbzSB1bScFrdQxDieWohSPrELfunKPVEtJBtWzSl7RKlxJ_WhWlA-JGYc9jTAAgQmWMt/exec";
+        const IS_PREVIEW = false; // Set false untuk live GAS
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwo7v_qevVcZB4wan1u_KoAOF24B0jRP-kxUU45d6TJVnqZzDS-wom7ZC3FCnT-FcJh/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -1203,9 +1257,6 @@
             guru: [
                 { id: "G1", nama: "Budi Santoso, S.Pd", username: "BUDI SANTOSO, S.PD", password: "guru123", taughtKelas: ["K1"], taughtMapel: ["M1"] }
             ],
-            pengurus: [
-                { id: "P1", nama: "Pengurus CBT", username: "pengurus", password: "pengurus123" }
-            ],
             siswa: [
                 { id: "S1", nisn: "00123456", nama: "AHMAD FADLI", username: "AHMAD FADLI", password: "Pass8x2", idKelas: "K1", pob: "Jakarta", dob: "2006-05-12" },
                 { id: "S2", nisn: "00123457", nama: "SITI AMINAH", username: "SITI AMINAH", password: "Pass9x3", idKelas: "K1", pob: "Bandung", dob: "2006-08-15" },
@@ -1222,10 +1273,81 @@
         };
 
         let currentUser = null;
-        let currentExamState = { questions: [], answers: {}, doubts: {}, currentIndex: 0, timerInterval: null, secondsLeft: 3600, fontSizeDelta: 0 };
+        let currentExamState = { 
+            questions: [], 
+            answers: {}, 
+            doubts: {}, 
+            currentIndex: 0, 
+            timerInterval: null, 
+            secondsLeft: 3600, 
+            fontSizeDelta: 0,
+            violations: 0,
+            isExamActive: false
+        };
         let tokenCountdownTimer = null;
         let tokenSecondsLeft = 300;
         let modalResolveCallback = null;
+
+        function setupAntiCheatEngine() {
+            // 1. Mencegah Klik Kanan
+            document.addEventListener('contextmenu', function(e) {
+                if (currentExamState.isExamActive) {
+                    e.preventDefault();
+                    triggerAntiCheatViolation("Penggunaan Klik Kanan dilarang selama sesi ujian!");
+                }
+            });
+
+            // 2. Mencegah Shortcut Keyboard (Copy, Paste, DevTools, Print)
+            document.addEventListener('keydown', function(e) {
+                if (!currentExamState.isExamActive) return;
+
+                if (
+                    (e.ctrlKey && (e.key === 'c' || e.key === 'C' || e.key === 'v' || e.key === 'V' || e.key === 'u' || e.key === 'U' || e.key === 'p' || e.key === 'P' || e.key === 'a' || e.key === 'A')) ||
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
+                    e.key === 'F12'
+                ) {
+                    e.preventDefault();
+                    triggerAntiCheatViolation("Penggunaan tombol kombinasi shortcut dilarang!");
+                }
+            });
+
+            // 3. Deteksi Switch Tab / Minimize Browser
+            document.addEventListener('visibilitychange', function() {
+                if (currentExamState.isExamActive && document.hidden) {
+                    triggerAntiCheatViolation("Terdeteksi berpindah tab atau meninggalkan jendela browser!");
+                }
+            });
+
+            window.addEventListener('blur', function() {
+                if (currentExamState.isExamActive) {
+                    triggerAntiCheatViolation("Terdeteksi kehilangan fokus pada layar ujian!");
+                }
+            });
+        }
+
+        function triggerAntiCheatViolation(reason) {
+            if (!currentExamState.isExamActive) return;
+            
+            currentExamState.violations++;
+            const countNum = document.getElementById('violation-count-num');
+            if (countNum) countNum.innerText = currentExamState.violations;
+
+            document.getElementById('anti-cheat-msg').innerText = reason;
+            document.getElementById('anti-cheat-count-text').innerText = `${currentExamState.violations} / 3`;
+            document.getElementById('anti-cheat-modal').classList.remove('hidden');
+
+            if (currentExamState.violations >= 3) {
+                showToast("Batas maksimal pelanggaran dicapai! Ujian akan dikirim otomatis.", "error");
+                setTimeout(() => {
+                    closeAntiCheatModal();
+                    submitExamAnswers();
+                }, 2000);
+            }
+        }
+
+        function closeAntiCheatModal() {
+            document.getElementById('anti-cheat-modal').classList.add('hidden');
+        }
 
         function sanitizeDateStr(val) {
             if (!val) return '';
@@ -1296,6 +1418,7 @@
 
             syncBrandingUI();
             updateTokenUI();
+            setupAntiCheatEngine();
             
             if (!IS_PREVIEW) {
                 fetchInitialDataFromGas();
@@ -1741,10 +1864,16 @@
             currentExamState.currentIndex = 0;
             currentExamState.secondsLeft = 3600;
             currentExamState.fontSizeDelta = 0;
+            currentExamState.violations = 0;
+            currentExamState.isExamActive = true;
 
             document.getElementById('exam-subject-title').innerText = getMapelName(questions[0].idMapel);
             document.getElementById('exam-student-info').innerText = "Siswa: " + currentUser.studentData.nama;
             document.getElementById('exam-class-info').innerText = "Kelas: " + getKelasName(currentUser.studentData.idKelas);
+
+            document.getElementById('violation-count-num').innerText = "0";
+            document.getElementById('exam-violation-badge').classList.remove('hidden');
+            document.getElementById('exam-violation-badge').classList.add('flex');
 
             showView('view-exam-workspace');
             renderQuestion();
@@ -1850,18 +1979,12 @@
 
         function updateBackendStatusBadge(isConnected, text = '') {
             const badge = document.getElementById('status-backend-btn');
-            const dot = document.getElementById('backend-status-dot');
-            const txt = document.getElementById('backend-status-text');
             if (!badge) return;
             if (isConnected) {
                 badge.className = 'flex items-center justify-center bg-emerald-500/20 border border-emerald-400/40 px-2 py-1.5 rounded-full';
-                if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse';
-                if (txt) txt.innerText = text || 'Terhubung';
                 badge.title = 'Spreadsheet Terhubung';
             } else {
                 badge.className = 'flex items-center justify-center bg-amber-500/20 border border-amber-400/40 px-2 py-1.5 rounded-full';
-                if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping';
-                if (txt) txt.innerText = text || 'Menghubungkan...';
                 badge.title = text || 'Menghubungkan...';
             }
         }
@@ -1927,7 +2050,7 @@
             const st = appState.settings;
             const schoolNameEl = document.getElementById('login-school-name');
             const appSubtitleEl = document.getElementById('login-app-subtitle');
-            if (schoolNameEl) schoolNameEl.innerText = st.schoolName || 'NAMA SEKOLAH / LEMBAGA';
+            if (schoolNameEl) schoolNameEl.innerText = st.schoolName || '';
             if (appSubtitleEl) appSubtitleEl.innerText = st.appSubTitle || 'UJIAN SEMESTER GANJIL';
             
             const logoUrl = st.logoUrl || DEFAULT_LOGO;
@@ -2003,6 +2126,11 @@
                 } else {
                     btnToggle.classList.add('hidden');
                 }
+            }
+
+            if (viewId !== 'view-exam-workspace') {
+                currentExamState.isExamActive = false;
+                document.getElementById('exam-violation-badge').classList.add('hidden');
             }
 
             const badge = document.getElementById('user-profile-badge');
@@ -2169,6 +2297,8 @@
 
         async function submitExamAnswers() {
             if (currentExamState.timerInterval) clearInterval(currentExamState.timerInterval);
+            currentExamState.isExamActive = false;
+
             let benar = 0, salah = 0;
             currentExamState.questions.forEach(q => {
                 if (currentExamState.answers[q.id] === q.kunci) benar++; else salah++;
@@ -2181,7 +2311,8 @@
                 namaSiswa: currentUser.studentData.nama,
                 idKelas: currentUser.studentData.idKelas,
                 idMapel: currentExamState.questions[0].idMapel,
-                benar, salah, nilai
+                benar, salah, nilai,
+                violations: currentExamState.violations || 0
             };
 
             appState.hasil.push(resultObj);
@@ -3019,30 +3150,89 @@
                 if (isGuru && !taughtK.some(k => isKelasEqual(k, s.idKelas))) return false;
                 return !kelasId || isKelasEqual(s.idKelas, kelasId);
             }).forEach(s => {
-                const isSubmitted = appState.hasil.some(h => String(h.idSiswa) === String(s.id) && (!isGuru || taughtM.some(m => isMapelEqual(m, h.idMapel))));
-                const statusBadge = isSubmitted 
-                    ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-check-circle mr-1"></i> Selesai (Submit)</span>'
-                    : '<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-clock mr-1"></i> Belum / Aktif</span>';
+                // Ambil daftar hasil pengerjaan siswa ini
+                const studentResults = appState.hasil.filter(h => String(h.idSiswa) === String(s.id) && (!isGuru || taughtM.some(m => isMapelEqual(m, h.idMapel))));
+                const completedCount = studentResults.length;
                 
-                const studentResult = appState.hasil.find(h => String(h.idSiswa) === String(s.id) && (!isGuru || taughtM.some(m => isMapelEqual(m, h.idMapel))));
-                const scoreText = studentResult ? `<span class="font-extrabold text-brand-700 text-base">${studentResult.nilai}</span>` : '<span class="text-slate-400 text-xs">-</span>';
-                const progressText = isSubmitted ? '100% (Selesai)' : 'Aktif / Standby';
+                let mapelBadges = '-';
+                if (completedCount > 0) {
+                    mapelBadges = studentResults.map(h => `<span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded mr-1">${getMapelName(h.idMapel)}</span>`).join('');
+                }
+
+                const statusBadge = completedCount > 0 
+                    ? `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 w-fit"><i class="fa-solid fa-check-circle text-emerald-600"></i> ${completedCount} Ujian Selesai</span>`
+                    : '<span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 w-fit"><i class="fa-solid fa-clock text-slate-400"></i> Belum Mengikuti</span>';
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
                 tr.innerHTML = `
                     <td class="p-3.5 font-mono text-xs">${s.nisn}</td>
-                    <td class="p-3.5 font-bold">${s.nama}</td>
+                    <td class="p-3.5 font-bold text-slate-800">${s.nama}</td>
                     <td class="p-3.5">${getKelasName(s.idKelas)}</td>
+                    <td class="p-3.5">${mapelBadges}</td>
                     <td class="p-3.5">${statusBadge}</td>
-                    <td class="p-3.5 text-xs text-slate-600">${progressText}</td>
-                    <td class="p-3.5">${scoreText}</td>
                     <td class="p-3.5 text-center flex items-center justify-center gap-2">
-                        <button onclick="showToast('Siswa ${s.nama} terpantau terhubung.', 'info')" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all"><i class="fa-solid fa-eye text-brand-600 mr-1"></i> Detail</button>
+                        <button onclick="openStudentDetailModal('${s.id}')" class="px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-file-invoice"></i> Detail
+                        </button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        function openStudentDetailModal(studentId) {
+            const student = appState.siswa.find(s => String(s.id) === String(studentId));
+            if (!student) return;
+
+            document.getElementById('det-student-name').innerText = student.nama;
+            document.getElementById('det-student-meta').innerText = `NISN: ${student.nisn} | Kelas: ${getKelasName(student.idKelas)}`;
+
+            const studentResults = appState.hasil.filter(h => String(h.idSiswa) === String(studentId));
+            const tbody = document.getElementById('det-table-body');
+            tbody.innerHTML = '';
+
+            let totalNilai = 0;
+            let totalViolations = 0;
+
+            if (studentResults.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="p-4 text-center text-slate-400 italic">
+                            Belum ada riwayat ujian mata pelajaran yang dikerjakan oleh siswa ini.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                studentResults.forEach(h => {
+                    const score = parseInt(h.nilai) || 0;
+                    const vCount = parseInt(h.violations) || 0;
+                    totalNilai += score;
+                    totalViolations += vCount;
+
+                    const vBadge = vCount > 0 
+                        ? `<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ${vCount}x Terdeteksi</span>`
+                        : `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-shield-check mr-1"></i> Bersih</span>`;
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-100 border-b';
+                    tr.innerHTML = `
+                        <td class="p-2.5 font-bold text-slate-800">${getMapelName(h.idMapel)}</td>
+                        <td class="p-2.5 text-slate-500 text-[11px]">${h.submitTime || '-'}</td>
+                        <td class="p-2.5 text-center font-medium"><span class="text-emerald-600 font-bold">${h.benar || 0}B</span> / <span class="text-red-600 font-bold">${h.salah || 0}S</span></td>
+                        <td class="p-2.5 text-center font-black text-brand-700 text-sm">${score}</td>
+                        <td class="p-2.5 text-center">${vBadge}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            const avgScore = studentResults.length > 0 ? Math.round(totalNilai / studentResults.length) : 0;
+            document.getElementById('det-mapel-count').innerText = studentResults.length;
+            document.getElementById('det-avg-score').innerText = avgScore;
+            document.getElementById('det-total-violations').innerText = totalViolations;
+
+            document.getElementById('modal-student-detail').classList.remove('hidden');
         }
 
         async function deleteJadwal(id) {
@@ -3070,9 +3260,14 @@
                 }
                 return (!kelas || isKelasEqual(h.idKelas, kelas)) && (!mapel || isMapelEqual(h.idMapel, mapel));
             }).forEach(h => {
+                const vCount = parseInt(h.violations) || 0;
+                const vBadge = vCount > 0 
+                    ? `<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">${vCount}x Melanggar</span>`
+                    : `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0 (Bersih)</span>`;
+
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 border-b';
-                tr.innerHTML = `<td class="p-3.5 font-bold">${h.namaSiswa}</td><td class="p-3.5">${getKelasName(h.idKelas)}</td><td class="p-3.5">${getMapelName(h.idMapel)}</td><td class="p-3.5 text-xs"><span class="text-emerald-600 font-bold">${h.benar} B</span> / <span class="text-red-600 font-bold">${h.salah} S</span></td><td class="p-3.5 font-extrabold text-base text-brand-700">${h.nilai}</td><td class="p-3.5 text-xs text-slate-500">${h.submitTime || '-'}</td>`;
+                tr.innerHTML = `<td class="p-3.5 font-bold">${h.namaSiswa}</td><td class="p-3.5">${getKelasName(h.idKelas)}</td><td class="p-3.5">${getMapelName(h.idMapel)}</td><td class="p-3.5 text-xs"><span class="text-emerald-600 font-bold">${h.benar} B</span> / <span class="text-red-600 font-bold">${h.salah} S</span></td><td class="p-3.5 font-extrabold text-base text-brand-700">${h.nilai}</td><td class="p-3.5">${vBadge}</td><td class="p-3.5 text-xs text-slate-500">${h.submitTime || '-'}</td>`;
                 tbody.appendChild(tr);
             });
         }
