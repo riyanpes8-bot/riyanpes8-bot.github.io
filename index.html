@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exambrowser CBT - PKBM Sumber Ilmu</title>
+    <title>Exambrowser CBT Puspendik - Real-time Spreadsheet Integrated</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Library SheetJS untuk Import & Export File Excel (.xlsx / .xls / .csv) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -1230,7 +1230,7 @@
     <script>
         // KONFIGURASI APLIKASI
         const IS_PREVIEW = false; // Set false untuk live GAS
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbz4w7cwlu6r8AhFR6fja1Loa5NpeCyZaEgAUSt0us_oaq0DAnpOLvqqBqn3Zsgo9HT2/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbx7qMX6VXxied7_4w1s1BovxWy8Cga-1SojgCD6ZYtKC5GSrYx-MMthEadgqHJ3igKc/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -2997,103 +2997,37 @@ async function triggerAntiCheatViolation(reason) {
         }
 
         async function saveSoalModal() {
-    const id = document.getElementById('m-soal-id').value;
-
-    const soalObj = {
-        id: id || generateSoalId(),
-        idKelas: document.getElementById('m-soal-kelas').value,
-        idMapel: document.getElementById('m-soal-idmapel').value,
-        pertanyaan: document.getElementById('m-soal-pertanyaan').value,
-        gambarSoal: document.getElementById('data-img-pertanyaan').value || '',
-
-        opsiA: document.getElementById('m-soal-opsiA').value,
-        gambarOpsiA: document.getElementById('data-img-opsiA').value || '',
-
-        opsiB: document.getElementById('m-soal-opsiB').value,
-        gambarOpsiB: document.getElementById('data-img-opsiB').value || '',
-
-        opsiC: document.getElementById('m-soal-opsiC').value,
-        gambarOpsiC: document.getElementById('data-img-opsiC').value || '',
-
-        opsiD: document.getElementById('m-soal-opsiD').value,
-        gambarOpsiD: document.getElementById('data-img-opsiD').value || '',
-
-        opsiE: document.getElementById('m-soal-opsiE').value,
-        gambarOpsiE: document.getElementById('data-img-opsiE').value || '',
-
-        kunci: document.getElementById('m-soal-kunci').value,
-        bobot: parseInt(document.getElementById('m-soal-bobot').value) || 10
-    };
-
-    // Validasi
-    if (!soalObj.idKelas) {
-        showToast('Kelas belum dipilih.', 'error');
-        return;
-    }
-
-    if (!soalObj.idMapel) {
-        showToast('Mata pelajaran belum dipilih.', 'error');
-        return;
-    }
-
-    if (!soalObj.pertanyaan.trim()) {
-        showToast('Pertanyaan soal belum diisi.', 'error');
-        return;
-    }
-
-    // TAMPILKAN PROSES
-    showToast('Menyimpan soal ke Spreadsheet...', 'info');
-
-    try {
-        // SIMPAN KE SERVER TERLEBIH DAHULU
-        const result = await apiCall(
-            id ? 'editSoal' : 'addSoal',
-            { soal: soalObj }
-        );
-
-        // Pastikan server menyatakan berhasil
-        if (!result || result.status !== 'success') {
-            throw new Error(
-                result && result.message
-                    ? result.message
-                    : 'Server tidak mengonfirmasi penyimpanan soal.'
-            );
-        }
-
-        // BARU UPDATE FRONTEND SETELAH SERVER BERHASIL
-        if (id) {
-            const idx = appState.soal.findIndex(i => i.id === id);
-
-            if (idx !== -1) {
-                appState.soal[idx] = soalObj;
+            const id = document.getElementById('m-soal-id').value;
+            const soalObj = {
+                id: id || generateSoalId(),
+                idKelas: document.getElementById('m-soal-kelas').value,
+                idMapel: document.getElementById('m-soal-idmapel').value,
+                pertanyaan: document.getElementById('m-soal-pertanyaan').value,
+                gambarSoal: document.getElementById('data-img-pertanyaan').value || '',
+                opsiA: document.getElementById('m-soal-opsiA').value,
+                gambarOpsiA: document.getElementById('data-img-opsiA').value || '',
+                opsiB: document.getElementById('m-soal-opsiB').value,
+                gambarOpsiB: document.getElementById('data-img-opsiB').value || '',
+                opsiC: document.getElementById('m-soal-opsiC').value,
+                gambarOpsiC: document.getElementById('data-img-opsiC').value || '',
+                opsiD: document.getElementById('m-soal-opsiD').value,
+                gambarOpsiD: document.getElementById('data-img-opsiD').value || '',
+                opsiE: document.getElementById('m-soal-opsiE').value,
+                gambarOpsiE: document.getElementById('data-img-opsiE').value || '',
+                kunci: document.getElementById('m-soal-kunci').value,
+                bobot: parseInt(document.getElementById('m-soal-bobot').value) || 10
+            };
+            closeModal('modal-soal');
+            if (id) {
+                const idx = appState.soal.findIndex(i => i.id === id);
+                if (idx !== -1) appState.soal[idx] = soalObj;
             } else {
                 appState.soal.push(soalObj);
             }
-        } else {
-            appState.soal.push(soalObj);
+            showToast('Soal berhasil disimpan', 'success');
+            loadBankSoalTable();
+            await apiCall(id ? 'editSoal' : 'addSoal', { soal: soalObj });
         }
-
-        closeModal('modal-soal');
-
-        loadBankSoalTable();
-
-        showToast(
-            id
-                ? 'Soal berhasil diperbarui dan disimpan.'
-                : 'Soal berhasil ditambahkan dan disimpan.',
-            'success'
-        );
-
-    } catch (error) {
-
-        console.error('Gagal menyimpan soal:', error);
-
-        showToast(
-            'Gagal menyimpan soal: ' + error.message,
-            'error'
-        );
-    }
-}
 
         function loadBankSoalTable() {
             const tbody = document.getElementById('table-soal-body'); if (!tbody) return; tbody.innerHTML = '';
@@ -3425,59 +3359,43 @@ function generateSoalId() {
 
 
         // ==========================================
-// SIMPAN KE SPREADSHEET TERLEBIH DAHULU
-// ==========================================
+        // TAMBAHKAN HANYA SOAL BARU KE FRONTEND
+        // ==========================================
+        appState.soal.push(
+            ...importedSoal
+        );
 
-showToast(
-    'Sedang menyimpan ' + importedSoal.length + ' soal ke Spreadsheet...',
-    'info'
-);
 
-const result = await apiCall(
-    'importSoalBatch',
-    {
-        soalList: importedSoal
-    }
-);
+        // ==========================================
+        // REFRESH TABEL
+        // ==========================================
+        loadBankSoalTable();
 
-// ==========================================
-// CEK HASIL PENYIMPANAN
-// ==========================================
 
-if (!result || result.status !== 'success') {
+        // ==========================================
+        // SIMPAN HANYA SOAL YANG BARU DIIMPORT
+        // ==========================================
+        const result =
+            await apiCall(
+                'importSoalBatch',
+                {
+                    soalList:
+                        importedSoal
+                }
+            );
 
-    throw new Error(
-        result && result.message
-            ? result.message
-            : 'Spreadsheet tidak mengonfirmasi penyimpanan soal.'
-    );
-}
 
-// ==========================================
-// BARU MASUKKAN KE FRONTEND
-// ==========================================
+        if (
+            result &&
+            result.status === 'success'
+        ) 
+        {
 
-const soalMap = new Map(
-    appState.soal.map(soal => [soal.id, soal])
-);
-
-importedSoal.forEach(soal => {
-    soalMap.set(soal.id, soal);
-});
-
-appState.soal = Array.from(soalMap.values());
-
-// ==========================================
-// REFRESH TABEL
-// ==========================================
-
-loadBankSoalTable();
-
-showToast(
-    importedSoal.length +
-    ' soal berhasil diimport dan disimpan ke Spreadsheet.',
-    'success'
-);
+            showToast(
+                importedSoal.length +
+                ' soal berhasil diimport dan disimpan.',
+                'success'
+            );
 
         } else {
 
