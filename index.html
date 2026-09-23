@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exambrowser CBT - PKBM Sumber ilmu</title>
+    <title>Exambrowser CBT - PKBM Sumber Ilmu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Library SheetJS untuk Import & Export File Excel (.xlsx / .xls / .csv) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -1230,7 +1230,7 @@
     <script>
         // KONFIGURASI APLIKASI
         const IS_PREVIEW = false; // Set false untuk live GAS
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbxiBTgB31XMh9Af8aEpf_bhhnpInHseo5BQcupqlwR2tovYmb4nRECj8nAGej1pgZGg/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbz4w7cwlu6r8AhFR6fja1Loa5NpeCyZaEgAUSt0us_oaq0DAnpOLvqqBqn3Zsgo9HT2/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -1329,32 +1329,101 @@
 // ANTI CHEAT
 // ==========================================
 
+let lastViolationTime = 0;
+
 async function triggerAntiCheatViolation(reason) {
 
-    if (!currentExamState.isExamActive) {
-        return;
-    }
+    if (!currentExamState.isExamActive) return;
 
-    // TAMBAH JUMLAH PELANGGARAN
+    // Cegah 1 kejadian dihitung 2x
+    // Contoh: pindah tab bisa memicu visibilitychange + blur
+    const now = Date.now();
+    if (now - lastViolationTime < 1500) return;
+    lastViolationTime = now;
+
+    // Tambah jumlah pelanggaran
     currentExamState.violations++;
 
-    const violationCount =
-        currentExamState.violations;
+    const violationCount = currentExamState.violations;
 
-    // dst...
-    
+    // ==============================
+    // UPDATE TAMPILAN SISWA
+    // ==============================
+    const countText = document.getElementById('anti-cheat-count-text');
+    if (countText) {
+        countText.innerText = violationCount + ' / 3';
+    }
+
+    const countBadge = document.getElementById('violation-count-num');
+    if (countBadge) {
+        countBadge.innerText = violationCount;
+    }
+
+    // Pastikan badge pelanggaran tampil
+    const violationBadge = document.getElementById('exam-violation-badge');
+    if (violationBadge) {
+        violationBadge.classList.remove('hidden');
+        violationBadge.classList.add('flex');
+    }
+
+    // ==============================
+    // TAMPILKAN MODAL
+    // ==============================
+    const msg = document.getElementById('anti-cheat-msg');
+    if (msg) {
+        msg.innerText = reason;
+    }
+
+    const modal = document.getElementById('anti-cheat-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+
+    // ==============================
+    // SIMPAN LOG PELANGGARAN
+    // KE GOOGLE SPREADSHEET
+    // ==============================
+    const student = currentUser && currentUser.studentData
+        ? currentUser.studentData
+        : {};
+
+    const examQuestions = currentExamState.questions || [];
+
+    const violationData = {
+        idSiswa: student.id || '',
+        nisn: student.nisn || '',
+        namaSiswa: student.nama || '',
+        idKelas: student.idKelas || '',
+        idMapel: examQuestions.length > 0
+            ? (examQuestions[0].idMapel || '')
+            : '',
+        jenisPelanggaran: reason,
+        jumlah: violationCount
+    };
+
+    try {
+        await apiCall('logViolation', violationData);
+    } catch (error) {
+        console.error('Gagal menyimpan log pelanggaran:', error);
+    }
+
+    // ==============================
+    // BATAS 3 PELANGGARAN
+    // ==============================
     if (violationCount >= 3) {
 
         showToast(
-            "Batas maksimal pelanggaran dicapai! Ujian akan dikirim otomatis.",
-            "error"
+            'Batas maksimal 3 pelanggaran tercapai! Ujian akan dikirim otomatis.',
+            'error'
         );
 
         setTimeout(() => {
 
             closeAntiCheatModal();
 
-            submitExamAnswers();
+            if (currentExamState.isExamActive) {
+                submitExamAnswers();
+            }
 
         }, 2000);
     }
@@ -2928,37 +2997,103 @@ async function triggerAntiCheatViolation(reason) {
         }
 
         async function saveSoalModal() {
-            const id = document.getElementById('m-soal-id').value;
-            const soalObj = {
-                id: id || generateSoalId(),
-                idKelas: document.getElementById('m-soal-kelas').value,
-                idMapel: document.getElementById('m-soal-idmapel').value,
-                pertanyaan: document.getElementById('m-soal-pertanyaan').value,
-                gambarSoal: document.getElementById('data-img-pertanyaan').value || '',
-                opsiA: document.getElementById('m-soal-opsiA').value,
-                gambarOpsiA: document.getElementById('data-img-opsiA').value || '',
-                opsiB: document.getElementById('m-soal-opsiB').value,
-                gambarOpsiB: document.getElementById('data-img-opsiB').value || '',
-                opsiC: document.getElementById('m-soal-opsiC').value,
-                gambarOpsiC: document.getElementById('data-img-opsiC').value || '',
-                opsiD: document.getElementById('m-soal-opsiD').value,
-                gambarOpsiD: document.getElementById('data-img-opsiD').value || '',
-                opsiE: document.getElementById('m-soal-opsiE').value,
-                gambarOpsiE: document.getElementById('data-img-opsiE').value || '',
-                kunci: document.getElementById('m-soal-kunci').value,
-                bobot: parseInt(document.getElementById('m-soal-bobot').value) || 10
-            };
-            closeModal('modal-soal');
-            if (id) {
-                const idx = appState.soal.findIndex(i => i.id === id);
-                if (idx !== -1) appState.soal[idx] = soalObj;
+    const id = document.getElementById('m-soal-id').value;
+
+    const soalObj = {
+        id: id || generateSoalId(),
+        idKelas: document.getElementById('m-soal-kelas').value,
+        idMapel: document.getElementById('m-soal-idmapel').value,
+        pertanyaan: document.getElementById('m-soal-pertanyaan').value,
+        gambarSoal: document.getElementById('data-img-pertanyaan').value || '',
+
+        opsiA: document.getElementById('m-soal-opsiA').value,
+        gambarOpsiA: document.getElementById('data-img-opsiA').value || '',
+
+        opsiB: document.getElementById('m-soal-opsiB').value,
+        gambarOpsiB: document.getElementById('data-img-opsiB').value || '',
+
+        opsiC: document.getElementById('m-soal-opsiC').value,
+        gambarOpsiC: document.getElementById('data-img-opsiC').value || '',
+
+        opsiD: document.getElementById('m-soal-opsiD').value,
+        gambarOpsiD: document.getElementById('data-img-opsiD').value || '',
+
+        opsiE: document.getElementById('m-soal-opsiE').value,
+        gambarOpsiE: document.getElementById('data-img-opsiE').value || '',
+
+        kunci: document.getElementById('m-soal-kunci').value,
+        bobot: parseInt(document.getElementById('m-soal-bobot').value) || 10
+    };
+
+    // Validasi
+    if (!soalObj.idKelas) {
+        showToast('Kelas belum dipilih.', 'error');
+        return;
+    }
+
+    if (!soalObj.idMapel) {
+        showToast('Mata pelajaran belum dipilih.', 'error');
+        return;
+    }
+
+    if (!soalObj.pertanyaan.trim()) {
+        showToast('Pertanyaan soal belum diisi.', 'error');
+        return;
+    }
+
+    // TAMPILKAN PROSES
+    showToast('Menyimpan soal ke Spreadsheet...', 'info');
+
+    try {
+        // SIMPAN KE SERVER TERLEBIH DAHULU
+        const result = await apiCall(
+            id ? 'editSoal' : 'addSoal',
+            { soal: soalObj }
+        );
+
+        // Pastikan server menyatakan berhasil
+        if (!result || result.status !== 'success') {
+            throw new Error(
+                result && result.message
+                    ? result.message
+                    : 'Server tidak mengonfirmasi penyimpanan soal.'
+            );
+        }
+
+        // BARU UPDATE FRONTEND SETELAH SERVER BERHASIL
+        if (id) {
+            const idx = appState.soal.findIndex(i => i.id === id);
+
+            if (idx !== -1) {
+                appState.soal[idx] = soalObj;
             } else {
                 appState.soal.push(soalObj);
             }
-            showToast('Soal berhasil disimpan', 'success');
-            loadBankSoalTable();
-            await apiCall(id ? 'editSoal' : 'addSoal', { soal: soalObj });
+        } else {
+            appState.soal.push(soalObj);
         }
+
+        closeModal('modal-soal');
+
+        loadBankSoalTable();
+
+        showToast(
+            id
+                ? 'Soal berhasil diperbarui dan disimpan.'
+                : 'Soal berhasil ditambahkan dan disimpan.',
+            'success'
+        );
+
+    } catch (error) {
+
+        console.error('Gagal menyimpan soal:', error);
+
+        showToast(
+            'Gagal menyimpan soal: ' + error.message,
+            'error'
+        );
+    }
+}
 
         function loadBankSoalTable() {
             const tbody = document.getElementById('table-soal-body'); if (!tbody) return; tbody.innerHTML = '';
@@ -3290,42 +3425,59 @@ function generateSoalId() {
 
 
         // ==========================================
-        // TAMBAHKAN HANYA SOAL BARU KE FRONTEND
-        // ==========================================
-        appState.soal.push(
-            ...importedSoal
-        );
+// SIMPAN KE SPREADSHEET TERLEBIH DAHULU
+// ==========================================
 
+showToast(
+    'Sedang menyimpan ' + importedSoal.length + ' soal ke Spreadsheet...',
+    'info'
+);
 
-        // ==========================================
-        // REFRESH TABEL
-        // ==========================================
-        loadBankSoalTable();
+const result = await apiCall(
+    'importSoalBatch',
+    {
+        soalList: importedSoal
+    }
+);
 
+// ==========================================
+// CEK HASIL PENYIMPANAN
+// ==========================================
 
-        // ==========================================
-        // SIMPAN HANYA SOAL YANG BARU DIIMPORT
-        // ==========================================
-        const result =
-            await apiCall(
-                'importSoalBatch',
-                {
-                    soalList:
-                        importedSoal
-                }
-            );
+if (!result || result.status !== 'success') {
 
+    throw new Error(
+        result && result.message
+            ? result.message
+            : 'Spreadsheet tidak mengonfirmasi penyimpanan soal.'
+    );
+}
 
-        if (
-            result &&
-            result.status === 'success'
-        ) {
+// ==========================================
+// BARU MASUKKAN KE FRONTEND
+// ==========================================
 
-            showToast(
-                importedSoal.length +
-                ' soal berhasil diimport dan disimpan.',
-                'success'
-            );
+const soalMap = new Map(
+    appState.soal.map(soal => [soal.id, soal])
+);
+
+importedSoal.forEach(soal => {
+    soalMap.set(soal.id, soal);
+});
+
+appState.soal = Array.from(soalMap.values());
+
+// ==========================================
+// REFRESH TABEL
+// ==========================================
+
+loadBankSoalTable();
+
+showToast(
+    importedSoal.length +
+    ' soal berhasil diimport dan disimpan ke Spreadsheet.',
+    'success'
+);
 
         } else {
 
