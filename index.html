@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exambrowser CBT - Real-time </title>
+    <title>Exambrowser CBT - PKBM Sumber ilmu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Library SheetJS untuk Import & Export File Excel (.xlsx / .xls / .csv) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -1230,7 +1230,7 @@
     <script>
         // KONFIGURASI APLIKASI
         const IS_PREVIEW = false; // Set false untuk live GAS
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwdKQsZh8yRLcA5cQf_7iEVt9Hji_lD2D7OG0UvRy9fDcWy90RPn-3BpKTBxf_XdM0y/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxiBTgB31XMh9Af8aEpf_bhhnpInHseo5BQcupqlwR2tovYmb4nRECj8nAGej1pgZGg/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -1325,25 +1325,40 @@
             });
         }
 
-        function triggerAntiCheatViolation(reason) {
-            if (!currentExamState.isExamActive) return;
-            
-            currentExamState.violations++;
-            const countNum = document.getElementById('violation-count-num');
-            if (countNum) countNum.innerText = currentExamState.violations;
+        // ==========================================
+// ANTI CHEAT
+// ==========================================
 
-            document.getElementById('anti-cheat-msg').innerText = reason;
-            document.getElementById('anti-cheat-count-text').innerText = `${currentExamState.violations} / 3`;
-            document.getElementById('anti-cheat-modal').classList.remove('hidden');
+async function triggerAntiCheatViolation(reason) {
 
-            if (currentExamState.violations >= 3) {
-                showToast("Batas maksimal pelanggaran dicapai! Ujian akan dikirim otomatis.", "error");
-                setTimeout(() => {
-                    closeAntiCheatModal();
-                    submitExamAnswers();
-                }, 2000);
-            }
-        }
+    if (!currentExamState.isExamActive) {
+        return;
+    }
+
+    // TAMBAH JUMLAH PELANGGARAN
+    currentExamState.violations++;
+
+    const violationCount =
+        currentExamState.violations;
+
+    // dst...
+    
+    if (violationCount >= 3) {
+
+        showToast(
+            "Batas maksimal pelanggaran dicapai! Ujian akan dikirim otomatis.",
+            "error"
+        );
+
+        setTimeout(() => {
+
+            closeAntiCheatModal();
+
+            submitExamAnswers();
+
+        }, 2000);
+    }
+}
 
         function closeAntiCheatModal() {
             document.getElementById('anti-cheat-modal').classList.add('hidden');
@@ -2915,7 +2930,7 @@
         async function saveSoalModal() {
             const id = document.getElementById('m-soal-id').value;
             const soalObj = {
-                id: id || ("Q" + (appState.soal.length + 1)),
+                id: id || generateSoalId(),
                 idKelas: document.getElementById('m-soal-kelas').value,
                 idMapel: document.getElementById('m-soal-idmapel').value,
                 pertanyaan: document.getElementById('m-soal-pertanyaan').value,
@@ -2990,88 +3005,355 @@
             XLSX.utils.book_append_sheet(wb, ws, "Template_Soal");
             XLSX.writeFile(wb, "Template_Import_Soal.xlsx");
         }
-
+function generateSoalId() {
+    return 'Q' +
+        Date.now() +
+        Math.random()
+            .toString(36)
+            .substring(2, 7)
+            .toUpperCase();
+}
         async function handleImportSoalFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
 
-            const filename = file.name.toLowerCase();
-            if (filename.endsWith('.xlsx') || filename.endsWith('.xls')) {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    const importedSoal = [];
+
+    try {
+
+        const filename = file.name.toLowerCase();
+
+        // ==========================================
+        // IMPORT EXCEL
+        // ==========================================
+        if (
+            filename.endsWith('.xlsx') ||
+            filename.endsWith('.xls')
+        ) {
+
+            const data = await new Promise((resolve, reject) => {
+
                 const reader = new FileReader();
-                reader.onload = async function(e) {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        const firstSheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[firstSheetName];
-                        const jsonRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                        
-                        let count = 0;
-                        for (let i = 1; i < jsonRows.length; i++) {
-                            const cols = jsonRows[i];
-                            if (!cols || cols.length < 9) continue;
-                            const idKelas = String(cols[0] || '').trim();
-                            const idMapel = String(cols[1] || '').trim();
-                            const pertanyaan = String(cols[2] || '').trim();
-                            const opsiA = String(cols[3] || '').trim();
-                            const opsiB = String(cols[4] || '').trim();
-                            const opsiC = String(cols[5] || '').trim();
-                            const opsiD = String(cols[6] || '').trim();
-                            const opsiE = String(cols[7] || '').trim();
-                            const kunci = String(cols[8] || '').trim().toUpperCase();
-                            const bobot = parseInt(cols[9]) || 10;
 
-                            if (pertanyaan && idKelas && idMapel) {
-                                appState.soal.push({
-                                    id: "Q" + (appState.soal.length + 1),
-                                    idKelas, idMapel, pertanyaan, opsiA, opsiB, opsiC, opsiD, opsiE, kunci, bobot
-                                });
-                                count++;
-                            }
-                        }
-                        showToast('Berhasil mengimpor ' + count + ' soal dari Excel!', 'success');
-                        loadBankSoalTable();
-                        await apiCall('importSoalBatch', { soalList: appState.soal });
-                    } catch(err) {
-                        showToast('Gagal memproses file Excel: ' + err.message, 'error');
-                    }
-                };
+                reader.onload = e => resolve(e.target.result);
+
+                reader.onerror = reject;
+
                 reader.readAsArrayBuffer(file);
-            } else {
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    const text = e.target.result;
-                    const lines = text.split("\n");
-                    let count = 0;
-                    for (let i = 1; i < lines.length; i++) {
-                        const line = lines[i].trim();
-                        if (!line) continue;
-                        const cols = line.split(/\t|,/);
-                        if (cols.length >= 9) {
-                            appState.soal.push({
-                                id: "Q" + (appState.soal.length + 1),
-                                idKelas: cols[0].trim(),
-                                idMapel: cols[1].trim(),
-                                pertanyaan: cols[2].trim(),
-                                opsiA: cols[3].trim(),
-                                opsiB: cols[4].trim(),
-                                opsiC: cols[5].trim(),
-                                opsiD: cols[6].trim(),
-                                opsiE: cols[7] ? cols[7].trim() : '',
-                                kunci: (cols[8] || '').trim().toUpperCase(),
-                                bobot: parseInt(cols[9]) || 10
-                            });
-                            count++;
-                        }
-                    }
-                    showToast('Berhasil mengimpor ' + count + ' soal!', 'success');
-                    loadBankSoalTable();
-                    await apiCall('importSoalBatch', { soalList: appState.soal });
-                };
-                reader.readAsText(file);
+            });
+
+            const workbook = XLSX.read(
+                new Uint8Array(data),
+                { type: 'array' }
+            );
+
+            const firstSheetName =
+                workbook.SheetNames[0];
+
+            const worksheet =
+                workbook.Sheets[firstSheetName];
+
+            const jsonRows =
+                XLSX.utils.sheet_to_json(
+                    worksheet,
+                    { header: 1 }
+                );
+
+            for (
+                let i = 1;
+                i < jsonRows.length;
+                i++
+            ) {
+
+                const cols = jsonRows[i];
+
+                if (!cols || cols.length < 9) {
+                    continue;
+                }
+
+                const idKelas =
+                    String(cols[0] || '').trim();
+
+                const idMapel =
+                    String(cols[1] || '').trim();
+
+                const pertanyaan =
+                    String(cols[2] || '').trim();
+
+                const opsiA =
+                    String(cols[3] || '').trim();
+
+                const opsiB =
+                    String(cols[4] || '').trim();
+
+                const opsiC =
+                    String(cols[5] || '').trim();
+
+                const opsiD =
+                    String(cols[6] || '').trim();
+
+                const opsiE =
+                    String(cols[7] || '').trim();
+
+                const kunci =
+                    String(cols[8] || '')
+                        .trim()
+                        .toUpperCase();
+
+                const bobot =
+                    parseInt(cols[9]) || 10;
+
+
+                if (
+                    pertanyaan &&
+                    idKelas &&
+                    idMapel
+                ) {
+
+                    importedSoal.push({
+
+                        id: generateSoalId(),
+
+                        idKelas:
+                            idKelas,
+
+                        idMapel:
+                            idMapel,
+
+                        pertanyaan:
+                            pertanyaan,
+
+                        gambarSoal:
+                            "",
+
+                        opsiA:
+                            opsiA,
+
+                        gambarOpsiA:
+                            "",
+
+                        opsiB:
+                            opsiB,
+
+                        gambarOpsiB:
+                            "",
+
+                        opsiC:
+                            opsiC,
+
+                        gambarOpsiC:
+                            "",
+
+                        opsiD:
+                            opsiD,
+
+                        gambarOpsiD:
+                            "",
+
+                        opsiE:
+                            opsiE,
+
+                        gambarOpsiE:
+                            "",
+
+                        kunci:
+                            kunci,
+
+                        bobot:
+                            bobot
+                    });
+                }
             }
-            event.target.value = '';
+
         }
+
+        // ==========================================
+        // IMPORT CSV / TXT / TSV
+        // ==========================================
+        else {
+
+            const text =
+                await file.text();
+
+            const lines =
+                text.split(/\r?\n/);
+
+            for (
+                let i = 1;
+                i < lines.length;
+                i++
+            ) {
+
+                const line =
+                    lines[i].trim();
+
+                if (!line) continue;
+
+                const cols =
+                    line.split(/\t|,/);
+
+                if (cols.length < 9) {
+                    continue;
+                }
+
+                const soal = {
+
+                    id:
+                        generateSoalId(),
+
+                    idKelas:
+                        String(cols[0] || '')
+                            .trim(),
+
+                    idMapel:
+                        String(cols[1] || '')
+                            .trim(),
+
+                    pertanyaan:
+                        String(cols[2] || '')
+                            .trim(),
+
+                    gambarSoal:
+                        "",
+
+                    opsiA:
+                        String(cols[3] || '')
+                            .trim(),
+
+                    gambarOpsiA:
+                        "",
+
+                    opsiB:
+                        String(cols[4] || '')
+                            .trim(),
+
+                    gambarOpsiB:
+                        "",
+
+                    opsiC:
+                        String(cols[5] || '')
+                            .trim(),
+
+                    gambarOpsiC:
+                        "",
+
+                    opsiD:
+                        String(cols[6] || '')
+                            .trim(),
+
+                    gambarOpsiD:
+                        "",
+
+                    opsiE:
+                        String(cols[7] || '')
+                            .trim(),
+
+                    gambarOpsiE:
+                        "",
+
+                    kunci:
+                        String(cols[8] || '')
+                            .trim()
+                            .toUpperCase(),
+
+                    bobot:
+                        parseInt(cols[9]) || 10
+                };
+
+
+                if (
+                    soal.pertanyaan &&
+                    soal.idKelas &&
+                    soal.idMapel
+                ) {
+
+                    importedSoal.push(soal);
+                }
+            }
+        }
+
+
+        // ==========================================
+        // TIDAK ADA SOAL
+        // ==========================================
+        if (importedSoal.length === 0) {
+
+            showToast(
+                'Tidak ada soal yang dapat diimport.',
+                'error'
+            );
+
+            return;
+        }
+
+
+        // ==========================================
+        // TAMBAHKAN HANYA SOAL BARU KE FRONTEND
+        // ==========================================
+        appState.soal.push(
+            ...importedSoal
+        );
+
+
+        // ==========================================
+        // REFRESH TABEL
+        // ==========================================
+        loadBankSoalTable();
+
+
+        // ==========================================
+        // SIMPAN HANYA SOAL YANG BARU DIIMPORT
+        // ==========================================
+        const result =
+            await apiCall(
+                'importSoalBatch',
+                {
+                    soalList:
+                        importedSoal
+                }
+            );
+
+
+        if (
+            result &&
+            result.status === 'success'
+        ) {
+
+            showToast(
+                importedSoal.length +
+                ' soal berhasil diimport dan disimpan.',
+                'success'
+            );
+
+        } else {
+
+            showToast(
+                'Soal tampil tetapi gagal disimpan ke database.',
+                'error'
+            );
+        }
+
+
+    } catch (err) {
+
+        console.error(
+            'Import soal error:',
+            err
+        );
+
+        showToast(
+            'Gagal import soal: ' +
+            err.message,
+            'error'
+        );
+
+    } finally {
+
+        event.target.value = '';
+    }
+}
 
         function openModalAddJadwal() {
             populateSelectOptions();
