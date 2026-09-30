@@ -1232,7 +1232,7 @@
     <script>
         // KONFIGURASI APLIKASI
         const IS_PREVIEW = false; // Set false untuk live GAS
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbzuNDtOx3p-Z-4-egzVVoBKAc2Qy9jAvwzROqsF2xMbjuIwzWYIijmsQ5VmOuau0jY/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbyXNN320g2pp2r0_od5kV_nY6YJLnRKJt11mRyAtkz02kUp6XvOM8C-cVplhbgdwyGY/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -1276,16 +1276,23 @@
 
         let currentUser = null;
         let currentExamState = { 
-            questions: [], 
-            answers: {}, 
-            doubts: {}, 
-            currentIndex: 0, 
-            timerInterval: null, 
-            secondsLeft: 3600, 
-            fontSizeDelta: 0,
-            violations: 0,
-            isExamActive: false
-        };
+    questions: [], 
+    answers: {}, 
+    doubts: {}, 
+    currentIndex: 0, 
+    timerInterval: null, 
+    secondsLeft: 3600, 
+    fontSizeDelta: 0,
+    violations: 0,
+    isExamActive: false,
+
+    // Jadwal ujian yang sedang digunakan
+    idJadwal: "",
+    tanggalUjian: "",
+    tanggalSelesai: "",
+    jamMulai: "",
+    durasi: ""
+};
         let tokenCountdownTimer = null;
         let tokenSecondsLeft = 300;
         let modalResolveCallback = null;
@@ -1898,6 +1905,22 @@ async function triggerAntiCheatViolation(reason) {
                 }
             }
 
+if (activeJadwal) {
+    currentExamState.idJadwal = activeJadwal.id;
+    currentExamState.tanggalUjian = sanitizeDateStr(activeJadwal.tanggal);
+    currentExamState.tanggalSelesai = sanitizeDateStr(
+        activeJadwal.tanggalSelesai || activeJadwal.tanggal
+    );
+    currentExamState.jamMulai = sanitizeTimeStr(activeJadwal.jamMulai);
+    currentExamState.durasi = activeJadwal.durasi;
+} else {
+    currentExamState.idJadwal = "";
+    currentExamState.tanggalUjian = "";
+    currentExamState.tanggalSelesai = "";
+    currentExamState.jamMulai = "";
+    currentExamState.durasi = "";
+}
+
             if (isTokenActive()) {
                 const inputToken = document.getElementById('verify-token').value.trim().toUpperCase();
                 const currentToken = (appState.settings.currentToken || '').trim().toUpperCase();
@@ -2393,13 +2416,22 @@ async function triggerAntiCheatViolation(reason) {
             const nilai = Math.round((benar / totalSoal) * 100);
 
             const resultObj = {
-                idSiswa: currentUser.studentData.id,
-                namaSiswa: currentUser.studentData.nama,
-                idKelas: currentUser.studentData.idKelas,
-                idMapel: currentExamState.questions[0].idMapel,
-                benar, salah, nilai,
-                violations: currentExamState.violations || 0
-            };
+    idJadwal: currentExamState.idJadwal || "",
+    tanggalUjian: currentExamState.tanggalUjian || "",
+    tanggalSelesai: currentExamState.tanggalSelesai || "",
+    jamMulai: currentExamState.jamMulai || "",
+    durasi: currentExamState.durasi || "",
+
+    idSiswa: currentUser.studentData.id,
+    namaSiswa: currentUser.studentData.nama,
+    idKelas: currentUser.studentData.idKelas,
+    idMapel: currentExamState.questions[0].idMapel,
+
+    benar: benar,
+    salah: salah,
+    nilai: nilai,
+    violations: currentExamState.violations || 0
+};
 
             appState.hasil.push(resultObj);
             apiCall('submitExam', resultObj);
@@ -3455,7 +3487,11 @@ function generateSoalId() {
         async function saveJadwalModal() {
             const id = document.getElementById('m-jadwal-id').value;
             const jadwalObj = {
-                id: id || ("J" + (appState.jadwal.length + 1)),
+                id: id || (
+    "J" +
+    Date.now() +
+    Math.random().toString(36).substring(2, 6).toUpperCase()
+),
                 idKelas: document.getElementById('m-jadwal-kelas').value,
                 idMapel: document.getElementById('m-jadwal-idmapel').value,
                 tanggal: document.getElementById('m-jadwal-tanggal').value,
