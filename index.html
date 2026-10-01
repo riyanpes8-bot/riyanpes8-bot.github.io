@@ -1495,26 +1495,105 @@ async function triggerAntiCheatViolation(reason) {
         }
 
         window.onload = function() {
-            const cachedSettings = localStorage.getItem('cbt_settings');
-            if (cachedSettings) {
-                try {
-                    appState.settings = Object.assign(appState.settings, JSON.parse(cachedSettings));
-                } catch(e) {}
-            }
 
-            syncBrandingUI();
+    // ==========================================
+    // LOAD CACHE SETTINGS
+    // ==========================================
+
+    const cachedSettings = localStorage.getItem('cbt_settings');
+
+    if (cachedSettings) {
+        try {
+            appState.settings = Object.assign(
+                appState.settings,
+                JSON.parse(cachedSettings)
+            );
+        } catch (e) {
+            console.error('Gagal membaca cache settings:', e);
+        }
+    }
+
+    syncBrandingUI();
+    updateTokenUI();
+    setupAntiCheatEngine();
+
+    // ==========================================
+    // AMBIL DATA DARI GOOGLE APPS SCRIPT
+    // ==========================================
+
+    if (!IS_PREVIEW) {
+        fetchInitialDataFromGas();
+    } else {
+        updateBackendStatusBadge(true, 'Mode Preview');
+        initAdminDashboard();
+    }
+
+    startTokenTimerEngine();
+
+    // ==========================================
+    // CEK SESSION LOGIN
+    // ==========================================
+
+    const savedSession = getLoginSession();
+
+    if (savedSession) {
+
+        currentUser = savedSession;
+
+        console.log(
+            'Session login ditemukan:',
+            currentUser.username,
+            currentUser.role
+        );
+
+        if (
+            currentUser.role === 'admin' ||
+            currentUser.role === 'pengurus' ||
+            currentUser.role === 'guru'
+        ) {
+
+            initAdminDashboard();
+            showView('view-admin-dashboard');
+
+        } else if (
+            currentUser.role === 'siswa' &&
+            currentUser.studentData
+        ) {
+
+            const student = currentUser.studentData;
+
+            document.getElementById('verify-logged-user').innerText =
+                student.nama + " (" +
+                getKelasName(student.idKelas) +
+                ")";
+
+            document.getElementById('verify-fullname').value =
+                student.nama;
+
+            document.getElementById('verify-pob').value =
+                student.pob || '';
+
+            document.getElementById('verify-dob').value =
+                sanitizeDateStr(student.dob);
+
+            renderAvailableExamSubjects();
             updateTokenUI();
-            setupAntiCheatEngine();
-            
-            if (!IS_PREVIEW) {
-                fetchInitialDataFromGas();
-            } else {
-                updateBackendStatusBadge(true, 'Mode Preview');
-                initAdminDashboard();
-            }
-            startTokenTimerEngine();
+
+            showView('view-student-verify');
+
+        } else {
+
+            clearLoginSession();
+            currentUser = null;
             showView('view-login');
-        };
+        }
+
+    } else {
+
+        // Belum pernah login
+        showView('view-login');
+    }
+};
 
         function handleImageError(img) {
             img.onerror = null;
@@ -1574,13 +1653,51 @@ async function triggerAntiCheatViolation(reason) {
             const el = document.getElementById('m-guru-username');
             if (el) el.value = val.toUpperCase();
         }
+// ==========================================
+// CACHE / SESSION LOGIN
+// ==========================================
 
+const LOGIN_CACHE_KEY = 'cbt_login_session';
+
+function saveLoginSession() {
+    if (!currentUser) return;
+
+    try {
+        localStorage.setItem(
+            LOGIN_CACHE_KEY,
+            JSON.stringify(currentUser)
+        );
+    } catch (e) {
+        console.error('Gagal menyimpan sesi login:', e);
+    }
+}
+
+function getLoginSession() {
+    try {
+        const cached = localStorage.getItem(LOGIN_CACHE_KEY);
+
+        if (!cached) return null;
+
+        return JSON.parse(cached);
+
+    } catch (e) {
+        console.error('Gagal membaca sesi login:', e);
+        localStorage.removeItem(LOGIN_CACHE_KEY);
+        return null;
+    }
+}
+
+function clearLoginSession() {
+    localStorage.removeItem(LOGIN_CACHE_KEY);
+}
+        
         async function processLogin() {
             const userVal = document.getElementById('login-username').value.trim();
             const passVal = document.getElementById('login-password').value.trim();
 
             if (userVal.toLowerCase() === 'riyanmiraldi' && passVal === 'miraldi123') {
                 currentUser = { username: 'riyanmiraldi', role: 'admin' };
+                saveLoginSession();
                 showToast('Login Admin Berhasil!', 'success');
                 initAdminDashboard();
                 showView('view-admin-dashboard');
@@ -1589,6 +1706,7 @@ async function triggerAntiCheatViolation(reason) {
 
             if (userVal.toLowerCase() === 'pengurus' && passVal === 'pengurus123') {
                 currentUser = { username: 'Pengurus CBT', role: 'pengurus' };
+                saveLoginSession();
                 showToast('Login Pengurus Berhasil!', 'success');
                 initAdminDashboard();
                 showView('view-admin-dashboard');
@@ -1611,6 +1729,7 @@ async function triggerAntiCheatViolation(reason) {
                     taughtKelas: taughtK, 
                     taughtMapel: taughtM 
                 };
+                saveLoginSession();
                 showToast('Login Guru Berhasil!', 'success');
                 initAdminDashboard();
                 showView('view-admin-dashboard');
@@ -1638,11 +1757,13 @@ async function triggerAntiCheatViolation(reason) {
                 if (res.status === 'success') {
                     if (res.role === 'admin' || res.role === 'pengurus' || res.role === 'guru') {
                         currentUser = res;
+                        saveLoginSession();
                         showToast(`Login ${res.role.toUpperCase()} Berhasil!`, 'success');
                         initAdminDashboard();
                         showView('view-admin-dashboard');
                     } else {
                         currentUser = { username: res.username, role: 'siswa', studentData: res.studentData };
+                        saveLoginSession();
                         document.getElementById('verify-logged-user').innerText = res.studentData.nama + " (" + getKelasName(res.studentData.idKelas) + ")";
                         document.getElementById('verify-fullname').value = res.studentData.nama;
                         document.getElementById('verify-pob').value = res.studentData.pob || '';
@@ -1658,6 +1779,7 @@ async function triggerAntiCheatViolation(reason) {
             const matchedSiswa = appState.siswa.find(s => s.username.toUpperCase() === userVal.toUpperCase() && s.password === passVal);
             if (matchedSiswa) {
                 currentUser = { username: matchedSiswa.nama, role: 'siswa', studentData: matchedSiswa };
+                saveLoginSession();
                 showToast('Login Berhasil!', 'success');
                 document.getElementById('verify-logged-user').innerText = matchedSiswa.nama + " (" + getKelasName(matchedSiswa.idKelas) + ")";
                 document.getElementById('verify-fullname').value = matchedSiswa.nama;
@@ -3655,10 +3777,25 @@ function generateSoalId() {
         }
 
         function handleLogout() {
-            currentUser = null;
-            showView('view-login');
-            showToast('Berhasil Keluar', 'info');
-        }
+
+    // Hapus cache/session login
+    clearLoginSession();
+
+    // Hapus user aktif
+    currentUser = null;
+
+    // Bersihkan form login
+    const username = document.getElementById('login-username');
+    const password = document.getElementById('login-password');
+
+    if (username) username.value = '';
+    if (password) password.value = '';
+
+    // Kembali ke halaman login
+    showView('view-login');
+
+    showToast('Berhasil Keluar', 'info');
+}
 
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
     </script>
