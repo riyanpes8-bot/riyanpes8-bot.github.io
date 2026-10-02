@@ -1232,7 +1232,7 @@
     <script>
         // KONFIGURASI APLIKASI
         const IS_PREVIEW = false; // Set false untuk live GAS
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwyTMt9l01Pk8gAEXj2zOsXCERqIcXKwR8LP8GYth04Aiy2KD4JdWaqOwkbuUbKGHUW/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwyMCKc0LmoJuSggdXFCFkacxaMI2iEBB7DS9LxPQACdx1Y1jK0YGi5Y6uXF9mMUWIA/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -1494,7 +1494,7 @@ async function triggerAntiCheatViolation(reason) {
             return getMapelId(a) === getMapelId(b);
         }
 
-        window.onload = function() {
+        window.onload = async function() {
 
     // ==========================================
     // LOAD CACHE SETTINGS
@@ -1522,11 +1522,11 @@ async function triggerAntiCheatViolation(reason) {
     // ==========================================
 
     if (!IS_PREVIEW) {
-        fetchInitialDataFromGas();
-    } else {
-        updateBackendStatusBadge(true, 'Mode Preview');
-        initAdminDashboard();
-    }
+    await loadInitialDataSafe();
+} else {
+    updateBackendStatusBadge(true, 'Mode Preview');
+    initAdminDashboard();
+}
 
     startTokenTimerEngine();
 
@@ -1692,6 +1692,10 @@ function clearLoginSession() {
 }
         
         async function processLogin() {
+            // Pastikan data Spreadsheet sudah tersedia
+    if (!IS_PREVIEW) {
+        await loadInitialDataSafe();
+    }
             const userVal = document.getElementById('login-username').value.trim();
             const passVal = document.getElementById('login-password').value.trim();
 
@@ -2222,37 +2226,234 @@ function clearLoginSession() {
             }
         }
 
-        async function fetchInitialDataFromGas() {
-            if (IS_PREVIEW) return;
-            updateBackendStatusBadge(false, 'Memuat Data...');
-            try {
-                const url = `${GAS_URL}?action=getInitialData&ta=${encodeURIComponent(appState.settings.tahunPelajaran)}&sem=${encodeURIComponent(appState.settings.semester)}`;
-                const response = await fetch(url);
-                const result = await response.json();
+        async function fetchInitialDataFromGas(retryCount = 3) {
+    if (IS_PREVIEW) return true;
 
-                if (result.status === 'success') {
-                    if (result.settings && Object.keys(result.settings).length > 0) {
-                        appState.settings = Object.assign(appState.settings, result.settings);
-                        localStorage.setItem('cbt_settings', JSON.stringify(appState.settings));
-                    }
-                    if (result.kelas) appState.kelas = result.kelas;
-                    if (result.mapel) appState.mapel = result.mapel;
-                    if (result.guru) appState.guru = result.guru;
-                    if (result.siswa) appState.siswa = result.siswa;
-                    if (result.soal) appState.soal = result.soal;
-                    if (result.jadwal) appState.jadwal = result.jadwal;
-                    if (result.hasil) appState.hasil = result.hasil;
+    updateBackendStatusBadge(false, 'Menghubungkan...');
 
-                    updateBackendStatusBadge(true, 'Spreadsheet Terhubung');
-                    syncBrandingUI();
-                    if (currentUser && currentUser.role === 'admin') initAdminDashboard();
-                } else {
-                    updateBackendStatusBadge(false, 'Respon Error');
-                }
-            } catch (err) {
-                updateBackendStatusBadge(false, 'Koneksi Terputus');
-            }
+    try {
+        const url =
+            `${GAS_URL}?action=getInitialData` +
+            `&ta=${encodeURIComponent(appState.settings.tahunPelajaran)}` +
+            `&sem=${encodeURIComponent(appState.settings.semester)}`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            cache: 'no-store'
+        });
+
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
         }
+
+        const result = await response.json();
+
+        if (result.status !== 'success') {
+            throw new Error(result.message || 'Gagal mengambil data');
+        }
+
+        // ==========================================
+        // SIMPAN DATA DARI SPREADSHEET
+        // ==========================================
+
+        if (
+            result.settings &&
+            Object.keys(result.settings).length > 0
+        ) {
+            appState.settings = Object.assign(
+                appState.settings,
+                result.settings
+            );
+
+            localStorage.setItem(
+                'cbt_settings',
+                JSON.stringify(appState.settings)
+            );
+        }
+
+        if (Array.isArray(result.kelas)) {
+            appState.kelas = result.kelas;
+        }
+
+        if (Array.isArray(result.mapel)) {
+            appState.mapel = result.mapel;
+        }
+
+        if (Array.isArray(result.guru)) {
+            appState.guru = result.guru;
+        }
+
+        if (Array.isArray(result.siswa)) {
+            appState.siswa = result.siswa;
+        }
+
+        if (Array.isArray(result.soal)) {
+            appState.soal = result.soal;
+        }
+
+        if (Array.isArray(result.jadwal)) {
+            appState.jadwal = result.jadwal;
+        }
+
+        if (Array.isArray(result.hasil)) {
+            appState.hasil = result.hasil;
+        }
+
+        // ==========================================
+        // CACHE DATA DATABASE
+        // ==========================================
+
+        try {
+            localStorage.setItem(
+                'cbt_database_cache',
+                JSON.stringify({
+                    timestamp: Date.now(),
+                    settings: appState.settings,
+                    kelas: appState.kelas,
+                    mapel: appState.mapel,
+                    guru: appState.guru,
+                    siswa: appState.siswa,
+                    soal: appState.soal,
+                    jadwal: appState.jadwal,
+                    hasil: appState.hasil
+                })
+            );
+        } catch (cacheError) {
+            console.warn(
+                'Cache database tidak dapat disimpan:',
+                cacheError
+            );
+        }
+
+        // ==========================================
+        // STATUS TERHUBUNG
+        // ==========================================
+
+        updateBackendStatusBadge(
+            true,
+            'Spreadsheet Terhubung'
+        );
+
+        syncBrandingUI();
+
+        // Jika admin sudah login, refresh dashboard
+        if (
+            currentUser &&
+            currentUser.role === 'admin'
+        ) {
+            initAdminDashboard();
+        }
+
+        return true;
+
+    } catch (err) {
+
+        console.error(
+            'Gagal mengambil data Spreadsheet:',
+            err
+        );
+
+        // ==========================================
+        // COBA ULANG
+        // ==========================================
+
+        if (retryCount > 0) {
+
+            updateBackendStatusBadge(
+                false,
+                `Mencoba ulang... (${retryCount})`
+            );
+
+            await new Promise(resolve =>
+                setTimeout(resolve, 1500)
+            );
+
+            return fetchInitialDataFromGas(
+                retryCount - 1
+            );
+        }
+
+        // ==========================================
+        // JIKA SEMUA RETRY GAGAL
+        // GUNAKAN CACHE TERAKHIR
+        // ==========================================
+
+        try {
+
+            const cached =
+                localStorage.getItem(
+                    'cbt_database_cache'
+                );
+
+            if (cached) {
+
+                const data =
+                    JSON.parse(cached);
+
+                if (Array.isArray(data.kelas)) {
+                    appState.kelas = data.kelas;
+                }
+
+                if (Array.isArray(data.mapel)) {
+                    appState.mapel = data.mapel;
+                }
+
+                if (Array.isArray(data.guru)) {
+                    appState.guru = data.guru;
+                }
+
+                if (Array.isArray(data.siswa)) {
+                    appState.siswa = data.siswa;
+                }
+
+                if (Array.isArray(data.soal)) {
+                    appState.soal = data.soal;
+                }
+
+                if (Array.isArray(data.jadwal)) {
+                    appState.jadwal = data.jadwal;
+                }
+
+                if (Array.isArray(data.hasil)) {
+                    appState.hasil = data.hasil;
+                }
+
+                if (data.settings) {
+                    appState.settings =
+                        Object.assign(
+                            appState.settings,
+                            data.settings
+                        );
+                }
+
+                updateBackendStatusBadge(
+                    false,
+                    'Mode Cache'
+                );
+
+                console.warn(
+                    'Menggunakan cache database terakhir.'
+                );
+
+                return true;
+            }
+
+        } catch (cacheError) {
+
+            console.error(
+                'Gagal membaca cache database:',
+                cacheError
+            );
+        }
+
+        updateBackendStatusBadge(
+            false,
+            'Koneksi Terputus'
+        );
+
+        return false;
+    }
+}
 
         function syncBrandingUI() {
             const st = appState.settings;
@@ -2317,7 +2518,81 @@ function clearLoginSession() {
             document.getElementById('overview-ta-title').innerText = `Tahun Pelajaran: ${ta} (Semester ${sem})`;
             if (!IS_PREVIEW) fetchInitialDataFromGas();
         }
+async function loadInitialDataSafe() {
 
+    // Coba gunakan cache terlebih dahulu
+    try {
+
+        const cached =
+            localStorage.getItem(
+                'cbt_database_cache'
+            );
+
+        if (cached) {
+
+            const data =
+                JSON.parse(cached);
+
+            if (Array.isArray(data.kelas)) {
+                appState.kelas = data.kelas;
+            }
+
+            if (Array.isArray(data.mapel)) {
+                appState.mapel = data.mapel;
+            }
+
+            if (Array.isArray(data.guru)) {
+                appState.guru = data.guru;
+            }
+
+            if (Array.isArray(data.siswa)) {
+                appState.siswa = data.siswa;
+            }
+
+            if (Array.isArray(data.soal)) {
+                appState.soal = data.soal;
+            }
+
+            if (Array.isArray(data.jadwal)) {
+                appState.jadwal = data.jadwal;
+            }
+
+            if (Array.isArray(data.hasil)) {
+                appState.hasil = data.hasil;
+            }
+
+            if (data.settings) {
+                appState.settings =
+                    Object.assign(
+                        appState.settings,
+                        data.settings
+                    );
+            }
+
+            console.log(
+                'Cache database berhasil dimuat.'
+            );
+        }
+
+    } catch (e) {
+        console.warn(
+            'Cache database tidak tersedia.'
+        );
+    }
+
+    // Setelah cache dimuat,
+    // tetap sinkronisasi dengan Spreadsheet
+    if (!IS_PREVIEW) {
+        await fetchInitialDataFromGas(3);
+    }
+
+    // Pastikan dropdown/select ikut diperbarui
+    if (typeof populateSelectOptions === 'function') {
+        populateSelectOptions();
+    }
+
+    syncBrandingUI();
+}
         function showView(viewId) {
             ['view-login', 'view-student-verify', 'view-exam-workspace', 'view-admin-dashboard'].forEach(id => {
                 const el = document.getElementById(id);
