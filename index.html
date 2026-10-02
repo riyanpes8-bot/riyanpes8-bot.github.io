@@ -416,6 +416,9 @@
                         <div>
                             <p class="font-semibold text-blue-900">Terautentikasi Sebagai:</p>
                             <p id="verify-logged-user" class="font-bold text-sm">Nama Siswa</p>
+<p id="verify-logged-nisn" class="text-xs text-blue-700 font-semibold mt-0.5">
+    NISN: -
+</p>
                         </div>
                     </div>
                     <div>
@@ -1566,7 +1569,9 @@ async function triggerAntiCheatViolation(reason) {
                 student.nama + " (" +
                 getKelasName(student.idKelas) +
                 ")";
-
+document.getElementById('verify-logged-nisn').innerText =
+    "NISN: " + (student.nisn || "-");
+            
             document.getElementById('verify-fullname').value =
                 student.nama;
 
@@ -1747,6 +1752,7 @@ function clearLoginSession() {
                 currentUser = { username: dummyStudent.nama, role: 'siswa', studentData: dummyStudent };
                 showToast('Login Peserta Berhasil!', 'success');
                 document.getElementById('verify-logged-user').innerText = dummyStudent.nama + " (" + getKelasName(dummyStudent.idKelas) + ")";
+                document.getElementById('verify-logged-nisn').innerText ="NISN: " + (dummyStudent.nisn || "-");
                 document.getElementById('verify-fullname').value = dummyStudent.nama;
                 document.getElementById('verify-pob').value = dummyStudent.pob || '';
                 document.getElementById('verify-dob').value = sanitizeDateStr(dummyStudent.dob);
@@ -1769,6 +1775,7 @@ function clearLoginSession() {
                         currentUser = { username: res.username, role: 'siswa', studentData: res.studentData };
                         saveLoginSession();
                         document.getElementById('verify-logged-user').innerText = res.studentData.nama + " (" + getKelasName(res.studentData.idKelas) + ")";
+                        document.getElementById('verify-logged-nisn').innerText = "NISN: " + (res.studentData.nisn || "-");
                         document.getElementById('verify-fullname').value = res.studentData.nama;
                         document.getElementById('verify-pob').value = res.studentData.pob || '';
                         document.getElementById('verify-dob').value = sanitizeDateStr(res.studentData.dob);
@@ -1786,6 +1793,7 @@ function clearLoginSession() {
                 saveLoginSession();
                 showToast('Login Berhasil!', 'success');
                 document.getElementById('verify-logged-user').innerText = matchedSiswa.nama + " (" + getKelasName(matchedSiswa.idKelas) + ")";
+                document.getElementById('verify-logged-nisn').innerText = "NISN: " + (matchedSiswa.nisn || "-");
                 document.getElementById('verify-fullname').value = matchedSiswa.nama;
                 document.getElementById('verify-pob').value = matchedSiswa.pob || '';
                 document.getElementById('verify-dob').value = sanitizeDateStr(matchedSiswa.dob);
