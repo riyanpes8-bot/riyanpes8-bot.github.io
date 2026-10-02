@@ -732,34 +732,11 @@
                         </div>
 
                         <!-- JADWAL UJIAN SUBTAB -->
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
-
-    <div class="flex items-center gap-3">
-        <div>
-            <h3 class="font-bold text-slate-800">Jadwal Ujian</h3>
-            <p class="text-xs text-slate-400">
-                Periksa jadwal berdasarkan kelas
-            </p>
-        </div>
-
-        <select
-            id="filter-jadwal-kelas"
-            onchange="loadJadwalTable()"
-            class="px-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500"
-        >
-            <option value="">Semua Kelas</option>
-        </select>
-    </div>
-
-    <button
-        onclick="openModalAddJadwal()"
-        class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm"
-    >
-        <i class="fa-solid fa-plus"></i>
-        Tambah Jadwal
-    </button>
-
-</div>
+                        <div id="admin-tab-jadwal" class="admin-subtab hidden space-y-4">
+                            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+                                <h3 class="font-bold text-slate-800">Jadwal Ujian</h3>
+                                <button onclick="openModalAddJadwal()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-plus"></i> Tambah Jadwal</button>
+                            </div>
                             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                                 <table class="w-full text-left text-sm">
                                     <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-[11px] border-b">
@@ -1258,7 +1235,7 @@
     <script>
         // KONFIGURASI APLIKASI
         const IS_PREVIEW = false; // Set false untuk live GAS
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbxo0k_fGNwrQTbinW5Amaw53YVI5Pq0isUlP0m9_oPAZ4G2wKf3_monhNoPcKltG6Q/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbznBboeIO4Qi-ty80e0pjw0vCn4D2MVgiA4z7XtFQVY-99kYmW0uNl4ZtcbihPpuliY/exec";
         const DEFAULT_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg/480px-Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg.png";
 
         let appState = {
@@ -2749,7 +2726,7 @@ async function loadInitialDataSafe() {
             const taughtK = isGuru ? (currentUser.taughtKelas || []).map(String) : [];
             const taughtM = isGuru ? (currentUser.taughtMapel || []).map(String) : [];
 
-            ['filter-siswa-kelas','m-siswa-kelas','filter-kartu-kelas','filter-soal-kelas','m-soal-kelas','filter-jadwal-kelas','m-jadwal-kelas','filter-mon-kelas','filter-hasil-kelas'].forEach(id => {
+            ['filter-siswa-kelas', 'm-siswa-kelas', 'filter-kartu-kelas', 'filter-soal-kelas', 'm-soal-kelas', 'm-jadwal-kelas', 'filter-mon-kelas', 'filter-hasil-kelas'].forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
                 const cur = el.value;
